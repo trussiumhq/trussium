@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "trussium"
+version = "0.1.0"
+description = "Cloud-Native AI Runtime Platform"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Your Name" }
+]
+keywords = [
+    "ai",
+    "llm",
+    "grpc",
+    "fastapi",
+    "gateway",
+    "runtime",
+    "mcp",
+    "streaming",
+    "kubernetes"
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Framework :: AsyncIO",
+    "Topic :: Software Development",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+
+dev = [
+    "ruff>=0.12",
+    "mypy>=1.17",
+    "pytest>=8.4",
+    "pytest-asyncio>=1.1",
+    "pytest-cov>=6.2",
+    "pre-commit>=4.2",
+]
+
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.6",
+]
+
+[project.urls]
+Homepage = "https://github.com/trussiumhq/trussium"
+Documentation = "https://docs.trussium.dev"
+Repository = "https://github.com/trussiumhq/trussium"
+Issues = "https://github.com/trussiumhq/trussium/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/trussium"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src/trussium"]
