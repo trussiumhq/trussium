@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.9.0 (2026-07-23)
+
+### Bug Fixes
+
+- **test**: Fix formatting
+  ([`ebc8e49`](https://github.com/trussiumhq/trussium/commit/ebc8e497f07aa8a5e7ca1fea6e0a3e2cda62ddc7))
+
+### Features
+
+- **api**: Expose chat completion endpoint
+  ([`f0316d1`](https://github.com/trussiumhq/trussium/commit/f0316d15a3ca15ff717f739f056b21a7023d8c65))
+
+
 ## v0.8.0 (2026-07-23)
 
 ### Features
