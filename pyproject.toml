@@ -1,9 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "trussium"
 version = "0.1.0"
 description = "Cloud-native AI runtime platform."
 readme = "README.md"
 requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Trussium Contributors" }
+]
+keywords = [
+    "ai",
+    "llm",
+    "runtime",
+    "gateway",
+    "grpc",
+    "fastapi",
+    "cloud-native",
+    "kubernetes",
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
 
 dependencies = []
 
@@ -16,32 +42,22 @@ dev = [
 ]
 
 [tool.ruff]
-
 line-length = 100
 target-version = "py312"
-
 src = ["src", "tests"]
 
 [tool.ruff.lint]
-
 select = [
-    "E",
-    "F",
-    "W",
-
-    "I",
-
-    "UP",
-
-    "B",
-
-    "SIM",
-
-    "C4",
-
-    "PIE",
-
-    "RUF",
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "W",    # warnings
+    "I",    # import sorting
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "SIM",  # simplify
+    "C4",   # comprehensions
+    "PIE",  # miscellaneous improvements
+    "RUF",  # Ruff-specific rules
 ]
 
 ignore = []
@@ -49,16 +65,14 @@ ignore = []
 fixable = ["ALL"]
 
 [tool.ruff.format]
-
 quote-style = "double"
-
 indent-style = "space"
-
 line-ending = "lf"
-
 docstring-code-format = true
 
+
 [tool.pytest.ini_options]
+minversion = "8.0"
 
 testpaths = [
     "tests",
@@ -68,10 +82,14 @@ pythonpath = [
     "src",
 ]
 
-addopts = "-ra"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+]
+
 
 [tool.mypy]
-
 python_version = "3.12"
 
 strict = true
@@ -79,15 +97,47 @@ strict = true
 pretty = true
 
 show_error_codes = true
+show_error_context = true
+show_column_numbers = true
+
+explicit_package_bases = true
 
 warn_unused_configs = true
-
-warn_return_any = true
-
 warn_unused_ignores = true
+warn_return_any = true
+warn_redundant_casts = true
+warn_unreachable = true
 
 disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+
+no_implicit_optional = true
+strict_equality = true
 
 exclude = [
     ".venv",
+    "build",
+    "dist",
 ]
+
+
+[[tool.mypy.overrides]]
+module = [
+    "tests.*",
+]
+
+disallow_untyped_defs = false
+
+
+[tool.coverage.run]
+source = [
+    "src/trussium",
+]
+
+branch = true
+
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
