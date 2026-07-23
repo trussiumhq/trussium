@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.3.0 (2026-07-23)
+
+### Features
+
+- **config**: Implement application settings
+  ([`21ffefc`](https://github.com/trussiumhq/trussium/commit/21ffefcce90b2504c41f4209a6eb65e2c812d976))
+
+
 ## v0.2.0 (2026-07-23)
 
 ### Documentation
