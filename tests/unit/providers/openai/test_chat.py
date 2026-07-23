@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from typing import cast
 
 import pytest
-from openai import AsyncOpenAI
 
+from openai import AsyncOpenAI
 from trussium.capabilities.chat import (
     ChatCapability,
     ChatCompletionRequest,
