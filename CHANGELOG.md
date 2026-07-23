@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.8.0 (2026-07-23)
+
+### Features
+
+- **openai**: Implement chat capability adapter
+  ([`51fe14e`](https://github.com/trussiumhq/trussium/commit/51fe14e4b944a6a70a01e6978552e95cd7dab854))
+
+
 ## v0.7.0 (2026-07-23)
 
 ### Features
