@@ -40,6 +40,7 @@ dev = [
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "pre-commit>=4.2.0",
+    "python-semantic-release>=10.0.0",
 ]
 
 [tool.ruff]
@@ -142,3 +143,21 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
+
+[tool.semantic_release]
+
+version_toml = [
+    "pyproject.toml:project.version"
+]
+
+branch = "main"
+
+tag_format = "v{version}"
+
+commit_message = "chore(release): {version}"
+
+build_command = "uv build"
+
+upload_to_repository = false
+
+upload_to_release = true
