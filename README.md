@@ -1,202 +1,163 @@
 # Trussium
 
-> **Cloud-Native AI Runtime Platform**
+> **The cloud-native runtime for AI applications.**
 
-Build AI applications once. Deploy anywhere. Connect to any model.
+Build AI applications once. Run them anywhere.
 
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
+![Status](https://img.shields.io/badge/status-early--development-orange)
 ![gRPC](https://img.shields.io/badge/gRPC-first-4285F4)
-![FastAPI](https://img.shields.io/badge/FastAPI-supported-009688)
+![Cloud Native](https://img.shields.io/badge/cloud--native-kubernetes-326CE5)
 
 ---
 
-## Vision
+## What is Trussium?
 
-Trussium is a cloud-native AI runtime designed to provide a unified interface for AI applications regardless of the underlying model provider, protocol, or deployment environment.
+Trussium is a cloud-native AI application runtime that provides a consistent interface for AI models, agents, tools, and protocols across any provider and deployment environment.
 
-Whether you're building with OpenAI, Anthropic, Gemini, Ollama, vLLM, or future AI providers, Trussium gives you a consistent, high-performance runtime for inference, streaming, observability, and governance.
+Instead of integrating directly with provider-specific SDKs, applications integrate once with Trussium.
 
-Our mission is simple:
+```text
+                    Applications
+                          │
+           REST      gRPC      MCP
+                \      │      /
+                 \     │     /
+                 Trussium Runtime
+                        │
+               Provider Framework
+                        │
+   OpenAI • Anthropic • Gemini • Ollama • Bedrock • ...
+```
 
-> **Build once. Run anywhere. Connect every AI provider.**
+The runtime abstracts provider differences while providing production-grade capabilities such as routing, streaming, observability, extensibility, and governance.
 
 ---
 
 ## Why Trussium?
 
-Today's AI ecosystem is fragmented.
+Modern AI infrastructure is becoming increasingly fragmented.
 
-Every provider exposes different APIs.
+- Every provider exposes different APIs.
+- Applications become tightly coupled to provider-specific SDKs.
+- Supporting multiple providers significantly increases complexity.
+- Emerging protocols, tools, and agents introduce new integration challenges.
 
-Every framework introduces another abstraction.
+Trussium provides a unified runtime that allows applications to remain independent of individual providers.
 
-Every deployment environment requires different integration logic.
+### Core Principles
 
-As organizations adopt multiple AI providers, maintaining applications becomes increasingly complex.
-
-Trussium solves this by acting as a unified AI runtime.
-
-Instead of applications integrating directly with every model provider, they integrate once with Trussium.
-
-```
-Application
-      │
-      ▼
-  Trussium Runtime
-      │
- ┌────┴────────────────────────────────────┐
- │                                         │
-OpenAI  Anthropic  Gemini  Ollama  Azure OpenAI
-```
-
-Applications become provider-agnostic.
-
----
-
-## Core Principles
-
-- **Provider Agnostic** – Switch providers without changing application code.
-- **gRPC First** – High-performance streaming APIs with REST compatibility.
-- **Cloud Native** – Built for Kubernetes and modern infrastructure.
-- **Protocol Agnostic** – Support gRPC, REST, and Model Context Protocol (MCP).
-- **Observability Built-in** – Metrics, tracing, and structured logging from day one.
-- **Production Ready** – Designed for enterprise workloads.
-
----
-
-## Features (Roadmap)
-
-### Runtime
-
-- Unified AI Runtime
-- Multi-provider support
-- Streaming inference
-- Async execution
-- Request routing
-
-### Providers
-
-- OpenAI
-- Anthropic
-- Google Gemini
-- Ollama
-- Azure OpenAI
-- Amazon Bedrock
-- vLLM
-
-### APIs
-
-- gRPC
-- REST
-- MCP
-
-### Infrastructure
-
-- Docker
-- Kubernetes
-- Helm
-- Prometheus
-- OpenTelemetry
-
-### SDKs
-
-- Python
-- Go
-- TypeScript
+- **Provider Agnostic** — Integrate once and switch providers without changing application code.
+- **Protocol Agnostic** — Support REST, gRPC, MCP, and future protocols.
+- **Cloud Native** — Designed for Kubernetes and modern infrastructure from day one.
+- **Extensible** — Providers, protocols, routing strategies, and plugins are fully extensible.
+- **Observable** — Structured logging, metrics, and tracing are built into the platform.
+- **Production Ready** — Built for reliability, scalability, and enterprise deployments.
 
 ---
 
 ## Architecture
 
-```
-                 Client Applications
-                         │
-         ┌───────────────┴───────────────┐
-         │                               │
-      REST API                     gRPC API
-         │                               │
-         └───────────────┬───────────────┘
-                         │
-                 Trussium Runtime
-                         │
-          ┌──────────────┼──────────────┐
-          │              │              │
-     Provider Layer   Tool Layer     MCP Layer
-          │
-  ┌───────┼────────────────────────────────────┐
-  │       │         │         │         │
-OpenAI Anthropic Gemini Ollama Bedrock
+```text
+                    Applications
+                          │
+          REST       gRPC        MCP
+             \         │         /
+              \        │        /
+               Trussium Runtime
+                      │
+              Runtime Services
+                      │
+             Provider Framework
+                      │
+ ┌──────────────┬──────────────┬──────────────┐
+ │              │              │              │
+OpenAI      Anthropic      Gemini       Ollama
 ```
 
----
-
-## Planned Components
-
-- Runtime
-- Gateway
-- Provider Framework
-- Streaming Engine
-- MCP Server
-- Kubernetes Operator
-- CLI
-- SDKs
+The runtime is intentionally independent of individual AI providers.
 
 ---
 
 ## Project Status
 
-🚧 Early development
+🚧 **Early Development**
 
-The project is under active development.
+Trussium is currently in active development.
 
-Expect breaking changes before the first stable release.
+The architecture is being built in public, and breaking changes are expected until the first stable release.
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/trussiumhq/trussium-runtime.git
+
+cd trussium-runtime
+
+uv venv
+
+source .venv/bin/activate
+
+uv sync --extra dev --extra docs
+```
+
+> **Note**
+>
+> The first runnable release is currently under construction.
 
 ---
 
 ## Documentation
 
-Documentation will be published at:
+Project documentation is available in the `docs/` directory.
 
-```
-https://docs.trussium.dev
-```
+- [Vision](docs/VISION.md)
+- Architecture *(coming soon)*
+- Roadmap *(coming soon)*
+- Architecture Decision Records (ADRs) *(coming soon)*
 
----
-
-## Contributing
-
-Contributions are welcome.
-
-Please read our Contributing Guide before opening issues or pull requests.
+A dedicated documentation site will be published as the project matures.
 
 ---
 
 ## Roadmap
 
-- [ ] Runtime foundation
-- [ ] gRPC server
-- [ ] FastAPI gateway
-- [ ] Provider abstraction
-- [ ] OpenAI provider
-- [ ] Ollama provider
-- [ ] Anthropic provider
-- [ ] Streaming APIs
-- [ ] MCP support
-- [ ] Kubernetes deployment
-- [ ] SDKs
-- [ ] Trussium Cloud
+Trussium will evolve through the following milestones:
+
+- Runtime Foundation
+- AI Runtime
+- Agent Runtime
+- Cloud-Native Platform
+
+For a detailed roadmap, planned milestones, and project progress, see **[docs/ROADMAP.md](docs/ROADMAP.md)**.
+
+---
+
+## Contributing
+
+Contributions, discussions, ideas, and design feedback are welcome.
+
+As the project matures, contribution guidelines, issue templates, governance documentation, and a code of conduct will be added.
 
 ---
 
 ## License
 
-Apache License 2.0
+Licensed under the Apache License 2.0.
 
 ---
 
 ## Philosophy
 
-Infrastructure should make AI development simpler—not more complicated.
+AI providers will evolve.
 
-Trussium aims to become the runtime layer that standardizes how applications communicate with AI models, agents, tools, and future AI protocols.
+Models will change.
+
+Protocols will emerge.
+
+Applications should not need to change every time the AI ecosystem does.
+
+Trussium's goal is to provide a stable, extensible runtime that enables developers to build AI applications once and run them across any provider, protocol, or deployment environment.
