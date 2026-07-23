@@ -26,7 +26,7 @@ class RuntimeSettings(BaseModel):
     )
 
     port: int = Field(
-        default=8080,
+        default=9000,
         ge=1,
         le=65535,
         description="Port the server listens on.",
