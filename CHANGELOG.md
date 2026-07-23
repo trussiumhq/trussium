@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.2.0 (2026-07-23)
+
+### Documentation
+
+- **adr**: Define runtime bootstrap architecture
+  ([`1370f20`](https://github.com/trussiumhq/trussium/commit/1370f2028ed798bc0e865be1ef8bafc5c5ac790c))
+
+### Features
+
+- **runtime**: Bootstrap package structure
+  ([`c960beb`](https://github.com/trussiumhq/trussium/commit/c960beb830c70129fa73a03172d2531686926b54))
+
+
 ## v0.1.3 (2026-07-23)
 
 ### Bug Fixes
