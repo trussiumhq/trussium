@@ -206,7 +206,7 @@ Before opening a pull request:
 
 Trussium follows Semantic Versioning.
 
-Release automation using GitHub Actions is planned.
+Releases are generated automatically through GitHub Actions.
 
 Version numbers are determined from Conventional Commit messages.
 
