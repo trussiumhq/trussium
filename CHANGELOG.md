@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.3 (2026-07-23)
+
+### Bug Fixes
+
+- **ci**: Modify GH_TOKEN to test semantic versioning
+  ([`1feafd7`](https://github.com/trussiumhq/trussium/commit/1feafd735a583b44866396cd6d2fed9002319b91))
+
+
 ## v0.1.2 (2026-07-23)
 
 ### Bug Fixes
