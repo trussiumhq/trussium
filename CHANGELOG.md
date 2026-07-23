@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.7.0 (2026-07-23)
+
+### Features
+
+- **chat**: Define capability provider interface
+  ([`5f1b498`](https://github.com/trussiumhq/trussium/commit/5f1b49804e0f0df5f49abcfbdcff96b5649822fe))
+
+
 ## v0.6.0 (2026-07-23)
 
 ### Features
