@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.4.0 (2026-07-23)
+
+### Features
+
+- **app**: Implement application composition root
+  ([`9aa843f`](https://github.com/trussiumhq/trussium/commit/9aa843fe74998bfe6dd8bd1d776f7de55e629925))
+
+
 ## v0.3.0 (2026-07-23)
 
 ### Features
