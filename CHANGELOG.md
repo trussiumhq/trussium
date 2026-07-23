@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-07-23)
+
+### Features
+
+- **chat**: Add normalized completion contracts
+  ([`079e232`](https://github.com/trussiumhq/trussium/commit/079e2324aa0c0206f2ed9ceb59c6ea15b307b1cc))
+
+
 ## v0.5.0 (2026-07-23)
 
 ### Bug Fixes
