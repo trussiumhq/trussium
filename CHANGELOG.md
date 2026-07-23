@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.5.0 (2026-07-23)
+
+### Bug Fixes
+
+- **test**: Modify ddefault port from 8080 to 9000
+  ([`8ab6b3f`](https://github.com/trussiumhq/trussium/commit/8ab6b3fcb34a798d1591a9bca272a22e06bf1a32))
+
+### Features
+
+- **api**: Add health check endpoints
+  ([`d8624e3`](https://github.com/trussiumhq/trussium/commit/d8624e3e258de4f2181439ce9aa0fc354faa7341))
+
+
 ## v0.4.0 (2026-07-23)
 
 ### Features
