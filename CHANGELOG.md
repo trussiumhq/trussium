@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.1.2 (2026-07-23)
+
+### Bug Fixes
+
+- **ci**: Test semantic release automation
+  ([`0823f66`](https://github.com/trussiumhq/trussium/commit/0823f66b5fa51987e2a2b64ca3b6076b9933899b))
+
+- **ci**: Test semantic release automation
+  ([`64efa29`](https://github.com/trussiumhq/trussium/commit/64efa2960eda71c8d8196f7d66539be40e980605))
+
+
 ## v0.1.1 (2026-07-23)
 
 ### Bug Fixes
