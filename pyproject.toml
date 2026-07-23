@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "trussium"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cloud-native AI runtime platform."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -155,10 +155,14 @@ tag_format = "v{version}"
 
 commit_message = "chore(release): {version}"
 
-build_command = "uv build"
-
 allow_zero_version = true
 major_on_zero = false
 
 upload_to_repository = false
 upload_to_release = true
+
+build_command = """
+uv lock
+git add uv.lock
+uv build
+"""
