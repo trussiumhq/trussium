@@ -1,5 +1,6 @@
 """Provider-neutral chat-completion capability contracts."""
 
+from trussium.capabilities.chat.capability import ChatCapability
 from trussium.capabilities.chat.models import (
     ChatCompletionChoice,
     ChatCompletionRequest,
@@ -16,6 +17,7 @@ from trussium.capabilities.chat.models import (
 )
 
 __all__ = [
+    "ChatCapability",
     "ChatCompletionChoice",
     "ChatCompletionRequest",
     "ChatCompletionResponse",
