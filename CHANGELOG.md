@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.10.0 (2026-07-24)
+
+### Features
+
+- **api**: Stream chat completions over SSE
+  ([`6fcfb1a`](https://github.com/trussiumhq/trussium/commit/6fcfb1afcdcc48f1829381f21a35cb611d35cdf1))
+
+
 ## v0.9.0 (2026-07-23)
 
 ### Bug Fixes
