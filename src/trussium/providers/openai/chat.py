@@ -3,7 +3,7 @@
 from collections.abc import AsyncIterator
 from typing import Literal
 
-from openai import AsyncOpenAI
+from openai import APIError, APIStatusError, AsyncOpenAI
 from openai.types.responses import (
     EasyInputMessageParam,
     Response,
@@ -66,44 +66,21 @@ class OpenAIChatCapability:
         request: ChatCompletionRequest,
     ) -> AsyncIterator[ChatStreamEvent]:
         """Execute and normalize a streaming OpenAI response."""
-        stream = await self._client.responses.create(
-            model=request.model,
-            input=self._build_input(request.messages),
-            max_output_tokens=request.max_output_tokens,
-            temperature=request.temperature,
-            store=False,
-            stream=True,
-        )
-
         response_id: str | None = None
 
-        async for event in stream:
-            if event.type == "response.created":
-                response = event.response
-                response_id = response.id
+        try:
+            stream = await self._client.responses.create(
+                model=request.model,
+                input=self._build_input(request.messages),
+                max_output_tokens=request.max_output_tokens,
+                temperature=request.temperature,
+                store=False,
+                stream=True,
+            )
 
-                yield ChatStreamStartEvent(
-                    id=response.id,
-                    provider=self.provider_name,
-                    model=str(response.model),
-                )
-
-            elif event.type == "response.output_text.delta":
-                if response_id is None:
-                    raise OpenAIProviderError(
-                        "OpenAI emitted a text delta before the response start"
-                    )
-
-                if event.delta:
-                    yield ChatStreamDeltaEvent(
-                        id=response_id,
-                        content=event.delta,
-                    )
-
-            elif event.type == "response.completed":
-                response = event.response
-
-                if response_id is None:
+            async for event in stream:
+                if event.type == "response.created":
+                    response = event.response
                     response_id = response.id
 
                     yield ChatStreamStartEvent(
@@ -112,22 +89,100 @@ class OpenAIChatCapability:
                         model=str(response.model),
                     )
 
-                yield ChatStreamEndEvent(
-                    id=response_id,
-                    finish_reason=self._normalize_finish_reason(response),
-                    usage=self._normalize_usage(response),
-                )
-                return
+                elif event.type == "response.output_text.delta":
+                    if response_id is None:
+                        yield ChatStreamErrorEvent(
+                            id=None,
+                            code="openai_invalid_stream_order",
+                            message=(
+                                "OpenAI emitted a text delta before the response start event."
+                            ),
+                        )
+                        return
 
-            elif event.type == "response.failed":
-                response = event.response
+                    if event.delta:
+                        yield ChatStreamDeltaEvent(
+                            id=response_id,
+                            content=event.delta,
+                        )
 
-                yield ChatStreamErrorEvent(
-                    id=response_id or response.id,
-                    code=self._response_error_code(response),
-                    message=self._response_error_message(response),
-                )
-                return
+                elif event.type == "response.completed":
+                    response = event.response
+                    response_id = await self._ensure_stream_started(
+                        response=response,
+                        response_id=response_id,
+                    )
+
+                    if response_id is None:
+                        yield ChatStreamStartEvent(
+                            id=response.id,
+                            provider=self.provider_name,
+                            model=str(response.model),
+                        )
+                        response_id = response.id
+
+                    try:
+                        usage = self._normalize_usage(response)
+                    except OpenAIProviderError as error:
+                        yield ChatStreamErrorEvent(
+                            id=response_id,
+                            code="openai_usage_unavailable",
+                            message=str(error),
+                        )
+                        return
+
+                    yield ChatStreamEndEvent(
+                        id=response_id,
+                        finish_reason=self._normalize_finish_reason(response),
+                        usage=usage,
+                    )
+                    return
+
+                elif event.type == "response.incomplete":
+                    response = event.response
+
+                    if response_id is None:
+                        response_id = response.id
+
+                        yield ChatStreamStartEvent(
+                            id=response.id,
+                            provider=self.provider_name,
+                            model=str(response.model),
+                        )
+
+                    try:
+                        usage = self._normalize_usage(response)
+                    except OpenAIProviderError as error:
+                        yield ChatStreamErrorEvent(
+                            id=response_id,
+                            code="openai_response_incomplete",
+                            message=str(error),
+                        )
+                        return
+
+                    yield ChatStreamEndEvent(
+                        id=response_id,
+                        finish_reason=self._normalize_finish_reason(response),
+                        usage=usage,
+                    )
+                    return
+
+                elif event.type == "response.failed":
+                    response = event.response
+
+                    yield ChatStreamErrorEvent(
+                        id=response_id or response.id,
+                        code=self._response_error_code(response),
+                        message=self._response_error_message(response),
+                    )
+                    return
+
+        except APIError as error:
+            yield ChatStreamErrorEvent(
+                id=response_id,
+                code=self._api_error_code(error),
+                message=str(error),
+            )
 
     def _normalize_response(
         self,
@@ -233,6 +288,21 @@ class OpenAIChatCapability:
         raise OpenAIProviderError(OpenAIChatCapability._response_error_message(response))
 
     @staticmethod
+    async def _ensure_stream_started(
+        *,
+        response: Response,
+        response_id: str | None,
+    ) -> str | None:
+        """Return the existing response identifier for a stream.
+
+        The caller emits a start event when this returns ``None``.
+        """
+        if response_id is not None:
+            return response_id
+
+        return None
+
+    @staticmethod
     def _response_error_code(response: Response) -> str:
         """Return a stable provider-specific error code."""
         if response.error is None or response.error.code is None:
@@ -247,3 +317,11 @@ class OpenAIChatCapability:
             return "OpenAI response failed"
 
         return response.error.message
+
+    @staticmethod
+    def _api_error_code(error: APIError) -> str:
+        """Return a normalized code for an OpenAI SDK exception."""
+        if isinstance(error, APIStatusError):
+            return f"openai_http_{error.status_code}"
+
+        return "openai_api_error"

@@ -1,236 +1,389 @@
 # Roadmap
 
+_Last updated: July 2026_
+
 This roadmap outlines the long-term direction of Trussium.
 
-It communicates the major milestones that guide the evolution of the project. Individual implementation tasks, issues, and feature requests are tracked separately through GitHub Issues and Projects.
+It communicates the major product and engineering milestones guiding the project. Individual implementation tasks, bugs, and feature requests are tracked separately through GitHub Issues and Projects.
 
-The roadmap is intentionally high level and may evolve as the project matures.
+The roadmap is intentionally high level and may evolve as the project, community, and commercial use cases mature.
+
+---
+
+## Current Focus
+
+Trussium is currently building its first complete provider-neutral AI execution path:
+
+```text
+Client
+  → REST API
+  → Normalized chat capability
+  → Provider adapter
+  → OpenAI Responses API
+  → Normalized JSON or SSE response
+```
+
+The immediate objective is to make this path reliable, observable, testable, and suitable for self-hosted deployments before expanding into additional capabilities and protocols.
+
+---
+
+## Status Definitions
+
+- ✅ **Completed** — The milestone’s core completion criteria have been delivered.
+- 🚧 **In Progress** — Implementation has started, but significant deliverables remain.
+- 🗓 **Planned** — The milestone is accepted but implementation has not substantially started.
+- ⏸ **Deferred** — Intentionally postponed until prerequisite milestones are stable.
 
 ---
 
 ## Milestone 1 — Project Foundation
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
-Establish the project's vision, architecture, documentation, and development standards.
+Establish the project’s vision, architecture, documentation, and contribution standards.
 
-### Deliverables
+### Delivered
 
 - Project documentation
-- Vision
-- Roadmap
+- Product vision
+- Initial roadmap
 - Architecture documentation
-- Architecture Decision Records (ADRs)
+- Architecture Decision Records
 - Repository standards
 - Contributing guide
 - Development guide
 - Code of Conduct
 - Security policy
-- Changelog
+- Changelog structure
 
 ---
 
 ## Milestone 2 — Engineering Platform
 
-**Status:** Planned
+**Status:** 🚧 In Progress
 
-Build the engineering platform that enables reliable development, automated quality assurance, security, and releases.
+Establish a dependable engineering workflow for local development, continuous integration, security, and releases.
 
-### Phase 1 — Local Developer Experience
+### Delivered
 
-Provide a consistent local development workflow.
+- Ruff formatting and linting
+- Strict MyPy type checking
+- Pytest test suite
+- Coverage support
+- Pre-commit workflow
+- Python package structure
+- Automated build and test validation
 
-#### Deliverables
+### Remaining
 
-- Ruff
-- MyPy
-- Pytest
-- Coverage reporting
-- Pre-commit hooks
-
----
-
-### Phase 2 — Continuous Integration
-
-Automate quality checks for every change.
-
-#### Deliverables
-
-- GitHub Actions
-- Automated testing
-- Build validation
-- Dependency caching
-
----
-
-### Phase 3 — Security
-
-Continuously improve the project's security posture.
-
-#### Deliverables
-
-- CodeQL
-- Dependabot
-- Dependency vulnerability scanning
-- Secret scanning
-
----
-
-### Phase 4 — Release Automation
-
-Automate versioning and project releases.
-
-#### Deliverables
-
-- Conventional Commits
-- Semantic Versioning
+- Verify complete CodeQL coverage
+- Verify dependency vulnerability scanning
+- Verify secret-scanning configuration
+- Complete release automation
 - Automated changelog generation
-- Automated Git tags
+- Automated version tagging
 - Automated GitHub Releases
+
+This milestone can be marked completed once every listed automation is active and verified in the repository.
 
 ---
 
 ## Milestone 3 — Runtime Foundation
 
-**Status:** Planned
+**Status:** 🚧 In Progress
 
-Build the foundational runtime components that support all higher-level functionality.
+Build the foundational runtime components required by capabilities, providers, APIs, and future plugins.
 
-### Deliverables
+### Delivered
 
-- Configuration system
+- Environment-based configuration system
+- Application composition root
+- Dependency injection for runtime capabilities
+- Application startup entry point
+- Runtime configuration overrides
+- Liveness health endpoint
+- Readiness health endpoint
+- Core application lifecycle integration
+
+### Remaining
+
 - Structured logging
-- Execution context
-- Lifecycle management
-- Exception framework
-- Dependency injection
-- Core runtime services
+- Request and execution context
+- Correlation and request identifiers
+- Unified runtime exception framework
+- Lifecycle hooks for runtime services
+- Core runtime service registry
+- Graceful shutdown validation
 
 ---
 
 ## Milestone 4 — Capability Framework
 
-**Status:** Planned
+**Status:** 🚧 In Progress
 
-Implement the capability-first architecture that defines how AI functionality is exposed within the runtime.
+Define provider-neutral contracts through which AI functionality is exposed.
 
-### Deliverables
+### Delivered
 
-- Capability interfaces
+- Normalized chat-completion request contract
+- Normalized chat-completion response contract
+- Normalized token usage contract
+- Normalized finish reasons
+- Normalized streaming event contracts
+- `ChatCapability` protocol
+- Non-streaming capability execution
+- Streaming capability execution
+
+### Remaining
+
 - Capability registry
 - Capability discovery
 - Capability execution pipeline
-- Capability lifecycle
+- Capability middleware
+- Capability lifecycle management
+- Capability metadata
+- Capability availability reporting
+- Additional capability interfaces
+
+The capability framework should not be marked completed until capabilities can be registered, discovered, and executed without direct application wiring.
 
 ---
 
 ## Milestone 5 — Provider Framework
 
-**Status:** Planned
+**Status:** 🚧 In Progress
 
-Enable seamless integration with AI providers through a unified provider abstraction.
+Enable AI providers to implement Trussium capabilities through isolated adapters.
 
-### Deliverables
+### Delivered
 
-- Provider interfaces
+- OpenAI chat capability adapter
+- OpenAI Responses API integration
+- Normalized request translation
+- Normalized non-streaming responses
+- Normalized streaming events
+- Incomplete-response handling
+- Provider error normalization
+- Quota, authentication, permission, timeout, connection, and rate-limit error mapping
+- Provider adapter unit tests
+
+### Remaining
+
+- Provider interface and metadata contract
 - Provider registry
+- Provider configuration
 - Provider discovery
-- Plugin architecture
 - Provider lifecycle management
+- Plugin loading
+- Model availability discovery
+- Self-hosted model adapter
+- At least one additional managed provider
+- Provider health reporting
+
+The next provider should validate that Trussium’s abstractions are genuinely provider-neutral rather than OpenAI-specific.
 
 ---
 
-## Milestone 6 — AI Runtime
+## Milestone 6 — Chat Runtime and HTTP API
 
-**Status:** Planned
+**Status:** 🚧 In Progress
 
-Implement the runtime responsible for orchestrating AI workloads.
+Deliver the first complete, customer-testable Trussium runtime workflow.
+
+### Delivered
+
+- `POST /v1/chat/completions`
+- Provider-neutral chat execution
+- Normalized JSON responses
+- Server-Sent Events streaming
+- Normalized `start`, `delta`, `end`, and `error` events
+- Missing-provider service errors
+- OpenAPI documentation
+- API unit tests
+- Streaming API tests
+
+### Remaining
+
+- Unified non-streaming provider error responses
+- Client-disconnect and cancellation handling
+- Stream timeout handling
+- Request identifiers
+- Consistent API error envelope
+- Model aliasing
+- Request validation refinements
+- API versioning policy
+- End-to-end integration tests
+- Example client application
+
+This milestone represents Trussium’s first usable vertical slice and should be completed before expanding into several additional model capabilities.
+
+---
+
+## Milestone 7 — Routing and Resilience
+
+**Status:** 🗓 Planned
+
+Enable Trussium to select providers and recover from provider failures.
 
 ### Deliverables
 
-- Chat runtime
-- Embedding runtime
-- Image runtime
-- Audio runtime
-- Video runtime
-- Tool execution
-- Streaming inference
-- Routing engine
+- Model and provider routing
+- Static routing policies
+- Provider priority configuration
 - Retry policies
-- Failover strategies
+- Timeout policies
+- Provider fallback
+- Model fallback
+- Circuit breaking
+- Health-aware routing
+- Routing decision metadata
+- Failure classification
+- Routing telemetry
+
+Advanced AI-based routing should be considered only after deterministic routing is reliable and measurable.
 
 ---
 
-## Milestone 7 — API Layer
+## Milestone 8 — Identity, Governance, and Usage Controls
 
-**Status:** Planned
+**Status:** 🗓 Planned
 
-Expose runtime functionality through multiple protocols.
+Provide the controls required for secure organizational and enterprise use.
 
 ### Deliverables
 
-- REST API
-- gRPC API
-- Model Context Protocol (MCP)
+- Runtime API keys
+- Tenant identity
+- Project and application identity
 - Authentication
 - Authorization
 - Rate limiting
-- API versioning
+- Usage metering
+- Token accounting
+- Tenant quotas
+- Budget limits
+- Audit events
+- Request attribution
+- Provider credential isolation
+
+This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
 ---
 
-## Milestone 8 — Cloud-Native Platform
+## Milestone 9 — Cloud-Native Operations
 
-**Status:** Planned
+**Status:** 🗓 Planned
 
-Enable production deployments across modern infrastructure platforms.
+Make Trussium deployable and operable across modern cloud-native environments.
 
 ### Deliverables
 
-- Docker support
-- Kubernetes deployment
-- Helm charts
-- Health checks
+- Production Docker image
+- Kubernetes manifests
+- Helm chart
+- ConfigMap and Secret integration
 - Horizontal scaling
-- OpenTelemetry
+- Graceful termination
+- Pod disruption support
+- OpenTelemetry instrumentation
 - Prometheus metrics
 - Distributed tracing
+- Structured operational logs
+- Runtime dashboards
+- Alerting guidance
+- Production deployment documentation
+
+Health checks have already been delivered as part of the runtime foundation.
 
 ---
 
-## Milestone 9 — Developer Experience
+## Milestone 10 — Developer Experience and Ecosystem
 
-**Status:** Planned
+**Status:** 🗓 Planned
 
-Provide tooling that simplifies development, integration, and adoption.
+Make Trussium easy to install, integrate, extend, and operate.
 
 ### Deliverables
 
-- Command-line interface (CLI)
+- Command-line interface
 - Python SDK
 - Go SDK
 - TypeScript SDK
-- Project templates
 - Example applications
-- Developer documentation
+- Project templates
+- Provider development guide
+- Capability development guide
+- Plugin development kit
+- Integration documentation
+- Local development environment
+- Community provider plugins
+
+SDK development should follow a stable HTTP API rather than preceding it.
 
 ---
 
-## Milestone 10 — Agent Runtime
+## Milestone 11 — Additional AI Capabilities
 
-**Status:** Planned
+**Status:** ⏸ Deferred
 
-Extend the runtime beyond model inference to support intelligent workflows and autonomous execution.
+Expand the runtime after the chat execution path, routing, identity, telemetry, and deployment experience are stable.
 
-### Deliverables
+### Potential Deliverables
 
+- Embeddings
+- Image generation
+- Audio processing
+- Video processing
+- Reranking
+- Moderation
 - Tool execution
-- Agent execution
+- Batch inference
+
+Each capability should be introduced as a complete vertical slice with contracts, provider adapters, APIs, telemetry, tests, and documentation.
+
+---
+
+## Milestone 12 — Agent Runtime
+
+**Status:** ⏸ Deferred
+
+Extend Trussium beyond model inference into controlled workflow and agent execution.
+
+### Potential Deliverables
+
+- Tool contracts
+- Tool execution
 - Workflow orchestration
+- Agent execution
 - Multi-agent communication
-- MCP-native execution
 - Memory interfaces
 - Agent lifecycle management
+- MCP-native execution
+- Human approval workflows
+- Execution auditing
+
+Agent functionality should not be prioritized until the underlying runtime, governance, routing, and observability layers are production-ready.
+
+---
+
+## Protocol Strategy
+
+Trussium remains protocol-agnostic, but protocols will be introduced according to demonstrated user needs.
+
+### Current
+
+- REST
+- Server-Sent Events
+
+### Planned
+
+- Model Context Protocol
+
+### Deferred
+
+- gRPC
+
+gRPC and MCP should be implemented after the core HTTP and streaming contracts are stable. They should reuse the same capability and provider layers rather than creating separate execution paths.
 
 ---
 
@@ -239,313 +392,52 @@ Extend the runtime beyond model inference to support intelligent workflows and a
 The roadmap is guided by the following principles:
 
 - Cloud-native by design
-- Provider agnostic
-- Capability first
-- Protocol agnostic
-- Extensible through plugins
+- Provider-neutral contracts
+- Capability-first architecture
+- Protocol-independent execution
+- Extensible provider and plugin model
 - Observable by default
 - Secure by default
-- Developer experience focused
+- Explicit tenant and usage boundaries
+- Reliable failure handling
+- Developer-focused integration
 - Backwards-compatible public interfaces
+- Incremental, customer-testable delivery
 
 ---
 
 ## Release Strategy
 
-Trussium follows Semantic Versioning.
+Trussium follows Semantic Versioning and Conventional Commits.
 
-Project releases are automated using GitHub Actions and Conventional Commits.
+Releases should include:
 
-Each repository within the Trussium ecosystem maintains its own independent release lifecycle.
-
----
-
-## Future Work
-
-Future milestones may include:
-
-- Distributed execution
-- Multi-cluster support
-- Edge deployments
-- Advanced routing strategies
-- Federated runtimes
-- AI gateway enhancements
-- Additional provider integrations
-- Community-contributed plugins
-
-These items are exploratory and do not represent committed deliverables.# Roadmap
-
-This roadmap outlines the long-term direction of Trussium.
-
-It communicates the major milestones that guide the evolution of the project. Individual implementation tasks, issues, and feature requests are tracked separately through GitHub Issues and Projects.
-
-The roadmap is intentionally high level and may evolve as the project matures.
-
----
-
-## Milestone 1 — Project Foundation
-
-**Status:** 🚧 In Progress
-
-Establish the project's vision, architecture, documentation, and development standards.
-
-### Deliverables
-
-- Project documentation
-- Vision
-- Roadmap
-- Architecture documentation
-- Architecture Decision Records (ADRs)
-- Repository standards
-- Contributing guide
-- Development guide
-- Code of Conduct
-- Security policy
-- Changelog
-
----
-
-## Milestone 2 — Engineering Platform
-
-**Status:** Planned
-
-Build the engineering platform that enables reliable development, automated quality assurance, security, and releases.
-
-### Phase 1 — Local Developer Experience
-
-Provide a consistent local development workflow.
-
-#### Deliverables
-
-- Ruff
-- MyPy
-- Pytest
-- Coverage reporting
-- Pre-commit hooks
-
----
-
-### Phase 2 — Continuous Integration
-
-Automate quality checks for every change.
-
-#### Deliverables
-
-- GitHub Actions
-- Automated testing
-- Build validation
-- Dependency caching
-
----
-
-### Phase 3 — Security
-
-Continuously improve the project's security posture.
-
-#### Deliverables
-
-- CodeQL
-- Dependabot
-- Dependency vulnerability scanning
-- Secret scanning
-
----
-
-### Phase 4 — Release Automation
-
-Automate versioning and project releases.
-
-#### Deliverables
-
-- Conventional Commits
-- Semantic Versioning
+- Automated quality validation
 - Automated changelog generation
-- Automated Git tags
-- Automated GitHub Releases
+- Version tags
+- GitHub Releases
+- Upgrade notes for breaking changes
+- Independent versioning for separately released repositories
+
+Public interface stability should be clearly documented before the first stable release.
 
 ---
 
-## Milestone 3 — Runtime Foundation
-
-**Status:** Planned
-
-Build the foundational runtime components that support all higher-level functionality.
-
-### Deliverables
-
-- Configuration system
-- Structured logging
-- Execution context
-- Lifecycle management
-- Exception framework
-- Dependency injection
-- Core runtime services
-
----
-
-## Milestone 4 — Capability Framework
-
-**Status:** Planned
-
-Implement the capability-first architecture that defines how AI functionality is exposed within the runtime.
-
-### Deliverables
-
-- Capability interfaces
-- Capability registry
-- Capability discovery
-- Capability execution pipeline
-- Capability lifecycle
-
----
-
-## Milestone 5 — Provider Framework
-
-**Status:** Planned
-
-Enable seamless integration with AI providers through a unified provider abstraction.
-
-### Deliverables
-
-- Provider interfaces
-- Provider registry
-- Provider discovery
-- Plugin architecture
-- Provider lifecycle management
-
----
-
-## Milestone 6 — AI Runtime
-
-**Status:** Planned
-
-Implement the runtime responsible for orchestrating AI workloads.
-
-### Deliverables
-
-- Chat runtime
-- Embedding runtime
-- Image runtime
-- Audio runtime
-- Video runtime
-- Tool execution
-- Streaming inference
-- Routing engine
-- Retry policies
-- Failover strategies
-
----
-
-## Milestone 7 — API Layer
-
-**Status:** Planned
-
-Expose runtime functionality through multiple protocols.
-
-### Deliverables
-
-- REST API
-- gRPC API
-- Model Context Protocol (MCP)
-- Authentication
-- Authorization
-- Rate limiting
-- API versioning
-
----
-
-## Milestone 8 — Cloud-Native Platform
-
-**Status:** Planned
-
-Enable production deployments across modern infrastructure platforms.
-
-### Deliverables
-
-- Docker support
-- Kubernetes deployment
-- Helm charts
-- Health checks
-- Horizontal scaling
-- OpenTelemetry
-- Prometheus metrics
-- Distributed tracing
-
----
-
-## Milestone 9 — Developer Experience
-
-**Status:** Planned
-
-Provide tooling that simplifies development, integration, and adoption.
-
-### Deliverables
-
-- Command-line interface (CLI)
-- Python SDK
-- Go SDK
-- TypeScript SDK
-- Project templates
-- Example applications
-- Developer documentation
-
----
-
-## Milestone 10 — Agent Runtime
-
-**Status:** Planned
-
-Extend the runtime beyond model inference to support intelligent workflows and autonomous execution.
-
-### Deliverables
-
-- Tool execution
-- Agent execution
-- Workflow orchestration
-- Multi-agent communication
-- MCP-native execution
-- Memory interfaces
-- Agent lifecycle management
-
----
-
-## Guiding Principles
-
-The roadmap is guided by the following principles:
-
-- Cloud-native by design
-- Provider agnostic
-- Capability first
-- Protocol agnostic
-- Extensible through plugins
-- Observable by default
-- Secure by default
-- Developer experience focused
-- Backwards-compatible public interfaces
-
----
-
-## Release Strategy
-
-Trussium follows Semantic Versioning.
-
-Project releases are automated using GitHub Actions and Conventional Commits.
-
-Each repository within the Trussium ecosystem maintains its own independent release lifecycle.
-
----
-
-## Future Work
+## Future Exploration
 
 Future milestones may include:
 
 - Distributed execution
 - Multi-cluster support
 - Edge deployments
-- Advanced routing strategies
+- GPU workload integration
+- Cost-aware routing
+- Latency-aware routing
+- Regional data residency
 - Federated runtimes
-- AI gateway enhancements
-- Additional provider integrations
-- Community-contributed plugins
+- Private model management
+- Advanced policy engines
+- Enterprise control plane
+- Community-contributed providers and plugins
 
 These items are exploratory and do not represent committed deliverables.
