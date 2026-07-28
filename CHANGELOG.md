@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.11.0 (2026-07-28)
+
+### Features
+
+- **api**: Normalize non-streaming provider errors
+  ([`9726bb9`](https://github.com/trussiumhq/trussium/commit/9726bb9f50830595e9fe91712c9efb2cddb0fb5f))
+
+
 ## v0.10.0 (2026-07-24)
 
 ### Features
