@@ -16,10 +16,15 @@ from trussium.capabilities.chat import (
     ChatRole,
     ChatStreamDeltaEvent,
     ChatStreamEndEvent,
+    ChatStreamErrorEvent,
     ChatStreamEvent,
     ChatStreamStartEvent,
     FinishReason,
     TokenUsage,
+)
+from trussium.capabilities.errors import (
+    CapabilityErrorCategory,
+    CapabilityExecutionError,
 )
 
 
@@ -86,6 +91,38 @@ class StubChatCapability:
         )
 
 
+class FailingChatCapability:
+    """Chat capability that returns a normalized provider failure."""
+
+    def __init__(
+        self,
+        error: CapabilityExecutionError,
+    ) -> None:
+        """Initialize the capability with its configured error."""
+        self._error = error
+
+    async def complete(
+        self,
+        request: ChatCompletionRequest,
+    ) -> ChatCompletionResponse:
+        """Raise the configured execution error."""
+        _ = request
+        raise self._error
+
+    async def stream(
+        self,
+        request: ChatCompletionRequest,
+    ) -> AsyncIterator[ChatStreamEvent]:
+        """Return the same normalized error as an SSE event."""
+        _ = request
+
+        yield ChatStreamErrorEvent(
+            id=None,
+            code=self._error.code,
+            message=self._error.message,
+        )
+
+
 def parse_sse_events(
     body: str,
 ) -> list[tuple[str, dict[str, object]]]:
@@ -136,7 +173,6 @@ def test_chat_completion_returns_normalized_response() -> None:
 
     assert response.status_code == status.HTTP_200_OK
     assert response.headers["content-type"].startswith("application/json")
-
     assert response.json() == {
         "id": "chat-test-1",
         "provider": "stub",
@@ -228,6 +264,47 @@ def test_chat_completion_streams_normalized_sse_events() -> None:
     ]
 
 
+def test_chat_completion_returns_normalized_provider_error() -> None:
+    """Non-streaming provider failures should use the API error envelope."""
+    error_message = (
+        "The configured OpenAI project has no available API quota. "
+        "Check its billing, credits, and usage limits."
+    )
+
+    app = create_application(
+        chat_capability=FailingChatCapability(
+            CapabilityExecutionError(
+                code="openai_quota_exceeded",
+                message=error_message,
+                category=CapabilityErrorCategory.QUOTA_EXCEEDED,
+            )
+        ),
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "test-model",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "Hello.",
+                }
+            ],
+            "stream": False,
+        },
+    )
+
+    assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+    assert response.json() == {
+        "detail": {
+            "code": "openai_quota_exceeded",
+            "message": error_message,
+        }
+    }
+
+
 def test_chat_completion_returns_503_without_provider() -> None:
     """A missing chat capability should produce a service error."""
     app = create_application(
@@ -250,7 +327,6 @@ def test_chat_completion_returns_503_without_provider() -> None:
     )
 
     assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
-
     assert response.json() == {
         "detail": {
             "code": "chat_capability_unavailable",
@@ -281,7 +357,6 @@ def test_streaming_returns_503_without_provider() -> None:
     )
 
     assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
-
     assert response.json() == {
         "detail": {
             "code": "chat_capability_unavailable",
@@ -290,8 +365,8 @@ def test_streaming_returns_503_without_provider() -> None:
     }
 
 
-def test_chat_completion_documents_json_and_sse_responses() -> None:
-    """OpenAPI should describe both supported response content types."""
+def test_chat_completion_documents_supported_responses() -> None:
+    """OpenAPI should describe success and provider error responses."""
     app = create_application(
         chat_capability=StubChatCapability(),
     )
@@ -302,7 +377,14 @@ def test_chat_completion_documents_json_and_sse_responses() -> None:
     assert response.status_code == status.HTTP_200_OK
 
     operation = response.json()["paths"]["/v1/chat/completions"]["post"]
-    response_content = operation["responses"]["200"]["content"]
+    responses = operation["responses"]
+    response_content = responses["200"]["content"]
 
     assert "application/json" in response_content
     assert "text/event-stream" in response_content
+
+    assert "400" in responses
+    assert "429" in responses
+    assert "502" in responses
+    assert "503" in responses
+    assert "504" in responses

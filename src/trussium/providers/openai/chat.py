@@ -1,9 +1,19 @@
 """OpenAI chat capability adapter."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping
 from typing import Literal
 
-from openai import APIError, APIStatusError, AsyncOpenAI
+from openai import (
+    APIConnectionError,
+    APIError,
+    APIStatusError,
+    APITimeoutError,
+    AsyncOpenAI,
+    AuthenticationError,
+    BadRequestError,
+    PermissionDeniedError,
+    RateLimitError,
+)
 from openai.types.responses import (
     EasyInputMessageParam,
     Response,
@@ -23,6 +33,10 @@ from trussium.capabilities.chat import (
     ChatStreamStartEvent,
     FinishReason,
     TokenUsage,
+)
+from trussium.capabilities.errors import (
+    CapabilityErrorCategory,
+    CapabilityExecutionError,
 )
 
 OpenAIMessageRole = Literal["system", "user", "assistant"]
@@ -49,15 +63,29 @@ class OpenAIChatCapability:
         self,
         request: ChatCompletionRequest,
     ) -> ChatCompletionResponse:
-        """Execute and normalize a non-streaming OpenAI response."""
-        response = await self._client.responses.create(
-            model=request.model,
-            input=self._build_input(request.messages),
-            max_output_tokens=request.max_output_tokens,
-            temperature=request.temperature,
-            store=False,
-            stream=False,
-        )
+        """Execute and normalize a non-streaming OpenAI response.
+
+        Args:
+            request: Normalized chat-completion request.
+
+        Returns:
+            Normalized chat-completion response.
+
+        Raises:
+            CapabilityExecutionError: When the OpenAI API request fails.
+            OpenAIProviderError: When the response cannot be normalized.
+        """
+        try:
+            response = await self._client.responses.create(
+                model=request.model,
+                input=self._build_input(request.messages),
+                max_output_tokens=request.max_output_tokens,
+                temperature=request.temperature,
+                store=False,
+                stream=False,
+            )
+        except APIError as error:
+            raise self._normalize_api_error(error) from error
 
         return self._normalize_response(response)
 
@@ -108,18 +136,15 @@ class OpenAIChatCapability:
 
                 elif event.type == "response.completed":
                     response = event.response
-                    response_id = await self._ensure_stream_started(
-                        response=response,
-                        response_id=response_id,
-                    )
 
                     if response_id is None:
+                        response_id = response.id
+
                         yield ChatStreamStartEvent(
                             id=response.id,
                             provider=self.provider_name,
                             model=str(response.model),
                         )
-                        response_id = response.id
 
                     try:
                         usage = self._normalize_usage(response)
@@ -178,11 +203,14 @@ class OpenAIChatCapability:
                     return
 
         except APIError as error:
+            normalized_error = self._normalize_api_error(error)
+
             yield ChatStreamErrorEvent(
                 id=response_id,
-                code=self._api_error_code(error),
-                message=str(error),
+                code=normalized_error.code,
+                message=normalized_error.message,
             )
+            return
 
     def _normalize_response(
         self,
@@ -235,10 +263,13 @@ class OpenAIChatCapability:
         match role:
             case ChatRole.SYSTEM:
                 return "system"
+
             case ChatRole.USER:
                 return "user"
+
             case ChatRole.ASSISTANT:
                 return "assistant"
+
             case ChatRole.TOOL:
                 raise OpenAIProviderError(
                     "OpenAI tool messages are not supported until "
@@ -260,7 +291,9 @@ class OpenAIChatCapability:
         )
 
     @staticmethod
-    def _normalize_finish_reason(response: Response) -> FinishReason:
+    def _normalize_finish_reason(
+        response: Response,
+    ) -> FinishReason:
         """Translate OpenAI response status into a finish reason."""
         if response.status == "completed":
             return FinishReason.STOP
@@ -288,40 +321,160 @@ class OpenAIChatCapability:
         raise OpenAIProviderError(OpenAIChatCapability._response_error_message(response))
 
     @staticmethod
-    async def _ensure_stream_started(
-        *,
-        response: Response,
-        response_id: str | None,
-    ) -> str | None:
-        """Return the existing response identifier for a stream.
-
-        The caller emits a start event when this returns ``None``.
-        """
-        if response_id is not None:
-            return response_id
-
-        return None
-
-    @staticmethod
     def _response_error_code(response: Response) -> str:
-        """Return a stable provider-specific error code."""
+        """Return a stable code for an unsuccessful OpenAI response."""
         if response.error is None or response.error.code is None:
             return "openai_response_failed"
 
-        return response.error.code
+        return str(response.error.code)
 
     @staticmethod
     def _response_error_message(response: Response) -> str:
-        """Return the provider error message where available."""
+        """Return the provider error message when available."""
         if response.error is None:
             return "OpenAI response failed"
 
         return response.error.message
 
-    @staticmethod
-    def _api_error_code(error: APIError) -> str:
-        """Return a normalized code for an OpenAI SDK exception."""
+    @classmethod
+    def _normalize_api_error(
+        cls,
+        error: APIError,
+    ) -> CapabilityExecutionError:
+        """Translate an OpenAI SDK error into a capability error."""
+        return CapabilityExecutionError(
+            code=cls._api_error_code(error),
+            message=cls._api_error_message(error),
+            category=cls._api_error_category(error),
+        )
+
+    @classmethod
+    def _api_error_code(cls, error: APIError) -> str:
+        """Translate an OpenAI SDK exception into a stable error code."""
+        if isinstance(error, AuthenticationError):
+            return "openai_authentication_failed"
+
+        if isinstance(error, PermissionDeniedError):
+            return "openai_permission_denied"
+
+        if isinstance(error, RateLimitError):
+            if cls._is_quota_error(error):
+                return "openai_quota_exceeded"
+
+            return "openai_rate_limit_exceeded"
+
+        if isinstance(error, BadRequestError):
+            return "openai_invalid_request"
+
+        if isinstance(error, APITimeoutError):
+            return "openai_timeout"
+
+        if isinstance(error, APIConnectionError):
+            return "openai_connection_failed"
+
         if isinstance(error, APIStatusError):
             return f"openai_http_{error.status_code}"
 
         return "openai_api_error"
+
+    @classmethod
+    def _api_error_message(cls, error: APIError) -> str:
+        """Return a client-safe OpenAI error message."""
+        if isinstance(error, AuthenticationError):
+            return "OpenAI authentication failed. Check the configured API key."
+
+        if isinstance(error, PermissionDeniedError):
+            return "The configured OpenAI project does not have permission to perform this request."
+
+        if isinstance(error, RateLimitError):
+            if cls._is_quota_error(error):
+                return (
+                    "The configured OpenAI project has no available API "
+                    "quota. Check its billing, credits, and usage limits."
+                )
+
+            return "OpenAI temporarily rejected the request because a rate limit was exceeded."
+
+        if isinstance(error, BadRequestError):
+            return "OpenAI rejected the request as invalid."
+
+        if isinstance(error, APITimeoutError):
+            return "The request to OpenAI timed out."
+
+        if isinstance(error, APIConnectionError):
+            return "Trussium could not connect to OpenAI."
+
+        if isinstance(error, APIStatusError):
+            return f"OpenAI returned HTTP status {error.status_code}."
+
+        return "An unexpected OpenAI API error occurred."
+
+    @classmethod
+    def _api_error_category(
+        cls,
+        error: APIError,
+    ) -> CapabilityErrorCategory:
+        """Classify an OpenAI SDK exception independently of HTTP."""
+        if isinstance(error, AuthenticationError):
+            return CapabilityErrorCategory.UPSTREAM_AUTHENTICATION
+
+        if isinstance(error, PermissionDeniedError):
+            return CapabilityErrorCategory.UPSTREAM_PERMISSION
+
+        if isinstance(error, RateLimitError):
+            if cls._is_quota_error(error):
+                return CapabilityErrorCategory.QUOTA_EXCEEDED
+
+            return CapabilityErrorCategory.RATE_LIMITED
+
+        if isinstance(error, BadRequestError):
+            return CapabilityErrorCategory.INVALID_REQUEST
+
+        if isinstance(error, APITimeoutError):
+            return CapabilityErrorCategory.UPSTREAM_TIMEOUT
+
+        if isinstance(error, APIConnectionError):
+            return CapabilityErrorCategory.UPSTREAM_CONNECTION
+
+        return CapabilityErrorCategory.UPSTREAM_FAILURE
+
+    @classmethod
+    def _is_quota_error(cls, error: APIError) -> bool:
+        """Determine whether a rate-limit error represents exhausted quota."""
+        provider_code = cls._provider_error_code(error)
+
+        if provider_code in {
+            "billing_hard_limit_reached",
+            "insufficient_quota",
+        }:
+            return True
+
+        message = str(error).lower()
+
+        return "quota" in message or "billing" in message
+
+    @staticmethod
+    def _provider_error_code(error: APIError) -> str | None:
+        """Extract the provider's error code when available."""
+        if not isinstance(error, APIStatusError):
+            return None
+
+        body = error.body
+
+        if not isinstance(body, Mapping):
+            return None
+
+        code = body.get("code")
+
+        if isinstance(code, str):
+            return code
+
+        nested_error = body.get("error")
+
+        if isinstance(nested_error, Mapping):
+            nested_code = nested_error.get("code")
+
+            if isinstance(nested_code, str):
+                return nested_code
+
+        return None
