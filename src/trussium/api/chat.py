@@ -2,17 +2,19 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.responses import Response
 
 from trussium.api.dependencies import get_chat_capability
+from trussium.api.errors import capability_error_status_code
 from trussium.api.sse import stream_chat_events
 from trussium.capabilities.chat import (
     ChatCapability,
     ChatCompletionRequest,
     ChatCompletionResponse,
 )
+from trussium.capabilities.errors import CapabilityExecutionError
 
 router = APIRouter(
     prefix="/v1/chat",
@@ -40,7 +42,22 @@ router = APIRouter(
                     }
                 },
             },
-        }
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            "description": "The provider rejected the request.",
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS: {
+            "description": "The provider rate limit was exceeded.",
+        },
+        status.HTTP_502_BAD_GATEWAY: {
+            "description": ("The configured provider could not serve the request."),
+        },
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": ("The configured provider is temporarily unavailable."),
+        },
+        status.HTTP_504_GATEWAY_TIMEOUT: {
+            "description": "The configured provider request timed out.",
+        },
     },
 )
 async def create_chat_completion(
@@ -58,6 +75,9 @@ async def create_chat_completion(
 
     Returns:
         A normalized JSON response or an SSE streaming response.
+
+    Raises:
+        HTTPException: When non-streaming capability execution fails.
     """
     if request.stream:
         return StreamingResponse(
@@ -71,7 +91,16 @@ async def create_chat_completion(
             },
         )
 
-    completion = await capability.complete(request)
+    try:
+        completion = await capability.complete(request)
+    except CapabilityExecutionError as error:
+        raise HTTPException(
+            status_code=capability_error_status_code(error.category),
+            detail={
+                "code": error.code,
+                "message": error.message,
+            },
+        ) from error
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,

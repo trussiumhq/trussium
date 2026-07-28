@@ -5,9 +5,14 @@ from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from typing import cast
 
+import httpx
 import pytest
 
-from openai import AsyncOpenAI
+from openai import (
+    AsyncOpenAI,
+    AuthenticationError,
+    RateLimitError,
+)
 from trussium.capabilities.chat import (
     ChatCapability,
     ChatCompletionRequest,
@@ -19,6 +24,10 @@ from trussium.capabilities.chat import (
     ChatStreamEvent,
     ChatStreamStartEvent,
     FinishReason,
+)
+from trussium.capabilities.errors import (
+    CapabilityErrorCategory,
+    CapabilityExecutionError,
 )
 from trussium.providers.openai import (
     OpenAIChatCapability,
@@ -76,12 +85,15 @@ class FakeAsyncStream:
     """Asynchronous iterator of fake OpenAI events."""
 
     def __init__(self, events: list[FakeStreamEvent]) -> None:
+        """Initialize the stream with fake events."""
         self._events = events
 
     def __aiter__(self) -> AsyncIterator[FakeStreamEvent]:
+        """Return the asynchronous event iterator."""
         return self._iterate()
 
     async def _iterate(self) -> AsyncIterator[FakeStreamEvent]:
+        """Yield configured fake stream events."""
         for event in self._events:
             yield event
 
@@ -94,14 +106,20 @@ class FakeResponsesResource:
         *,
         response: FakeResponse | None = None,
         events: list[FakeStreamEvent] | None = None,
+        error: Exception | None = None,
     ) -> None:
+        """Initialize the fake responses resource."""
         self.response = response
         self.events = events or []
+        self.error = error
         self.last_request: dict[str, object] | None = None
 
     async def create(self, **kwargs: object) -> object:
-        """Return a configured response or stream."""
+        """Return a configured response, stream, or exception."""
         self.last_request = kwargs
+
+        if self.error is not None:
+            raise self.error
 
         if kwargs.get("stream") is True:
             return FakeAsyncStream(self.events)
@@ -157,6 +175,22 @@ async def collect_stream(
     return [event async for event in capability.stream(request)]
 
 
+def create_http_response(
+    *,
+    status_code: int,
+) -> httpx.Response:
+    """Create an HTTP response for OpenAI exception tests."""
+    request = httpx.Request(
+        method="POST",
+        url="https://api.openai.com/v1/responses",
+    )
+
+    return httpx.Response(
+        status_code=status_code,
+        request=request,
+    )
+
+
 def test_adapter_satisfies_chat_capability_protocol() -> None:
     """The OpenAI adapter should satisfy the structural protocol."""
     resource = FakeResponsesResource(
@@ -177,7 +211,7 @@ def test_adapter_satisfies_chat_capability_protocol() -> None:
 
 
 def test_complete_normalizes_openai_response() -> None:
-    """A successful OpenAI response should become a normalized response."""
+    """A successful OpenAI response should become normalized."""
     resource = FakeResponsesResource(
         response=FakeResponse(
             id="resp-1",
@@ -192,7 +226,11 @@ def test_complete_normalizes_openai_response() -> None:
     )
     adapter = create_adapter(resource)
 
-    response = asyncio.run(adapter.complete(create_request()))
+    response = asyncio.run(
+        adapter.complete(
+            create_request(),
+        )
+    )
 
     assert response.id == "resp-1"
     assert response.provider == "openai"
@@ -221,7 +259,11 @@ def test_complete_translates_request_fields() -> None:
     )
     adapter = create_adapter(resource)
 
-    asyncio.run(adapter.complete(create_request()))
+    asyncio.run(
+        adapter.complete(
+            create_request(),
+        )
+    )
 
     assert resource.last_request is not None
     assert resource.last_request["model"] == "test-model"
@@ -238,7 +280,7 @@ def test_complete_translates_request_fields() -> None:
 
 
 def test_complete_normalizes_length_finish_reason() -> None:
-    """Maximum output termination should become the normalized length reason."""
+    """Maximum output termination should become length."""
     resource = FakeResponsesResource(
         response=FakeResponse(
             id="resp-1",
@@ -255,13 +297,17 @@ def test_complete_normalizes_length_finish_reason() -> None:
     )
     adapter = create_adapter(resource)
 
-    response = asyncio.run(adapter.complete(create_request()))
+    response = asyncio.run(
+        adapter.complete(
+            create_request(),
+        )
+    )
 
     assert response.choices[0].finish_reason is FinishReason.LENGTH
 
 
 def test_tool_role_is_rejected() -> None:
-    """Tool messages should wait for explicit Trussium tool contracts."""
+    """Tool messages should wait for explicit tool contracts."""
     resource = FakeResponsesResource()
     adapter = create_adapter(resource)
 
@@ -335,8 +381,55 @@ def test_stream_normalizes_openai_events() -> None:
     assert events[3].usage.total_tokens == 4
 
 
+def test_stream_normalizes_incomplete_response() -> None:
+    """Incomplete provider responses should finish cleanly."""
+    response = FakeResponse(
+        id="resp-incomplete-1",
+        model="served-model",
+        output_text="Partial output",
+        usage=FakeUsage(
+            input_tokens=3,
+            output_tokens=10,
+            total_tokens=13,
+        ),
+        status="incomplete",
+        incomplete_details=FakeIncompleteDetails(reason="max_output_tokens"),
+    )
+    resource = FakeResponsesResource(
+        events=[
+            FakeStreamEvent(
+                type="response.created",
+                response=response,
+            ),
+            FakeStreamEvent(
+                type="response.output_text.delta",
+                delta="Partial output",
+            ),
+            FakeStreamEvent(
+                type="response.incomplete",
+                response=response,
+            ),
+        ]
+    )
+    adapter = create_adapter(resource)
+
+    events = asyncio.run(
+        collect_stream(
+            adapter,
+            create_request(stream=True),
+        )
+    )
+
+    assert len(events) == 3
+    assert isinstance(events[0], ChatStreamStartEvent)
+    assert isinstance(events[1], ChatStreamDeltaEvent)
+    assert isinstance(events[2], ChatStreamEndEvent)
+    assert events[2].finish_reason is FinishReason.LENGTH
+    assert events[2].usage.total_tokens == 13
+
+
 def test_stream_normalizes_failed_response() -> None:
-    """Failed provider events should produce normalized stream errors."""
+    """Failed provider events should produce normalized errors."""
     response = FakeResponse(
         id="resp-failed-1",
         model="test-model",
@@ -374,3 +467,164 @@ def test_stream_normalizes_failed_response() -> None:
     assert events[1].id == "resp-failed-1"
     assert events[1].code == "server_error"
     assert events[1].message == "The provider failed."
+
+
+def test_stream_normalizes_quota_exception() -> None:
+    """Streaming quota errors should become normalized events."""
+    error = RateLimitError(
+        "You exceeded your current quota. Check your billing details.",
+        response=create_http_response(status_code=429),
+        body={
+            "code": "insufficient_quota",
+        },
+    )
+    resource = FakeResponsesResource(error=error)
+    adapter = create_adapter(resource)
+
+    events = asyncio.run(
+        collect_stream(
+            adapter,
+            create_request(stream=True),
+        )
+    )
+
+    assert len(events) == 1
+    assert isinstance(events[0], ChatStreamErrorEvent)
+    assert events[0].id is None
+    assert events[0].code == "openai_quota_exceeded"
+    assert events[0].message == (
+        "The configured OpenAI project has no available API quota. "
+        "Check its billing, credits, and usage limits."
+    )
+
+
+def test_complete_normalizes_quota_exception() -> None:
+    """Non-streaming quota errors should become capability errors."""
+    error = RateLimitError(
+        "You exceeded your current quota. Check your billing details.",
+        response=create_http_response(status_code=429),
+        body={
+            "code": "insufficient_quota",
+        },
+    )
+    resource = FakeResponsesResource(error=error)
+    adapter = create_adapter(resource)
+
+    with pytest.raises(CapabilityExecutionError) as captured:
+        asyncio.run(
+            adapter.complete(
+                create_request(),
+            )
+        )
+
+    assert captured.value.code == "openai_quota_exceeded"
+    assert captured.value.category is CapabilityErrorCategory.QUOTA_EXCEEDED
+    assert captured.value.message == (
+        "The configured OpenAI project has no available API quota. "
+        "Check its billing, credits, and usage limits."
+    )
+
+
+def test_complete_normalizes_temporary_rate_limit() -> None:
+    """Temporary provider throttling should remain distinct from quota."""
+    error = RateLimitError(
+        "Rate limit reached for requests.",
+        response=create_http_response(status_code=429),
+        body={
+            "code": "rate_limit_exceeded",
+        },
+    )
+    resource = FakeResponsesResource(error=error)
+    adapter = create_adapter(resource)
+
+    with pytest.raises(CapabilityExecutionError) as captured:
+        asyncio.run(
+            adapter.complete(
+                create_request(),
+            )
+        )
+
+    assert captured.value.code == "openai_rate_limit_exceeded"
+    assert captured.value.category is CapabilityErrorCategory.RATE_LIMITED
+    assert captured.value.message == (
+        "OpenAI temporarily rejected the request because a rate limit was exceeded."
+    )
+
+
+def test_complete_normalizes_authentication_exception() -> None:
+    """Provider authentication failures should become capability errors."""
+    error = AuthenticationError(
+        "Incorrect API key provided.",
+        response=create_http_response(status_code=401),
+        body={
+            "code": "invalid_api_key",
+        },
+    )
+    resource = FakeResponsesResource(error=error)
+    adapter = create_adapter(resource)
+
+    with pytest.raises(CapabilityExecutionError) as captured:
+        asyncio.run(
+            adapter.complete(
+                create_request(),
+            )
+        )
+
+    assert captured.value.code == "openai_authentication_failed"
+    assert captured.value.category is CapabilityErrorCategory.UPSTREAM_AUTHENTICATION
+    assert captured.value.message == ("OpenAI authentication failed. Check the configured API key.")
+
+
+def test_quota_error_code_is_normalized() -> None:
+    """Quota failures should use a specific normalized error code."""
+    error = RateLimitError(
+        "You exceeded your current quota. Check your billing details.",
+        response=create_http_response(status_code=429),
+        body={
+            "code": "insufficient_quota",
+        },
+    )
+
+    assert OpenAIChatCapability._api_error_code(error) == "openai_quota_exceeded"
+    assert OpenAIChatCapability._api_error_message(error) == (
+        "The configured OpenAI project has no available API quota. "
+        "Check its billing, credits, and usage limits."
+    )
+    assert OpenAIChatCapability._api_error_category(error) is CapabilityErrorCategory.QUOTA_EXCEEDED
+
+
+def test_rate_limit_error_code_is_normalized() -> None:
+    """Temporary throttling should remain distinct from quota."""
+    error = RateLimitError(
+        "Rate limit reached for requests.",
+        response=create_http_response(status_code=429),
+        body={
+            "code": "rate_limit_exceeded",
+        },
+    )
+
+    assert OpenAIChatCapability._api_error_code(error) == "openai_rate_limit_exceeded"
+    assert OpenAIChatCapability._api_error_message(error) == (
+        "OpenAI temporarily rejected the request because a rate limit was exceeded."
+    )
+    assert OpenAIChatCapability._api_error_category(error) is CapabilityErrorCategory.RATE_LIMITED
+
+
+def test_authentication_error_code_is_normalized() -> None:
+    """Authentication failures should have a stable error code."""
+    error = AuthenticationError(
+        "Incorrect API key provided.",
+        response=create_http_response(status_code=401),
+        body={
+            "code": "invalid_api_key",
+        },
+    )
+
+    assert OpenAIChatCapability._api_error_code(error) == "openai_authentication_failed"
+    assert OpenAIChatCapability._api_error_message(error) == (
+        "OpenAI authentication failed. Check the configured API key."
+    )
+    assert (
+        OpenAIChatCapability._api_error_category(error)
+        is CapabilityErrorCategory.UPSTREAM_AUTHENTICATION
+    )
