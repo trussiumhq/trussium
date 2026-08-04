@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.12.0 (2026-08-04)
+
+### Features
+
+- **runtime**: Add request correlation IDs
+  ([`b1fa7a8`](https://github.com/trussiumhq/trussium/commit/b1fa7a893f888e21ea51b26195c58dc6b8bbba68))
+
+
 ## v0.11.0 (2026-07-28)
 
 ### Features
