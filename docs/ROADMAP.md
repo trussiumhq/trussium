@@ -23,9 +23,9 @@ Client
   → Normalized JSON or SSE response
 ```
 
-Both streaming and non-streaming requests use normalized provider errors. Every HTTP request now also has a correlation identifier that is propagated through successful responses, error responses, health endpoints, and SSE streams.
+Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has a correlation identifier and emits structured JSON lifecycle logs containing its request ID, HTTP method, path, status code, and duration.
 
-The immediate focus is to strengthen this execution path with provider-neutral public errors, structured logging, richer execution context, cancellation handling, timeout handling, and end-to-end validation before expanding into additional providers, capabilities, and protocols.
+The immediate focus is to introduce richer execution context and structured capability/provider execution events before adding cancellation handling, timeout handling, and end-to-end validation.
 
 ---
 
@@ -121,11 +121,21 @@ Build the foundational runtime components required by capabilities, providers, A
 - Correlation identifiers on HTTP responses
 - Request correlation preserved during streaming execution
 - Request context cleanup after request processing
+- Central structured logging configuration
+- Structured JSON log formatter
+- Namespaced Trussium loggers
+- Structured HTTP request lifecycle middleware
+- Request-started lifecycle events
+- Request-completed lifecycle events
+- Request-failed lifecycle events
+- Request duration measurement
+- Request ID correlation in HTTP lifecycle logs
 
 ### Remaining
 
-- Structured logging
 - Richer request and execution context
+- Structured capability execution logging
+- Structured provider execution logging
 - Unified runtime exception hierarchy
 - Lifecycle hooks for runtime services
 - Core runtime service registry
@@ -197,7 +207,6 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 
 ### Remaining
 
-- Provider-neutral public error codes and messages
 - Provider interface and metadata contract
 - Provider registry
 - Provider configuration
@@ -210,12 +219,11 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Provider health reporting
 - Provider capability reporting
 - Provider credential validation
+- Structured provider execution events
 
 The next provider should validate that Trussium’s abstractions are genuinely provider-neutral rather than OpenAI-specific.
 
 A self-hosted OpenAI-compatible provider such as vLLM or Ollama may provide stronger architectural validation than adding several managed providers immediately.
-
-Provider-specific information should remain available for internal diagnostics and observability without leaking provider-specific names into public runtime error contracts.
 
 ---
 
@@ -250,23 +258,28 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Caller-provided request identifiers
 - Generated request identifiers
 - Request-scoped correlation context during streaming
+- Structured request-started logs
+- Structured request-completed logs
+- Structured request-failed logs
+- Request ID, method, path, status, and duration log fields
 - OpenAPI documentation
 - Provider error response documentation
 - API unit tests
 - Streaming API tests
 - HTTP error-mapping tests
 - Request-correlation middleware tests
+- Structured request-logging tests
 
 ### Remaining
 
-- Provider-neutral public error codes and messages
+- Richer execution context
+- Structured capability execution logging
+- Structured provider execution logging
 - Client-disconnect detection
 - Stream cancellation handling
 - Stream timeout handling
 - Non-streaming request timeout handling
 - Consistent error envelopes across validation and runtime failures
-- Structured request and response logging
-- Richer execution context
 - Model aliasing
 - Request validation refinements
 - API versioning policy
@@ -360,7 +373,7 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Production deployment documentation
 - Upgrade and rollback procedures
 
-Health checks have already been delivered as part of the runtime foundation.
+Health checks and structured HTTP lifecycle logs have already been delivered as part of the runtime foundation.
 
 ---
 
@@ -468,15 +481,15 @@ The roadmap is guided by the following principles:
 - Provider-neutral contracts
 - Capability-first architecture
 - Protocol-independent execution
-- Provider-neutral public error contracts
 - Protocol-neutral error classification
 - Extensible provider and plugin model
 - Observable by default
+- Structured machine-readable logs
+- Request correlation by default
 - Secure by default
 - Explicit tenant and usage boundaries
 - Reliable failure handling
 - Safe client-facing errors
-- Request correlation by default
 - Developer-focused integration
 - Backwards-compatible public interfaces
 - Incremental, customer-testable delivery
@@ -513,16 +526,16 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Make public provider errors provider-neutral
-2. Add structured request and execution logging
-3. Add richer execution context propagation
+1. Add richer request and execution context propagation
+2. Add structured capability execution logging
+3. Add structured provider execution logging
 4. Add client-disconnect and cancellation handling
 5. Add provider and stream timeout handling
 6. Add end-to-end integration testing
 7. Validate a self-hosted model provider
 8. Add production container packaging
 
-These priorities strengthen Trussium’s provider-neutral architecture, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
+These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 
 ---
 
