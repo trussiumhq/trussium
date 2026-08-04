@@ -5,7 +5,11 @@ from fastapi import FastAPI
 from trussium.api import api_router
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
-from trussium.middleware import RequestCorrelationMiddleware
+from trussium.middleware import (
+    RequestCorrelationMiddleware,
+    RequestLoggingMiddleware,
+)
+from trussium.observability import configure_logging
 
 
 def create_application(
@@ -24,6 +28,10 @@ def create_application(
     """
     resolved_settings = settings or get_settings()
 
+    configure_logging(
+        debug=resolved_settings.runtime.debug,
+    )
+
     application = FastAPI(
         title="Trussium",
         debug=resolved_settings.runtime.debug,
@@ -32,6 +40,9 @@ def create_application(
     application.state.settings = resolved_settings
     application.state.chat_capability = chat_capability
 
+    application.add_middleware(
+        RequestLoggingMiddleware,
+    )
     application.add_middleware(
         RequestCorrelationMiddleware,
     )
