@@ -5,34 +5,37 @@ from fastapi import FastAPI
 from trussium.api import api_router
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
+from trussium.middleware import RequestCorrelationMiddleware
 
 
 def create_application(
     settings: Settings | None = None,
+    *,
     chat_capability: ChatCapability | None = None,
 ) -> FastAPI:
-    """Create and configure the Trussium FastAPI application.
+    """Create and configure the Trussium application.
 
     Args:
-        settings: Optional application settings. When omitted, settings are
-            loaded from the configured environment.
-        chat_capability: Optional provider-neutral chat capability.
+        settings: Optional runtime settings override.
+        chat_capability: Optional configured chat capability.
 
     Returns:
-        A configured FastAPI application.
+        Configured FastAPI application.
     """
-    if settings is None:
-        settings = get_settings()
+    resolved_settings = settings or get_settings()
 
-    app = FastAPI(
+    application = FastAPI(
         title="Trussium",
-        description="Cloud-native AI runtime platform.",
-        debug=settings.runtime.debug,
+        debug=resolved_settings.runtime.debug,
     )
 
-    app.state.settings = settings
-    app.state.chat_capability = chat_capability
+    application.state.settings = resolved_settings
+    application.state.chat_capability = chat_capability
 
-    app.include_router(api_router)
+    application.add_middleware(
+        RequestCorrelationMiddleware,
+    )
 
-    return app
+    application.include_router(api_router)
+
+    return application
