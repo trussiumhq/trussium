@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.13.0 (2026-08-04)
+
+### Features
+
+- **observability**: Add structured request logging
+  ([`2cb9749`](https://github.com/trussiumhq/trussium/commit/2cb9749de4030ba7d69585f963724a4fc8d9f159))
+
+
 ## v0.12.0 (2026-08-04)
 
 ### Features
