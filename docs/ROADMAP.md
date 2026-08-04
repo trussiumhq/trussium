@@ -1,6 +1,6 @@
 # Roadmap
 
-_Last updated: July 2026_
+_Last updated: August 2026_
 
 This roadmap outlines the long-term direction of Trussium.
 
@@ -12,7 +12,7 @@ The roadmap is intentionally high level and may evolve as the project, community
 
 ## Current Focus
 
-Trussium is currently building its first complete provider-neutral AI execution path:
+Trussium now has its first provider-neutral AI execution path:
 
 ```text
 Client
@@ -23,7 +23,9 @@ Client
   → Normalized JSON or SSE response
 ```
 
-The immediate objective is to make this path reliable, observable, testable, and suitable for self-hosted deployments before expanding into additional capabilities and protocols.
+Both streaming and non-streaming requests now use normalized provider errors.
+
+The immediate focus is to strengthen this execution path with request correlation, structured logging, execution context, cancellation handling, timeout handling, and end-to-end validation before expanding into additional providers, capabilities, and protocols.
 
 ---
 
@@ -73,18 +75,24 @@ Establish a dependable engineering workflow for local development, continuous in
 - Pre-commit workflow
 - Python package structure
 - Automated build and test validation
+- Conventional Commits
+- Semantic Versioning
+- Automated version calculation
+- Automated Git tags
+- Automated GitHub Releases
+- Automated changelog generation
+- Dependabot configuration
 
 ### Remaining
 
 - Verify complete CodeQL coverage
 - Verify dependency vulnerability scanning
 - Verify secret-scanning configuration
-- Complete release automation
-- Automated changelog generation
-- Automated version tagging
-- Automated GitHub Releases
+- Verify release automation across all supported release scenarios
+- Document release recovery procedures
+- Add package build and installation validation
 
-This milestone can be marked completed once every listed automation is active and verified in the repository.
+This milestone can be marked completed once every listed automation is active, verified, and documented in the repository.
 
 ---
 
@@ -104,16 +112,20 @@ Build the foundational runtime components required by capabilities, providers, A
 - Liveness health endpoint
 - Readiness health endpoint
 - Core application lifecycle integration
+- Provider-neutral capability execution errors
+- Protocol-neutral capability error categories
 
 ### Remaining
 
 - Structured logging
 - Request and execution context
 - Correlation and request identifiers
-- Unified runtime exception framework
+- Unified runtime exception hierarchy
 - Lifecycle hooks for runtime services
 - Core runtime service registry
 - Graceful shutdown validation
+- Runtime startup diagnostics
+- Runtime component health reporting
 
 ---
 
@@ -133,6 +145,8 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - `ChatCapability` protocol
 - Non-streaming capability execution
 - Streaming capability execution
+- Provider-neutral execution failure contract
+- Protocol-independent error classification
 
 ### Remaining
 
@@ -143,6 +157,7 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Capability lifecycle management
 - Capability metadata
 - Capability availability reporting
+- Capability health reporting
 - Additional capability interfaces
 
 The capability framework should not be marked completed until capabilities can be registered, discovered, and executed without direct application wiring.
@@ -164,7 +179,14 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Normalized streaming events
 - Incomplete-response handling
 - Provider error normalization
-- Quota, authentication, permission, timeout, connection, and rate-limit error mapping
+- Quota error classification
+- Rate-limit error classification
+- Authentication error classification
+- Permission error classification
+- Timeout error classification
+- Connection error classification
+- Safe client-facing provider error messages
+- Shared error normalization for streaming and non-streaming execution
 - Provider adapter unit tests
 
 ### Remaining
@@ -179,8 +201,12 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Self-hosted model adapter
 - At least one additional managed provider
 - Provider health reporting
+- Provider capability reporting
+- Provider credential validation
 
 The next provider should validate that Trussium’s abstractions are genuinely provider-neutral rather than OpenAI-specific.
+
+A self-hosted OpenAI-compatible provider such as vLLM or Ollama may provide stronger architectural validation than adding several managed providers immediately.
 
 ---
 
@@ -197,23 +223,38 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Normalized JSON responses
 - Server-Sent Events streaming
 - Normalized `start`, `delta`, `end`, and `error` events
+- OpenAI streaming integration
+- Incomplete-stream termination handling
 - Missing-provider service errors
+- Unified non-streaming provider error responses
+- Provider-neutral HTTP error handling
+- Capability error category to HTTP status mapping
+- Quota failures mapped to HTTP 503
+- Temporary rate limits mapped to HTTP 429
+- Provider authentication and connection failures mapped to HTTP 502
+- Provider timeouts mapped to HTTP 504
+- Safe API error messages
 - OpenAPI documentation
+- Provider error response documentation
 - API unit tests
 - Streaming API tests
+- HTTP error-mapping tests
 
 ### Remaining
 
-- Unified non-streaming provider error responses
-- Client-disconnect and cancellation handling
+- Request correlation identifiers
+- Client-disconnect detection
+- Stream cancellation handling
 - Stream timeout handling
-- Request identifiers
-- Consistent API error envelope
+- Non-streaming request timeout handling
+- Consistent error envelopes across validation and runtime failures
+- Request and response logging
 - Model aliasing
 - Request validation refinements
 - API versioning policy
 - End-to-end integration tests
 - Example client application
+- Production-oriented API documentation
 
 This milestone represents Trussium’s first usable vertical slice and should be completed before expanding into several additional model capabilities.
 
@@ -239,8 +280,10 @@ Enable Trussium to select providers and recover from provider failures.
 - Routing decision metadata
 - Failure classification
 - Routing telemetry
+- Idempotency considerations
+- Retry budget controls
 
-Advanced AI-based routing should be considered only after deterministic routing is reliable and measurable.
+Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 
 ---
 
@@ -254,7 +297,8 @@ Provide the controls required for secure organizational and enterprise use.
 
 - Runtime API keys
 - Tenant identity
-- Project and application identity
+- Project identity
+- Application identity
 - Authentication
 - Authorization
 - Rate limiting
@@ -265,6 +309,8 @@ Provide the controls required for secure organizational and enterprise use.
 - Audit events
 - Request attribution
 - Provider credential isolation
+- Tenant-aware provider policies
+- Usage export interfaces
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
@@ -281,7 +327,8 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Production Docker image
 - Kubernetes manifests
 - Helm chart
-- ConfigMap and Secret integration
+- ConfigMap integration
+- Secret integration
 - Horizontal scaling
 - Graceful termination
 - Pod disruption support
@@ -291,7 +338,9 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Structured operational logs
 - Runtime dashboards
 - Alerting guidance
+- Readiness dependency checks
 - Production deployment documentation
+- Upgrade and rollback procedures
 
 Health checks have already been delivered as part of the runtime foundation.
 
@@ -317,6 +366,8 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Integration documentation
 - Local development environment
 - Community provider plugins
+- API usage examples
+- Troubleshooting guide
 
 SDK development should follow a stable HTTP API rather than preceding it.
 
@@ -361,6 +412,8 @@ Extend Trussium beyond model inference into controlled workflow and agent execut
 - MCP-native execution
 - Human approval workflows
 - Execution auditing
+- Execution limits
+- Agent policy enforcement
 
 Agent functionality should not be prioritized until the underlying runtime, governance, routing, and observability layers are production-ready.
 
@@ -383,7 +436,9 @@ Trussium remains protocol-agnostic, but protocols will be introduced according t
 
 - gRPC
 
-gRPC and MCP should be implemented after the core HTTP and streaming contracts are stable. They should reuse the same capability and provider layers rather than creating separate execution paths.
+gRPC and MCP should reuse the same capability, provider, execution, and error contracts rather than introducing separate runtime paths.
+
+The HTTP API should remain the primary integration surface until its request, response, streaming, error, authentication, and versioning contracts are stable.
 
 ---
 
@@ -395,14 +450,17 @@ The roadmap is guided by the following principles:
 - Provider-neutral contracts
 - Capability-first architecture
 - Protocol-independent execution
+- Protocol-neutral error classification
 - Extensible provider and plugin model
 - Observable by default
 - Secure by default
 - Explicit tenant and usage boundaries
 - Reliable failure handling
+- Safe client-facing errors
 - Developer-focused integration
 - Backwards-compatible public interfaces
 - Incremental, customer-testable delivery
+- Operational simplicity before architectural breadth
 
 ---
 
@@ -410,16 +468,41 @@ The roadmap is guided by the following principles:
 
 Trussium follows Semantic Versioning and Conventional Commits.
 
-Releases should include:
+Project releases are automated through GitHub Actions and include:
 
 - Automated quality validation
 - Automated changelog generation
 - Version tags
 - GitHub Releases
+- Dependency updates
+- Release notes derived from conventional commits
+
+Future release improvements should include:
+
 - Upgrade notes for breaking changes
+- Release recovery procedures
+- Package installation validation
+- Compatibility guarantees for public interfaces
 - Independent versioning for separately released repositories
 
 Public interface stability should be clearly documented before the first stable release.
+
+---
+
+## Immediate Priorities
+
+The next priorities for the first chat vertical slice are:
+
+1. Request correlation identifiers
+2. Structured request and execution logging
+3. Execution context propagation
+4. Client-disconnect and cancellation handling
+5. Provider and stream timeout handling
+6. End-to-end integration testing
+7. Self-hosted model-provider validation
+8. Production container packaging
+
+These priorities strengthen reliability and operability before Trussium expands into routing, governance, additional protocols, or additional AI capabilities.
 
 ---
 
@@ -438,6 +521,7 @@ Future milestones may include:
 - Private model management
 - Advanced policy engines
 - Enterprise control plane
+- Hosted management plane
 - Community-contributed providers and plugins
 
 These items are exploratory and do not represent committed deliverables.
