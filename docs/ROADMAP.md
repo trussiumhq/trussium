@@ -23,9 +23,9 @@ Client
   → Normalized JSON or SSE response
 ```
 
-Both streaming and non-streaming requests now use normalized provider errors.
+Both streaming and non-streaming requests use normalized provider errors. Every HTTP request now also has a correlation identifier that is propagated through successful responses, error responses, health endpoints, and SSE streams.
 
-The immediate focus is to strengthen this execution path with request correlation, structured logging, execution context, cancellation handling, timeout handling, and end-to-end validation before expanding into additional providers, capabilities, and protocols.
+The immediate focus is to strengthen this execution path with provider-neutral public errors, structured logging, richer execution context, cancellation handling, timeout handling, and end-to-end validation before expanding into additional providers, capabilities, and protocols.
 
 ---
 
@@ -88,7 +88,7 @@ Establish a dependable engineering workflow for local development, continuous in
 - Verify complete CodeQL coverage
 - Verify dependency vulnerability scanning
 - Verify secret-scanning configuration
-- Verify release automation across all supported release scenarios
+- Verify release automation across supported release scenarios
 - Document release recovery procedures
 - Add package build and installation validation
 
@@ -114,12 +114,18 @@ Build the foundational runtime components required by capabilities, providers, A
 - Core application lifecycle integration
 - Provider-neutral capability execution errors
 - Protocol-neutral capability error categories
+- Request-correlation middleware
+- Request-scoped correlation context using `ContextVar`
+- Caller-provided `X-Request-ID` support
+- Generated UUID request identifiers
+- Correlation identifiers on HTTP responses
+- Request correlation preserved during streaming execution
+- Request context cleanup after request processing
 
 ### Remaining
 
 - Structured logging
-- Request and execution context
-- Correlation and request identifiers
+- Richer request and execution context
 - Unified runtime exception hierarchy
 - Lifecycle hooks for runtime services
 - Core runtime service registry
@@ -191,6 +197,7 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 
 ### Remaining
 
+- Provider-neutral public error codes and messages
 - Provider interface and metadata contract
 - Provider registry
 - Provider configuration
@@ -207,6 +214,8 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 The next provider should validate that Trussium’s abstractions are genuinely provider-neutral rather than OpenAI-specific.
 
 A self-hosted OpenAI-compatible provider such as vLLM or Ollama may provide stronger architectural validation than adding several managed providers immediately.
+
+Provider-specific information should remain available for internal diagnostics and observability without leaking provider-specific names into public runtime error contracts.
 
 ---
 
@@ -227,28 +236,37 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Incomplete-stream termination handling
 - Missing-provider service errors
 - Unified non-streaming provider error responses
-- Provider-neutral HTTP error handling
+- Provider-neutral HTTP status mapping
 - Capability error category to HTTP status mapping
 - Quota failures mapped to HTTP 503
 - Temporary rate limits mapped to HTTP 429
 - Provider authentication and connection failures mapped to HTTP 502
 - Provider timeouts mapped to HTTP 504
 - Safe API error messages
+- `X-Request-ID` propagation on successful responses
+- `X-Request-ID` propagation on HTTP error responses
+- Request identifiers on health responses
+- Request identifiers on active SSE responses
+- Caller-provided request identifiers
+- Generated request identifiers
+- Request-scoped correlation context during streaming
 - OpenAPI documentation
 - Provider error response documentation
 - API unit tests
 - Streaming API tests
 - HTTP error-mapping tests
+- Request-correlation middleware tests
 
 ### Remaining
 
-- Request correlation identifiers
+- Provider-neutral public error codes and messages
 - Client-disconnect detection
 - Stream cancellation handling
 - Stream timeout handling
 - Non-streaming request timeout handling
 - Consistent error envelopes across validation and runtime failures
-- Request and response logging
+- Structured request and response logging
+- Richer execution context
 - Model aliasing
 - Request validation refinements
 - API versioning policy
@@ -450,6 +468,7 @@ The roadmap is guided by the following principles:
 - Provider-neutral contracts
 - Capability-first architecture
 - Protocol-independent execution
+- Provider-neutral public error contracts
 - Protocol-neutral error classification
 - Extensible provider and plugin model
 - Observable by default
@@ -457,6 +476,7 @@ The roadmap is guided by the following principles:
 - Explicit tenant and usage boundaries
 - Reliable failure handling
 - Safe client-facing errors
+- Request correlation by default
 - Developer-focused integration
 - Backwards-compatible public interfaces
 - Incremental, customer-testable delivery
@@ -493,16 +513,16 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Request correlation identifiers
-2. Structured request and execution logging
-3. Execution context propagation
-4. Client-disconnect and cancellation handling
-5. Provider and stream timeout handling
-6. End-to-end integration testing
-7. Self-hosted model-provider validation
-8. Production container packaging
+1. Make public provider errors provider-neutral
+2. Add structured request and execution logging
+3. Add richer execution context propagation
+4. Add client-disconnect and cancellation handling
+5. Add provider and stream timeout handling
+6. Add end-to-end integration testing
+7. Validate a self-hosted model provider
+8. Add production container packaging
 
-These priorities strengthen reliability and operability before Trussium expands into routing, governance, additional protocols, or additional AI capabilities.
+These priorities strengthen Trussium’s provider-neutral architecture, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 
 ---
 
