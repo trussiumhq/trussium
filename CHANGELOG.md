@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.21.0 (2026-08-05)
+
+### Features
+
+- **container**: Add production image packaging
+  ([`ea05644`](https://github.com/trussiumhq/trussium/commit/ea0564479494fdf1380e1293ab882dddb0755c66))
+
+
 ## v0.20.0 (2026-08-05)
 
 ### Features
