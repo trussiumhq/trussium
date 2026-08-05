@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.17.0 (2026-08-05)
+
+### Features
+
+- **runtime**: Handle client disconnects
+  ([`1a6484a`](https://github.com/trussiumhq/trussium/commit/1a6484ab03090a7c642d3ce166cf0687f45312fd))
+
+
 ## v0.16.0 (2026-08-05)
 
 ### Features
