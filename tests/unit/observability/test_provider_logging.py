@@ -2,7 +2,8 @@
 
 import asyncio
 import logging
-from collections.abc import AsyncIterator
+from asyncio import CancelledError
+from collections.abc import AsyncGenerator, AsyncIterator
 from typing import Self, cast
 
 import pytest
@@ -53,6 +54,7 @@ class StructuredLogRecord(logging.LogRecord):
     streaming: bool
     duration_ms: float
     error_code: str
+    cancellation_reason: str
 
 
 class RecordHandler(logging.Handler):
@@ -189,6 +191,37 @@ class RaisingChatProvider:
         """Return an iterator that raises the configured failure."""
         _ = request
         return RaisingStream(self._error)
+
+
+class CancellingChatProvider:
+    """Expose deterministic completion and stream cancellation paths."""
+
+    def __init__(self) -> None:
+        """Initialize stream finalization state."""
+        self.stream_closed = False
+
+    async def complete(
+        self,
+        request: ChatCompletionRequest,
+    ) -> ChatCompletionResponse:
+        """Cancel non-streaming execution."""
+        _ = request
+        raise CancelledError
+
+    async def stream(
+        self,
+        request: ChatCompletionRequest,
+    ) -> AsyncIterator[ChatStreamEvent]:
+        """Yield once and record prompt iterator finalization."""
+        try:
+            yield ChatStreamStartEvent(
+                id="cancelling-provider-stream",
+                provider="test-provider",
+                model=request.model,
+            )
+            await asyncio.Event().wait()
+        finally:
+            self.stream_closed = True
 
 
 def create_test_logger() -> tuple[
@@ -566,3 +599,94 @@ def test_streaming_unexpected_failure_logs_exception() -> None:
     assert failure_record.error_code == UNEXPECTED_PROVIDER_ERROR_CODE
     assert failure_record.streaming is True
     assert failure_record.exc_info is not None
+
+
+def test_nested_non_streaming_cancellation_logs_and_reraises() -> None:
+    """Cancellation should unwind provider and capability lifecycles in order."""
+    logger, handler = create_test_logger()
+    provider = LoggingProviderChatCapability(
+        CancellingChatProvider(),
+        provider="test-provider",
+        logger=logger,
+    )
+    capability = LoggingChatCapability(
+        provider,
+        logger=logger,
+    )
+
+    with pytest.raises(CancelledError):
+        asyncio.run(
+            capability.complete(create_request()),
+        )
+
+    assert [record.event for record in handler.records] == [
+        "capability.execution.started",
+        "provider.execution.started",
+        "provider.execution.cancelled",
+        "capability.execution.cancelled",
+    ]
+
+    provider_cancelled, capability_cancelled = handler.records[2:]
+
+    assert provider_cancelled.streaming is False
+    assert capability_cancelled.streaming is False
+    assert provider_cancelled.duration_ms >= 0
+    assert capability_cancelled.duration_ms >= 0
+    assert provider_cancelled.cancellation_reason == "task_cancelled"
+    assert capability_cancelled.cancellation_reason == "task_cancelled"
+    assert provider_cancelled.exc_info is None
+    assert capability_cancelled.exc_info is None
+
+
+def test_nested_stream_close_finalizes_provider_before_cancellation_logs() -> None:
+    """Closing the outer stream should promptly close the provider iterator."""
+    logger, handler = create_test_logger()
+    decorated_provider = CancellingChatProvider()
+    provider = LoggingProviderChatCapability(
+        decorated_provider,
+        provider="test-provider",
+        logger=logger,
+    )
+    capability = LoggingChatCapability(
+        provider,
+        logger=logger,
+    )
+    context_token = set_request_id(
+        "request-cancelled-stream-123",
+        execution_id="execution-cancelled-stream-123",
+    )
+
+    async def consume_one_and_close() -> ChatStreamEvent:
+        events = cast(
+            AsyncGenerator[ChatStreamEvent, None],
+            capability.stream(
+                create_request(streaming=True),
+            ),
+        )
+        event = await anext(events)
+        await events.aclose()
+        return event
+
+    try:
+        event = asyncio.run(consume_one_and_close())
+
+        assert get_execution_context() == ExecutionContext(
+            request_id="request-cancelled-stream-123",
+            execution_id="execution-cancelled-stream-123",
+        )
+    finally:
+        reset_request_id(context_token)
+
+    assert isinstance(event, ChatStreamStartEvent)
+    assert decorated_provider.stream_closed is True
+    assert [record.event for record in handler.records] == [
+        "capability.execution.started",
+        "provider.execution.started",
+        "provider.execution.cancelled",
+        "capability.execution.cancelled",
+    ]
+    assert all(record.streaming is True for record in handler.records)
+    assert all(record.request_id == "request-cancelled-stream-123" for record in handler.records)
+    assert all(
+        record.execution_id == "execution-cancelled-stream-123" for record in handler.records
+    )

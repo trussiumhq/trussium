@@ -1,6 +1,7 @@
 """Structured provider execution logging."""
 
 import logging
+from asyncio import CancelledError
 from collections.abc import AsyncIterator
 from time import perf_counter
 from typing import Final
@@ -15,6 +16,7 @@ from trussium.capabilities.chat import (
 from trussium.capabilities.errors import CapabilityExecutionError
 from trussium.observability.logging import get_logger
 from trussium.runtime import bind_execution_context
+from trussium.runtime.streaming import close_async_resource
 
 UNEXPECTED_PROVIDER_ERROR_CODE: Final = "provider_execution_failed"
 
@@ -75,6 +77,12 @@ class LoggingProviderChatCapability:
 
             try:
                 response = await self._capability.complete(request)
+            except CancelledError:
+                self._log_cancelled(
+                    started_at=started_at,
+                    streaming=False,
+                )
+                raise
             except CapabilityExecutionError as error:
                 self._log_failed(
                     started_at=started_at,
@@ -123,8 +131,10 @@ class LoggingProviderChatCapability:
                 streaming=True,
             )
 
+            events = self._capability.stream(request)
+
             try:
-                async for event in self._capability.stream(request):
+                async for event in events:
                     if isinstance(event, ChatStreamErrorEvent) and not failed:
                         self._log_failed(
                             started_at=started_at,
@@ -134,6 +144,15 @@ class LoggingProviderChatCapability:
                         failed = True
 
                     yield event
+            except (CancelledError, GeneratorExit):
+                await close_async_resource(events)
+
+                if not failed:
+                    self._log_cancelled(
+                        started_at=started_at,
+                        streaming=True,
+                    )
+                raise
             except CapabilityExecutionError as error:
                 if not failed:
                     self._log_failed(
@@ -155,6 +174,23 @@ class LoggingProviderChatCapability:
                     started_at=started_at,
                     streaming=True,
                 )
+
+    def _log_cancelled(
+        self,
+        *,
+        started_at: float,
+        streaming: bool,
+    ) -> None:
+        """Emit a provider execution cancelled event."""
+        self._logger.info(
+            "Provider execution cancelled",
+            extra={
+                "event": "provider.execution.cancelled",
+                "streaming": streaming,
+                "duration_ms": self._duration_ms(started_at),
+                "cancellation_reason": "task_cancelled",
+            },
+        )
 
     def _log_started(
         self,

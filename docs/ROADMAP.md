@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. The immediate focus is cancellation handling, timeout handling, and end-to-end validation.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. The immediate focus is timeout handling and end-to-end validation.
 
 ---
 
@@ -155,6 +155,13 @@ Build the foundational runtime components required by capabilities, providers, A
 - Provider, model, and streaming-mode log fields
 - Normalized provider error-code log fields
 - Nested capability and provider lifecycle correlation
+- Pure-ASGI client-disconnect detection
+- Structured HTTP request-cancelled lifecycle events
+- Capability execution-cancelled lifecycle events
+- Provider execution-cancelled lifecycle events
+- Stable cancellation-reason log fields
+- Cooperative cancellation propagation
+- Prompt asynchronous iterator finalization
 
 ### Remaining
 
@@ -235,6 +242,7 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Full streaming-iterator provider lifecycle logging
 - Stable normalized provider error-code logging
 - OpenAI runtime logging composition
+- OpenAI streaming connection release during cancellation
 
 ### Remaining
 
@@ -309,11 +317,14 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Structured provider execution logging
 - Correlated capability and provider lifecycle ordering
 - Streaming provider lifecycle logging
+- Client-disconnect detection for active SSE streams
+- Stream cancellation propagation
+- Structured HTTP, capability, and provider cancellation events
+- Prompt provider stream finalization
+- ASGI 2.3 and ASGI 2.4 disconnect handling
 
 ### Remaining
 
-- Client-disconnect detection
-- Stream cancellation handling
 - Stream timeout handling
 - Non-streaming request timeout handling
 - Consistent error envelopes across validation and runtime failures
@@ -563,11 +574,10 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Add client-disconnect and cancellation handling
-2. Add provider and stream timeout handling
-3. Add end-to-end integration testing
-4. Validate a self-hosted model provider
-5. Add production container packaging
+1. Add provider and stream timeout handling
+2. Add end-to-end integration testing
+3. Validate a self-hosted model provider
+4. Add production container packaging
 
 These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 

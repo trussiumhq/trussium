@@ -19,6 +19,7 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "http_status_code",
     "duration_ms",
     "streaming",
+    "cancellation_reason",
     "capability",
     "provider",
     "model",

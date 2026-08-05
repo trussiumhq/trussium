@@ -1,7 +1,7 @@
 """Tests for the OpenAI chat capability adapter."""
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator
 from dataclasses import dataclass
 from typing import cast
 
@@ -87,6 +87,7 @@ class FakeAsyncStream:
     def __init__(self, events: list[FakeStreamEvent]) -> None:
         """Initialize the stream with fake events."""
         self._events = events
+        self.closed = False
 
     def __aiter__(self) -> AsyncIterator[FakeStreamEvent]:
         """Return the asynchronous event iterator."""
@@ -96,6 +97,10 @@ class FakeAsyncStream:
         """Yield configured fake stream events."""
         for event in self._events:
             yield event
+
+    async def close(self) -> None:
+        """Record release of the fake upstream connection."""
+        self.closed = True
 
 
 class FakeResponsesResource:
@@ -113,6 +118,7 @@ class FakeResponsesResource:
         self.events = events or []
         self.error = error
         self.last_request: dict[str, object] | None = None
+        self.last_stream: FakeAsyncStream | None = None
 
     async def create(self, **kwargs: object) -> object:
         """Return a configured response, stream, or exception."""
@@ -122,7 +128,8 @@ class FakeResponsesResource:
             raise self.error
 
         if kwargs.get("stream") is True:
-            return FakeAsyncStream(self.events)
+            self.last_stream = FakeAsyncStream(self.events)
+            return self.last_stream
 
         if self.response is None:
             raise AssertionError("A fake response was not configured")
@@ -379,6 +386,48 @@ def test_stream_normalizes_openai_events() -> None:
     assert isinstance(events[3], ChatStreamEndEvent)
     assert events[3].finish_reason is FinishReason.STOP
     assert events[3].usage.total_tokens == 4
+
+
+def test_stream_close_releases_openai_stream() -> None:
+    """Closing normalized iteration should release the upstream connection."""
+    response = FakeResponse(
+        id="resp-cancelled-stream-1",
+        model="served-model",
+        output_text="Hello.",
+        usage=FakeUsage(
+            input_tokens=2,
+            output_tokens=2,
+            total_tokens=4,
+        ),
+    )
+    resource = FakeResponsesResource(
+        events=[
+            FakeStreamEvent(
+                type="response.created",
+                response=response,
+            ),
+            FakeStreamEvent(
+                type="response.output_text.delta",
+                delta="Hello.",
+            ),
+        ]
+    )
+    adapter = create_adapter(resource)
+
+    async def read_one_and_close() -> ChatStreamEvent:
+        events = cast(
+            AsyncGenerator[ChatStreamEvent, None],
+            adapter.stream(create_request(stream=True)),
+        )
+        event = await anext(events)
+        await events.aclose()
+        return event
+
+    event = asyncio.run(read_one_and_close())
+
+    assert isinstance(event, ChatStreamStartEvent)
+    assert resource.last_stream is not None
+    assert resource.last_stream.closed is True
 
 
 def test_stream_normalizes_incomplete_response() -> None:
