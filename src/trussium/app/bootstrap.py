@@ -5,6 +5,7 @@ import os
 from openai import AsyncOpenAI
 
 from trussium.capabilities.chat import ChatCapability
+from trussium.observability import LoggingProviderChatCapability
 from trussium.providers.openai import OpenAIChatCapability
 
 
@@ -22,4 +23,7 @@ def create_chat_capability_from_environment() -> ChatCapability | None:
 
     client = AsyncOpenAI(api_key=api_key)
 
-    return OpenAIChatCapability(client)
+    return LoggingProviderChatCapability(
+        OpenAIChatCapability(client),
+        provider=OpenAIChatCapability.provider_name,
+    )
