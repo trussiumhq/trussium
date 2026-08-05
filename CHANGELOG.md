@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.15.0 (2026-08-05)
+
+### Features
+
+- **observability**: Add capability execution logging
+  ([`155757b`](https://github.com/trussiumhq/trussium/commit/155757b9adaf024098dcb21480e63b968c9f2280))
+
+
 ## v0.14.0 (2026-08-05)
 
 ### Features
