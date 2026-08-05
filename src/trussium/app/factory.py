@@ -9,7 +9,10 @@ from trussium.middleware import (
     RequestCorrelationMiddleware,
     RequestLoggingMiddleware,
 )
-from trussium.observability import configure_logging
+from trussium.observability import (
+    LoggingChatCapability,
+    configure_logging,
+)
 
 
 def create_application(
@@ -38,7 +41,15 @@ def create_application(
     )
 
     application.state.settings = resolved_settings
-    application.state.chat_capability = chat_capability
+    application.state.chat_capability = (
+        LoggingChatCapability(chat_capability)
+        if chat_capability is not None
+        and not isinstance(
+            chat_capability,
+            LoggingChatCapability,
+        )
+        else chat_capability
+    )
 
     application.add_middleware(
         RequestLoggingMiddleware,

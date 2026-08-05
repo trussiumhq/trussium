@@ -38,6 +38,7 @@ def test_structured_formatter_returns_valid_json() -> None:
     record.http_path = "/test"
     record.http_status_code = 200
     record.duration_ms = 12.5
+    record.streaming = True
 
     formatted = formatter.format(record)
     payload = json.loads(formatted)
@@ -52,6 +53,7 @@ def test_structured_formatter_returns_valid_json() -> None:
     assert payload["http_path"] == "/test"
     assert payload["http_status_code"] == 200
     assert payload["duration_ms"] == 12.5
+    assert payload["streaming"] is True
     assert isinstance(payload["timestamp"], str)
 
 

@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. The immediate focus is to add structured capability and provider execution events before cancellation handling, timeout handling, and end-to-end validation.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Provider-neutral capability executions emit correlated structured lifecycle events across both non-streaming and streaming workflows. The immediate focus is to add structured provider execution events before cancellation handling, timeout handling, and end-to-end validation.
 
 ---
 
@@ -139,10 +139,17 @@ Build the foundational runtime components required by capabilities, providers, A
 - Request-failed lifecycle events
 - Request duration measurement
 - Request ID correlation in HTTP lifecycle logs
+- Provider-neutral capability logging decorator
+- Capability execution-started lifecycle events
+- Capability execution-completed lifecycle events
+- Capability execution-failed lifecycle events
+- Capability execution duration measurement
+- Capability, model, and streaming-mode log fields
+- Normalized capability error-code log fields
+- Full streaming-iterator lifecycle logging
 
 ### Remaining
 
-- Structured capability execution logging
 - Structured provider execution logging
 - Unified runtime exception hierarchy
 - Lifecycle hooks for runtime services
@@ -171,6 +178,9 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Streaming capability execution
 - Provider-neutral execution failure contract
 - Protocol-independent error classification
+- Provider-neutral structured capability lifecycle logging
+- Capability execution duration measurement
+- Streaming execution lifecycle logging through iterator exhaustion
 
 ### Remaining
 
@@ -287,7 +297,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 
 ### Remaining
 
-- Structured capability execution logging
 - Structured provider execution logging
 - Client-disconnect detection
 - Stream cancellation handling
@@ -540,13 +549,12 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Add structured capability execution logging
-2. Add structured provider execution logging
-3. Add client-disconnect and cancellation handling
-4. Add provider and stream timeout handling
-5. Add end-to-end integration testing
-6. Validate a self-hosted model provider
-7. Add production container packaging
+1. Add structured provider execution logging
+2. Add client-disconnect and cancellation handling
+3. Add provider and stream timeout handling
+4. Add end-to-end integration testing
+5. Validate a self-hosted model provider
+6. Add production container packaging
 
 These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 
