@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.23.0 (2026-08-05)
+
+### Features
+
+- **runtime**: Validate graceful shutdown
+  ([`e16d0fe`](https://github.com/trussiumhq/trussium/commit/e16d0fec299a9e2553f48e04a8dc415fbd59c81b))
+
+
 ## v0.22.0 (2026-08-05)
 
 ### Features
