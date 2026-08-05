@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.18.0 (2026-08-05)
+
+### Features
+
+- **runtime**: Enforce provider timeouts
+  ([`1569395`](https://github.com/trussiumhq/trussium/commit/1569395f99e15cff36153272624ee88f140df66d))
+
+
 ## v0.17.0 (2026-08-05)
 
 ### Features
