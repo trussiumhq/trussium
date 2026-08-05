@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.19.0 (2026-08-05)
+
+### Features
+
+- **testing**: Add end-to-end runtime suite
+  ([`d21cb0e`](https://github.com/trussiumhq/trussium/commit/d21cb0e58944fb6b5b9013b39c7c70d12bbf0ab6))
+
+
 ## v0.18.0 (2026-08-05)
 
 ### Features
