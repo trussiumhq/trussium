@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Provider-neutral capability executions emit correlated structured lifecycle events across both non-streaming and streaming workflows. The immediate focus is to add structured provider execution events before cancellation handling, timeout handling, and end-to-end validation.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. The immediate focus is cancellation handling, timeout handling, and end-to-end validation.
 
 ---
 
@@ -147,10 +147,17 @@ Build the foundational runtime components required by capabilities, providers, A
 - Capability, model, and streaming-mode log fields
 - Normalized capability error-code log fields
 - Full streaming-iterator lifecycle logging
+- Reusable provider execution logging decorator
+- Provider execution-started lifecycle events
+- Provider execution-completed lifecycle events
+- Provider execution-failed lifecycle events
+- Provider execution duration measurement
+- Provider, model, and streaming-mode log fields
+- Normalized provider error-code log fields
+- Nested capability and provider lifecycle correlation
 
 ### Remaining
 
-- Structured provider execution logging
 - Unified runtime exception hierarchy
 - Lifecycle hooks for runtime services
 - Core runtime service registry
@@ -222,6 +229,12 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Safe client-facing provider error messages
 - Shared error normalization for streaming and non-streaming execution
 - Provider adapter unit tests
+- Reusable provider execution logging decorator
+- Structured provider execution lifecycle events
+- Provider execution duration measurement
+- Full streaming-iterator provider lifecycle logging
+- Stable normalized provider error-code logging
+- OpenAI runtime logging composition
 
 ### Remaining
 
@@ -237,7 +250,6 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Provider health reporting
 - Provider capability reporting
 - Provider credential validation
-- Structured provider execution events
 
 The next provider should validate that Trussium’s abstractions are genuinely provider-neutral rather than OpenAI-specific.
 
@@ -294,10 +306,12 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - HTTP error-mapping tests
 - Request-correlation middleware tests
 - Structured request-logging tests
+- Structured provider execution logging
+- Correlated capability and provider lifecycle ordering
+- Streaming provider lifecycle logging
 
 ### Remaining
 
-- Structured provider execution logging
 - Client-disconnect detection
 - Stream cancellation handling
 - Stream timeout handling
@@ -549,12 +563,11 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Add structured provider execution logging
-2. Add client-disconnect and cancellation handling
-3. Add provider and stream timeout handling
-4. Add end-to-end integration testing
-5. Validate a self-hosted model provider
-6. Add production container packaging
+1. Add client-disconnect and cancellation handling
+2. Add provider and stream timeout handling
+3. Add end-to-end integration testing
+4. Validate a self-hosted model provider
+5. Add production container packaging
 
 These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 
