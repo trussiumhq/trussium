@@ -11,7 +11,7 @@ from starlette.types import (
     Send,
 )
 
-from trussium.runtime.context import (
+from trussium.runtime import (
     reset_request_id,
     set_request_id,
 )

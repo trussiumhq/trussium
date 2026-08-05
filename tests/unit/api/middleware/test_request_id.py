@@ -14,7 +14,11 @@ from trussium.middleware import (
     REQUEST_ID_HEADER,
     RequestCorrelationMiddleware,
 )
-from trussium.runtime import get_request_id
+from trussium.runtime import (
+    ExecutionContext,
+    get_execution_context,
+    get_request_id,
+)
 
 
 def create_test_application() -> FastAPI:
@@ -52,6 +56,41 @@ def create_test_application() -> FastAPI:
             second_request_id = get_request_id()
 
             yield f"{first_request_id}|{second_request_id}"
+
+        return StreamingResponse(
+            content=generate(),
+            media_type="text/plain",
+        )
+
+    @application.get("/execution-context")
+    async def read_execution_context() -> dict[str, str | None]:
+        """Return request-level execution metadata."""
+        context = get_execution_context()
+
+        return {
+            "request_id": context.request_id,
+            "execution_id": context.execution_id,
+        }
+
+    @application.get("/stream-execution")
+    async def stream_execution_context() -> StreamingResponse:
+        """Return execution-context values from a stream."""
+
+        async def generate() -> AsyncIterator[str]:
+            first_context = get_execution_context()
+
+            await asyncio.sleep(0)
+
+            second_context = get_execution_context()
+
+            yield "|".join(
+                (
+                    str(first_context.request_id),
+                    str(first_context.execution_id),
+                    str(second_context.request_id),
+                    str(second_context.execution_id),
+                )
+            )
 
         return StreamingResponse(
             content=generate(),
@@ -153,6 +192,56 @@ def test_request_context_remains_available_during_streaming() -> None:
     assert body == "trussium-stream-123|trussium-stream-123"
 
 
+def test_execution_id_is_generated_for_every_request() -> None:
+    """Every HTTP request should receive an internal UUID execution ID."""
+    client = TestClient(create_test_application())
+
+    first_response = client.get(
+        "/execution-context",
+        headers={
+            REQUEST_ID_HEADER: "trussium-execution-123",
+        },
+    )
+    second_response = client.get(
+        "/execution-context",
+        headers={
+            REQUEST_ID_HEADER: "trussium-execution-456",
+        },
+    )
+
+    first_execution_id = first_response.json()["execution_id"]
+    second_execution_id = second_response.json()["execution_id"]
+
+    assert isinstance(first_execution_id, str)
+    assert isinstance(second_execution_id, str)
+    assert str(UUID(first_execution_id)) == first_execution_id
+    assert str(UUID(second_execution_id)) == second_execution_id
+    assert first_execution_id != second_execution_id
+
+
+def test_execution_context_remains_available_during_streaming() -> None:
+    """Request and execution IDs should remain stable throughout streaming."""
+    client = TestClient(create_test_application())
+
+    with client.stream(
+        "GET",
+        "/stream-execution",
+        headers={
+            REQUEST_ID_HEADER: "trussium-stream-execution-123",
+        },
+    ) as response:
+        body = "".join(response.iter_text())
+
+        assert response.status_code == status.HTTP_200_OK
+
+    request_id, execution_id, streamed_request_id, streamed_execution_id = body.split("|")
+
+    assert request_id == "trussium-stream-execution-123"
+    assert streamed_request_id == request_id
+    assert streamed_execution_id == execution_id
+    assert str(UUID(execution_id)) == execution_id
+
+
 def test_application_factory_registers_request_id_middleware() -> None:
     """The application factory should install the middleware."""
     application = create_application(
@@ -180,6 +269,10 @@ def test_health_response_contains_generated_request_id() -> None:
     request_id = response.headers[REQUEST_ID_HEADER]
 
     assert str(UUID(request_id)) == request_id
+    assert "X-Execution-ID" not in response.headers
+    assert response.json() == {
+        "status": "ok",
+    }
 
 
 def test_request_context_is_not_active_outside_request() -> None:
@@ -195,3 +288,4 @@ def test_request_context_is_not_active_outside_request() -> None:
 
     assert response.status_code == status.HTTP_200_OK
     assert get_request_id() is None
+    assert get_execution_context() == ExecutionContext()

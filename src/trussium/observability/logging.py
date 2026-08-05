@@ -6,11 +6,14 @@ import sys
 from datetime import UTC, datetime
 from typing import Final, TextIO
 
+from trussium.runtime import get_execution_context
+
 _TRUSSIUM_LOGGER_NAME: Final = "trussium"
 
 _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "event",
     "request_id",
+    "execution_id",
     "http_method",
     "http_path",
     "http_status_code",
@@ -20,6 +23,41 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "model",
     "error_code",
 )
+
+
+class RuntimeContextFilter(logging.Filter):
+    """Attach active runtime context to structured log records."""
+
+    def filter(
+        self,
+        record: logging.LogRecord,
+    ) -> bool:
+        """Enrich a log record with active execution context.
+
+        Args:
+            record: Log record to enrich.
+
+        Returns:
+            Always ``True`` so the record is emitted.
+        """
+        context = get_execution_context()
+
+        context_fields: dict[str, str | None] = {
+            "request_id": context.request_id,
+            "execution_id": context.execution_id,
+            "capability": context.capability,
+            "provider": context.provider,
+            "model": context.model,
+        }
+
+        for field_name, field_value in context_fields.items():
+            if field_value is not None:
+                record.__dict__.setdefault(
+                    field_name,
+                    field_value,
+                )
+
+        return True
 
 
 class StructuredJsonFormatter(logging.Formatter):
@@ -86,6 +124,9 @@ def configure_logging(
 
     handler = logging.StreamHandler(
         stream or sys.stdout,
+    )
+    handler.addFilter(
+        RuntimeContextFilter(),
     )
     handler.setFormatter(
         StructuredJsonFormatter(),
