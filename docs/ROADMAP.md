@@ -25,7 +25,9 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, correlated lifecycles, and bounded graceful shutdown without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, automated GHCR publication, and configurable active-workload draining. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases. The immediate focus is production Kubernetes deployment manifests.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, correlated lifecycles, and bounded graceful shutdown without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, automated GHCR publication, and configurable active-workload draining. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases.
+
+Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened replicated pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The immediate focus is a Helm chart built on the validated Kubernetes deployment contract.
 
 ---
 
@@ -99,6 +101,7 @@ Establish a dependable engineering workflow for local development, continuous in
 - Runtime version metadata derived from the installed distribution
 - Wheel and source-distribution assets attached to GitHub releases
 - Dedicated package build and installation CI stage
+- Dedicated Kubernetes render and real-cluster smoke-test CI stage
 
 ### Remaining
 
@@ -499,15 +502,28 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Configurable graceful shutdown for active requests and streams
 - Bounded cancelled-request resource cleanup
 - Active-workload graceful shutdown operations documentation
+- Maintained Kubernetes Kustomize base and production overlay
+- Dedicated Namespace and token-free runtime ServiceAccount
+- ConfigMap integration for non-secret runtime settings
+- Optional Secret integration for provider configuration and credentials
+- Private GHCR image-pull Secret integration and operations guidance
+- Release-pinned production image tags updated by semantic release
+- Hardened pod and container security contexts matching the OCI image
+- Startup, liveness, and readiness probes on the port 9000 health contract
+- CPU and memory requests and limits
+- Two-replica production deployment with manual horizontal scaling support
+- Topology spreading across cluster nodes
+- Zero-unavailable rolling deployment strategy
+- PodDisruptionBudget for voluntary disruption protection
+- Kubernetes termination grace period aligned with active-workload draining
+- Client-side Kustomize render and schema validation automation
+- Real Kind-cluster deployment, replica, security, health, and correlation smoke tests
+- Kubernetes customization, upgrade, rollback, scaling, and removal documentation
 
 ### Remaining
 
-- Kubernetes manifests
 - Helm chart
-- ConfigMap integration
-- Secret integration
-- Horizontal scaling
-- Pod disruption support
+- Horizontal autoscaling
 - OpenTelemetry instrumentation
 - Prometheus metrics
 - Distributed tracing
@@ -515,7 +531,6 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Runtime dashboards
 - Alerting guidance
 - Readiness dependency checks
-- Upgrade and rollback procedures
 
 Health checks and structured HTTP lifecycle logs have already been delivered as part of the runtime foundation.
 
@@ -672,11 +687,11 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add production Kubernetes deployment manifests
+1. Add a production Helm chart
 
-This priority begins Kubernetes packaging now that the runtime process,
-container, release artifacts, and active-workload shutdown contract are
-validated end to end.
+This priority packages the now-validated Kubernetes resource, configuration,
+security, availability, release-version, and operational contracts for
+customizable installation and upgrades.
 
 ---
 

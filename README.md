@@ -134,6 +134,19 @@ docker run --rm \
   trussium:local
 ```
 
+### Kubernetes quick start
+
+Validate and deploy the release-pinned production overlay:
+
+```bash
+scripts/kubernetes-validate.sh
+kubectl apply -k deploy/kubernetes/overlays/production
+```
+
+The published GHCR package currently requires an image-pull Secret. See the
+[Kubernetes Deployment Guide](docs/KUBERNETES.md) for private-registry setup,
+provider configuration, customization, validation, upgrades, and rollback.
+
 ---
 
 ## Documentation
@@ -145,6 +158,7 @@ Project documentation is available in the `docs/` directory.
 - [Roadmap](docs/ROADMAP.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
+- [Kubernetes Deployment Guide](docs/KUBERNETES.md)
 - [Graceful Shutdown Guide](docs/SHUTDOWN.md)
 - Architecture Decision Records (ADRs) *(coming soon)*
 

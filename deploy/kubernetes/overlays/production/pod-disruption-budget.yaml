@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: trussium
+  labels:
+    app.kubernetes.io/name: trussium
+    app.kubernetes.io/instance: trussium
+    app.kubernetes.io/component: runtime
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trussium
+      app.kubernetes.io/instance: trussium

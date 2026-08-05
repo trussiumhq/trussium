@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: trussium-system
+
+resources:
+  - ../../base
+  - pod-disruption-budget.yaml
+
+patches:
+  - path: deployment-patch.yaml
+
+images:
+  - name: ghcr.io/trussiumhq/trussium
+    newName: ghcr.io/trussiumhq/trussium
+    newTag: "0.23.0"

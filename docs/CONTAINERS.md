@@ -195,8 +195,15 @@ then builds and publishes the multi-platform image to
 `ghcr.io/trussiumhq/trussium` using the GitHub-provided token with package-write
 permission. Pull requests never publish images.
 
+## Kubernetes deployment
+
+The repository includes a release-pinned production Kustomize overlay with
+health probes, hardened pod security, ConfigMap and optional Secret integration,
+rolling updates, disruption protection, and real Kind-cluster validation. See
+the [Kubernetes Deployment Guide](KUBERNETES.md).
+
 ## Current limitations
 
-The container release does not yet include Kubernetes manifests, a Helm chart,
-runtime metrics, distributed tracing, or provider-specific model runtimes. No
-model weights or provider credentials are bundled in the image.
+The container release does not yet include a Helm chart, runtime metrics,
+distributed tracing, or provider-specific model runtimes. No model weights or
+provider credentials are bundled in the image.

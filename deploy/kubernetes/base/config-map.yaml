@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trussium
+  labels:
+    app.kubernetes.io/name: trussium
+    app.kubernetes.io/instance: trussium
+    app.kubernetes.io/component: runtime
+data:
+  TRUSSIUM_ENVIRONMENT: production
+  TRUSSIUM_RUNTIME__HOST: 0.0.0.0
+  TRUSSIUM_RUNTIME__PORT: "9000"
+  TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS: "30"
+  TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS: "60"
+  TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS: "30"
