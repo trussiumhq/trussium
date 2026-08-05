@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -30,7 +31,31 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Capture current release tag
+        id: previous-release
+        run: |
+          tag="$(git tag --list 'v*' --sort=-version:refname | head -n 1)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
       - name: Run Semantic Release
         env:
           GH_TOKEN: ${{ secrets.PAT }}
         run: uv run semantic-release version
+
+      - name: Detect a newly created release
+        id: release
+        env:
+          PREVIOUS_RELEASE_TAG: ${{ steps.previous-release.outputs.tag }}
+        run: |
+          git fetch --force --tags origin
+          tag="$(git tag --list 'v*' --sort=-version:refname | head -n 1)"
+          if [ "$tag" != "$PREVIOUS_RELEASE_TAG" ]; then
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Dispatch container publication
+        if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: gh workflow run container.yml --ref "$RELEASE_TAG"
