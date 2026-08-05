@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.16.0 (2026-08-05)
+
+### Features
+
+- **observability**: Add provider execution logging
+  ([`c30ea88`](https://github.com/trussiumhq/trussium/commit/c30ea886a24fea5631d8c5d6acd509644cbef4f3))
+
+
 ## v0.15.0 (2026-08-05)
 
 ### Features
