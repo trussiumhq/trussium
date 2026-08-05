@@ -23,9 +23,9 @@ Client
   → Normalized JSON or SSE response
 ```
 
-Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has a correlation identifier and emits structured JSON lifecycle logs containing its request ID, HTTP method, path, status code, and duration.
+Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The immediate focus is to introduce richer execution context and structured capability/provider execution events before adding cancellation handling, timeout handling, and end-to-end validation.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. The immediate focus is to add structured capability and provider execution events before cancellation handling, timeout handling, and end-to-end validation.
 
 ---
 
@@ -121,9 +121,18 @@ Build the foundational runtime components required by capabilities, providers, A
 - Correlation identifiers on HTTP responses
 - Request correlation preserved during streaming execution
 - Request context cleanup after request processing
+- Immutable typed execution context
+- Internal UUID execution identifiers for HTTP requests
+- Scoped capability, provider, and model context binding
+- Nested execution-context inheritance and restoration
+- Execution-context propagation across asynchronous tasks
+- Execution-context propagation during streaming execution
+- Execution-context cleanup after request processing
 - Central structured logging configuration
 - Structured JSON log formatter
 - Namespaced Trussium loggers
+- Automatic structured-log enrichment from runtime context
+- Explicit structured-log field precedence over inherited context
 - Structured HTTP request lifecycle middleware
 - Request-started lifecycle events
 - Request-completed lifecycle events
@@ -133,7 +142,6 @@ Build the foundational runtime components required by capabilities, providers, A
 
 ### Remaining
 
-- Richer request and execution context
 - Structured capability execution logging
 - Structured provider execution logging
 - Unified runtime exception hierarchy
@@ -258,6 +266,13 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Caller-provided request identifiers
 - Generated request identifiers
 - Request-scoped correlation context during streaming
+- Internal execution identifiers for every HTTP request
+- Typed request and execution context
+- Capability, provider, and model execution metadata
+- Nested execution-context binding and restoration
+- Asynchronous task context propagation
+- Streaming execution-context propagation
+- Automatic runtime-context enrichment for structured logs
 - Structured request-started logs
 - Structured request-completed logs
 - Structured request-failed logs
@@ -272,7 +287,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 
 ### Remaining
 
-- Richer execution context
 - Structured capability execution logging
 - Structured provider execution logging
 - Client-disconnect detection
@@ -526,14 +540,13 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Add richer request and execution context propagation
-2. Add structured capability execution logging
-3. Add structured provider execution logging
-4. Add client-disconnect and cancellation handling
-5. Add provider and stream timeout handling
-6. Add end-to-end integration testing
-7. Validate a self-hosted model provider
-8. Add production container packaging
+1. Add structured capability execution logging
+2. Add structured provider execution logging
+3. Add client-disconnect and cancellation handling
+4. Add provider and stream timeout handling
+5. Add end-to-end integration testing
+6. Validate a self-hosted model provider
+7. Add production container packaging
 
 These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 
