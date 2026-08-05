@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.24.0 (2026-08-05)
+
+### Features
+
+- **kubernetes**: Add production manifests
+  ([`ec60909`](https://github.com/trussiumhq/trussium/commit/ec60909cd761ce00a96e1c3369f927e3af9d4781))
+
+
 ## v0.23.0 (2026-08-05)
 
 ### Features
