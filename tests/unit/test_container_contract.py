@@ -81,9 +81,23 @@ def test_container_workflow_validates_and_publishes_release_images() -> None:
 
     assert "docker build --check ." in workflow
     assert "scripts/container-smoke-test.sh" in workflow
+    assert "workflow_dispatch:" in workflow
     assert "if: startsWith(github.ref, 'refs/tags/v')" in workflow
     assert "ghcr.io/${{ github.repository }}" in workflow
     assert "platforms: linux/amd64,linux/arm64" in workflow
     assert "push: true" in workflow
     assert "provenance: mode=max" in workflow
     assert "sbom: true" in workflow
+
+
+def test_release_workflow_dispatches_new_tags_for_container_publication() -> None:
+    """A semantic release should explicitly start the tagged image workflow."""
+    workflow = (_REPOSITORY_ROOT / ".github/workflows/release.yml").read_text(encoding="utf-8")
+
+    assert "id: previous-release" in workflow
+    assert "id: release" in workflow
+    assert "PREVIOUS_RELEASE_TAG: ${{ steps.previous-release.outputs.tag }}" in workflow
+    assert "if: steps.release.outputs.tag != ''" in workflow
+    assert "actions: write" in workflow
+    assert "GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}" in workflow
+    assert 'gh workflow run container.yml --ref "$RELEASE_TAG"' in workflow

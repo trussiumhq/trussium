@@ -180,9 +180,11 @@ application shutdown before the bounded Docker stop timeout expires.
 ## Publication workflow
 
 Pull requests and pushes to `main` run Docker build checks and the complete
-smoke test. Semantic release tags trigger a separate multi-platform build that
-publishes to `ghcr.io/trussiumhq/trussium` using the GitHub-provided token with
-package-write permission. Pull requests never publish images.
+smoke test. When semantic release creates a new tag, the release workflow
+explicitly dispatches the container workflow at that tag. The tagged workflow
+then builds and publishes the multi-platform image to
+`ghcr.io/trussiumhq/trussium` using the GitHub-provided token with package-write
+permission. Pull requests never publish images.
 
 ## Current limitations
 
