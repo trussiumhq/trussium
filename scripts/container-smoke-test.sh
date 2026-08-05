@@ -1,0 +1,128 @@
+#!/bin/sh
+
+set -eu
+
+image="${TRUSSIUM_CONTAINER_IMAGE:-trussium:smoke}"
+container="trussium-smoke-$$"
+repository="https://github.com/trussiumhq/trussium"
+revision="$(git rev-parse HEAD)"
+build_date="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+response_headers="$(mktemp)"
+response_body="$(mktemp)"
+
+cleanup() {
+    docker rm --force "$container" >/dev/null 2>&1 || true
+    rm -f "$response_headers" "$response_body"
+}
+
+trap cleanup EXIT INT TERM
+
+assert_equal() {
+    actual="$1"
+    expected="$2"
+    description="$3"
+
+    if [ "$actual" != "$expected" ]; then
+        echo "$description: expected '$expected', got '$actual'" >&2
+        exit 1
+    fi
+}
+
+docker build \
+    --quiet \
+    --build-arg BUILD_DATE="$build_date" \
+    --build-arg SOURCE_URL="$repository" \
+    --build-arg VCS_REF="$revision" \
+    --build-arg VERSION="smoke" \
+    --tag "$image" \
+    .
+
+assert_equal "$(docker image inspect --format '{{.Config.User}}' "$image")" \
+    "10001:10001" "runtime user"
+assert_equal "$(docker image inspect --format '{{json .Config.Entrypoint}}' "$image")" \
+    '["python","-m","trussium"]' "entry point"
+assert_equal "$(docker image inspect --format '{{.Config.StopSignal}}' "$image")" \
+    "SIGTERM" "stop signal"
+assert_equal "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.version"}}' "$image")" \
+    "smoke" "OCI version label"
+assert_equal "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.revision"}}' "$image")" \
+    "$revision" "OCI revision label"
+assert_equal "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.source"}}' "$image")" \
+    "$repository" "OCI source label"
+assert_equal "$(docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.licenses"}}' "$image")" \
+    "Apache-2.0" "OCI license label"
+assert_equal "$(docker image inspect --format '{{json .Config.ExposedPorts}}' "$image")" \
+    '{"9000/tcp":{}}' "exposed port"
+
+healthcheck="$(docker image inspect --format '{{json .Config.Healthcheck.Test}}' "$image")"
+
+if [ "$healthcheck" = "null" ] || [ -z "$healthcheck" ]; then
+    echo "image health check is missing" >&2
+    exit 1
+fi
+
+docker run --rm --entrypoint python "$image" -c \
+    "import importlib.util; assert importlib.util.find_spec('pytest') is None"
+
+if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
+    echo "uv must not be present in the runtime image" >&2
+    exit 1
+fi
+
+docker run \
+    --detach \
+    --name "$container" \
+    --read-only \
+    --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+    --cap-drop ALL \
+    --security-opt no-new-privileges:true \
+    --publish 127.0.0.1::9000 \
+    "$image" >/dev/null
+
+port_mapping="$(docker port "$container" 9000/tcp)"
+host_port="${port_mapping##*:}"
+attempt=0
+
+while [ "$attempt" -lt 60 ]; do
+    state="$(docker inspect --format '{{.State.Status}}' "$container")"
+    health="$(docker inspect --format '{{.State.Health.Status}}' "$container")"
+
+    if [ "$state" != "running" ]; then
+        docker logs "$container" >&2
+        echo "container exited before becoming healthy" >&2
+        exit 1
+    fi
+
+    if [ "$health" = "healthy" ]; then
+        break
+    fi
+
+    attempt=$((attempt + 1))
+    sleep 1
+done
+
+if [ "$health" != "healthy" ]; then
+    docker inspect "$container" >&2
+    docker logs "$container" >&2
+    echo "container did not become healthy within 60 seconds" >&2
+    exit 1
+fi
+
+curl --fail --silent --show-error \
+    "http://127.0.0.1:${host_port}/health/ready" \
+    --header "X-Request-ID: container-smoke-61" \
+    --dump-header "$response_headers" \
+    --output "$response_body"
+
+assert_equal "$(cat "$response_body")" '{"status":"ok"}' "readiness body"
+
+request_id="$(awk 'tolower($1) == "x-request-id:" {gsub("\r", "", $2); print $2}' "$response_headers")"
+assert_equal "$request_id" "container-smoke-61" "request correlation header"
+assert_equal "$(docker exec "$container" id -u)" "10001" "runtime UID"
+assert_equal "$(docker exec "$container" id -g)" "10001" "runtime GID"
+
+docker stop --time 10 "$container" >/dev/null
+assert_equal "$(docker inspect --format '{{.State.ExitCode}}' "$container")" "0" \
+    "graceful shutdown exit code"
+
+echo "Container smoke test passed for $image"

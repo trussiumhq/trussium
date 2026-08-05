@@ -104,9 +104,35 @@ source .venv/bin/activate
 uv sync --extra dev --extra docs
 ```
 
-> **Note**
->
-> The first runnable release is currently under construction.
+Start the runtime locally:
+
+```bash
+uv run python -m trussium
+```
+
+Trussium listens on port 9000 by default. Health endpoints remain available
+without provider credentials.
+
+### Container quick start
+
+Build and validate the production image:
+
+```bash
+docker build --tag trussium:local .
+scripts/container-smoke-test.sh
+```
+
+Run it with hardened defaults:
+
+```bash
+docker run --rm \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+  --cap-drop ALL \
+  --security-opt no-new-privileges:true \
+  --publish 9000:9000 \
+  trussium:local
+```
 
 ---
 
@@ -115,8 +141,9 @@ uv sync --extra dev --extra docs
 Project documentation is available in the `docs/` directory.
 
 - [Vision](docs/VISION.md)
-- Architecture *(coming soon)*
-- Roadmap *(coming soon)*
+- [Architecture](docs/ARCHITECTURE.MD)
+- [Roadmap](docs/ROADMAP.md)
+- [Container Guide](docs/CONTAINERS.md)
 - Architecture Decision Records (ADRs) *(coming soon)*
 
 A dedicated documentation site will be published as the project matures.

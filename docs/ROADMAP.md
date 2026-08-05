@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. Typed provider configuration now selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized JSON, SSE, error, context, and logging path against a real self-hosted Ollama model. The immediate focus is production container packaging.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium now also ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, and automated GHCR publication. The immediate focus is package build and installation validation followed by graceful shutdown under active workloads.
 
 ---
 
@@ -85,6 +85,12 @@ Establish a dependable engineering workflow for local development, continuous in
 - Dedicated unit-test and integration-test CI stages
 - Real-process end-to-end integration test suite
 - Deterministic child-process startup, readiness, output capture, and cleanup
+- Dockerfile build checks in continuous integration
+- Production container smoke-test automation
+- Version-tagged GHCR publication workflow
+- Multi-platform AMD64 and ARM64 container builds
+- Container build provenance and SBOM generation
+- Docker base-image dependency updates
 
 ### Remaining
 
@@ -446,19 +452,38 @@ This milestone is required before positioning Trussium as a production governanc
 
 ## Milestone 9 — Cloud-Native Operations
 
-**Status:** 🗓 Planned
+**Status:** 🚧 In Progress
 
 Make Trussium deployable and operable across modern cloud-native environments.
 
-### Deliverables
+### Delivered
 
-- Production Docker image
+- Production multi-stage Docker image
+- Locked uv production dependency installation
+- Non-editable package installation isolated from the source tree
+- Minimal final runtime stage without build or development tools
+- Dedicated numeric non-root runtime identity
+- Read-only root filesystem compatibility
+- Dropped-capability and no-new-privileges compatibility
+- Port 9000 container contract
+- OCI liveness health check
+- Direct SIGTERM delivery through an exec-form entry point
+- Bounded graceful container shutdown validation
+- OCI source, revision, version, creation-time, and license metadata
+- Deterministic image metadata and runtime smoke tests
+- Multi-platform Linux AMD64 and ARM64 release builds
+- Automated GitHub Container Registry publication
+- Build provenance and software bill of materials generation
+- Container build-context allowlisting
+- Production container operations documentation
+
+### Remaining
+
 - Kubernetes manifests
 - Helm chart
 - ConfigMap integration
 - Secret integration
 - Horizontal scaling
-- Graceful termination
 - Pod disruption support
 - OpenTelemetry instrumentation
 - Prometheus metrics
@@ -467,7 +492,6 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Runtime dashboards
 - Alerting guidance
 - Readiness dependency checks
-- Production deployment documentation
 - Upgrade and rollback procedures
 
 Health checks and structured HTTP lifecycle logs have already been delivered as part of the runtime foundation.
@@ -621,11 +645,14 @@ Public interface stability should be clearly documented before the first stable 
 
 ## Immediate Priorities
 
-The next priority for the first chat vertical slice is:
+The next priorities are:
 
-1. Add production container packaging
+1. Add package build and installation validation
+2. Validate graceful shutdown under active requests and streams
 
-These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
+These priorities close the remaining artifact and process-lifecycle gaps before
+expanding into Kubernetes packaging, routing, governance, additional
+protocols, or additional AI capabilities.
 
 ---
 
