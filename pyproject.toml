@@ -98,6 +98,10 @@ addopts = [
     "--import-mode=importlib",
 ]
 
+markers = [
+    "integration: end-to-end tests using real local network processes",
+]
+
 
 [tool.mypy]
 python_version = "3.12"

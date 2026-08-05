@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. The immediate focus is end-to-end validation.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite now validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. The immediate focus is validating a self-hosted model provider.
 
 ---
 
@@ -82,6 +82,9 @@ Establish a dependable engineering workflow for local development, continuous in
 - Automated GitHub Releases
 - Automated changelog generation
 - Dependabot configuration
+- Dedicated unit-test and integration-test CI stages
+- Real-process end-to-end integration test suite
+- Deterministic child-process startup, readiness, output capture, and cleanup
 
 ### Remaining
 
@@ -168,6 +171,9 @@ Build the foundational runtime components required by capabilities, providers, A
 - Environment-configurable stream-idle deadlines
 - Provider-neutral timeout enforcement
 - Runtime timeout normalization without masking caller cancellation
+- Production entry-point startup validation over real TCP connections
+- Environment-driven runtime composition validation
+- Bounded readiness polling and process-failure diagnostics
 
 ### Remaining
 
@@ -254,6 +260,11 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Stream-idle deadline reset after every provider event
 - Prompt provider iterator finalization after timeout
 - Stable provider request and stream timeout error codes
+- OpenAI SDK request serialization integration coverage
+- OpenAI Responses API JSON parsing integration coverage
+- OpenAI Responses API streaming-event integration coverage
+- Deterministic local fake OpenAI Responses API
+- End-to-end upstream error normalization coverage
 
 ### Remaining
 
@@ -340,6 +351,13 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Normalized SSE timeout error events
 - Correlated provider and capability timeout failure lifecycles
 - Configurable timeout defaults and environment overrides
+- Real-network liveness and readiness tests
+- End-to-end normalized JSON completion tests
+- End-to-end normalized SSE completion tests
+- End-to-end provider rate-limit mapping tests
+- End-to-end request and execution correlation assertions
+- End-to-end structured lifecycle ordering assertions
+- Sensitive prompt and credential log-exclusion assertions
 
 ### Remaining
 
@@ -347,7 +365,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Model aliasing
 - Request validation refinements
 - API versioning policy
-- End-to-end integration tests
 - Example client application
 - Production-oriented API documentation
 
@@ -590,9 +607,8 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priorities for the first chat vertical slice are:
 
-1. Add end-to-end integration testing
-2. Validate a self-hosted model provider
-3. Add production container packaging
+1. Validate a self-hosted model provider
+2. Add production container packaging
 
 These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 

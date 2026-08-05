@@ -70,16 +70,32 @@ uv run python -m trussium
 
 # Running Tests
 
-Execute the test suite.
+Execute the complete unit and integration test suite.
 
 ```bash
 uv run pytest
 ```
 
-Run a specific test.
+Run only the fast unit suite.
 
 ```bash
 uv run pytest tests/unit/
+```
+
+Run the end-to-end integration suite.
+
+```bash
+uv run pytest tests/integration/
+```
+
+The integration suite starts the production `python -m trussium` entry point and a deterministic local OpenAI Responses API on dynamically allocated loopback ports. It sends real HTTP requests through Uvicorn and the OpenAI SDK, captures structured runtime logs, and cleans up every child process after the test session.
+
+Integration tests do not require Docker, internet access, an OpenAI account, or real credentials. They never contact the public OpenAI service.
+
+Run a specific test module or test case by passing its path.
+
+```bash
+uv run pytest tests/integration/test_chat_runtime.py
 ```
 
 ---
