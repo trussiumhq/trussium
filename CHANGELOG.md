@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.21.1 (2026-08-05)
+
+### Bug Fixes
+
+- **container**: Dispatch publication after release
+  ([`acd6d16`](https://github.com/trussiumhq/trussium/commit/acd6d162a477b4b5e0767ccf7c000b8adf431713))
+
+
 ## v0.21.0 (2026-08-05)
 
 ### Features
