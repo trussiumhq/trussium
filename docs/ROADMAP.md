@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite now validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. The immediate focus is validating a self-hosted model provider.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. Typed provider configuration now selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized JSON, SSE, error, context, and logging path against a real self-hosted Ollama model. The immediate focus is production container packaging.
 
 ---
 
@@ -260,30 +260,41 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Stream-idle deadline reset after every provider event
 - Prompt provider iterator finalization after timeout
 - Stable provider request and stream timeout error codes
+- Immutable typed provider configuration
+- Explicit provider selection, base URL, and credential settings
+- Backwards-compatible OpenAI environment configuration
 - OpenAI SDK request serialization integration coverage
 - OpenAI Responses API JSON parsing integration coverage
 - OpenAI Responses API streaming-event integration coverage
 - Deterministic local fake OpenAI Responses API
 - End-to-end upstream error normalization coverage
+- Ollama self-hosted chat adapter using the compatible Responses API
+- Provider-aware normalized response and stream identity
+- Provider-aware SDK error codes and safe messages
+- Deterministic Ollama-compatible JSON and SSE integration coverage
+- Opt-in live Ollama compatibility test suite
+- Live JSON and streaming validation against Ollama 0.32.5
+- Model-preserving token-usage normalization for Ollama
+- Provider-aware correlated Ollama lifecycle logging
 
 ### Remaining
 
 - Provider interface and metadata contract
 - Provider registry
-- Provider configuration
 - Provider discovery
 - Provider lifecycle management
 - Plugin loading
 - Model availability discovery
-- Self-hosted model adapter
 - At least one additional managed provider
 - Provider health reporting
 - Provider capability reporting
 - Provider credential validation
 
-The next provider should validate that Trussium’s abstractions are genuinely provider-neutral rather than OpenAI-specific.
-
-A self-hosted OpenAI-compatible provider such as vLLM or Ollama may provide stronger architectural validation than adding several managed providers immediately.
+Ollama validation demonstrates that Trussium's chat, execution, timeout,
+observability, and HTTP abstractions are independent of a managed OpenAI
+deployment while reusing a compatible wire protocol. Future providers should
+continue to reuse the normalized capability contracts rather than introducing
+provider-specific runtime paths.
 
 ---
 
@@ -358,6 +369,11 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - End-to-end request and execution correlation assertions
 - End-to-end structured lifecycle ordering assertions
 - Sensitive prompt and credential log-exclusion assertions
+- Explicit OpenAI and Ollama runtime composition
+- Ollama normalized JSON completion tests
+- Ollama normalized SSE completion tests
+- Provider-aware response, execution-context, and lifecycle metadata
+- Live self-hosted model compatibility validation
 
 ### Remaining
 
@@ -605,10 +621,9 @@ Public interface stability should be clearly documented before the first stable 
 
 ## Immediate Priorities
 
-The next priorities for the first chat vertical slice are:
+The next priority for the first chat vertical slice is:
 
-1. Validate a self-hosted model provider
-2. Add production container packaging
+1. Add production container packaging
 
 These priorities strengthen Trussium’s observability, reliability, and operability before expanding into routing, governance, additional protocols, or additional AI capabilities.
 

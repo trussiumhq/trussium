@@ -51,6 +51,7 @@ class OpenAIChatCapability:
     """OpenAI implementation of the normalized chat capability."""
 
     provider_name = "openai"
+    provider_display_name = "OpenAI"
 
     def __init__(self, client: AsyncOpenAI) -> None:
         """Initialize the adapter with an asynchronous OpenAI client.
@@ -123,9 +124,10 @@ class OpenAIChatCapability:
                         if response_id is None:
                             yield ChatStreamErrorEvent(
                                 id=None,
-                                code="openai_invalid_stream_order",
+                                code=f"{self.provider_name}_invalid_stream_order",
                                 message=(
-                                    "OpenAI emitted a text delta before the response start event."
+                                    f"{self.provider_display_name} emitted a text delta "
+                                    "before the response start event."
                                 ),
                             )
                             return
@@ -153,7 +155,7 @@ class OpenAIChatCapability:
                         except OpenAIProviderError as error:
                             yield ChatStreamErrorEvent(
                                 id=response_id,
-                                code="openai_usage_unavailable",
+                                code=f"{self.provider_name}_usage_unavailable",
                                 message=str(error),
                             )
                             return
@@ -182,7 +184,7 @@ class OpenAIChatCapability:
                         except OpenAIProviderError as error:
                             yield ChatStreamErrorEvent(
                                 id=response_id,
-                                code="openai_response_incomplete",
+                                code=f"{self.provider_name}_response_incomplete",
                                 message=str(error),
                             )
                             return
@@ -226,7 +228,9 @@ class OpenAIChatCapability:
         content = response.output_text
 
         if not content:
-            raise OpenAIProviderError("OpenAI returned a response without text content")
+            raise OpenAIProviderError(
+                f"{self.provider_display_name} returned a response without text content"
+            )
 
         return ChatCompletionResponse(
             id=response.id,
@@ -261,8 +265,8 @@ class OpenAIChatCapability:
 
         return items
 
-    @staticmethod
-    def _normalize_role(role: ChatRole) -> OpenAIMessageRole:
+    @classmethod
+    def _normalize_role(cls, role: ChatRole) -> OpenAIMessageRole:
         """Translate a normalized chat role into an OpenAI role."""
         match role:
             case ChatRole.SYSTEM:
@@ -276,17 +280,19 @@ class OpenAIChatCapability:
 
             case ChatRole.TOOL:
                 raise OpenAIProviderError(
-                    "OpenAI tool messages are not supported until "
+                    f"{cls.provider_display_name} tool messages are not supported until "
                     "Trussium tool-call contracts are implemented"
                 )
 
-    @staticmethod
-    def _normalize_usage(response: Response) -> TokenUsage:
+    @classmethod
+    def _normalize_usage(cls, response: Response) -> TokenUsage:
         """Translate OpenAI token usage into normalized usage."""
         usage = response.usage
 
         if usage is None:
-            raise OpenAIProviderError("OpenAI response did not include token usage")
+            raise OpenAIProviderError(
+                f"{cls.provider_display_name} response did not include token usage"
+            )
 
         return TokenUsage(
             input_tokens=usage.input_tokens,
@@ -316,27 +322,27 @@ class OpenAIChatCapability:
 
         return FinishReason.ERROR
 
-    @staticmethod
-    def _ensure_successful_response(response: Response) -> None:
+    @classmethod
+    def _ensure_successful_response(cls, response: Response) -> None:
         """Reject responses that did not complete or return partial output."""
         if response.status in {"completed", "incomplete"}:
             return
 
-        raise OpenAIProviderError(OpenAIChatCapability._response_error_message(response))
+        raise OpenAIProviderError(cls._response_error_message(response))
 
-    @staticmethod
-    def _response_error_code(response: Response) -> str:
+    @classmethod
+    def _response_error_code(cls, response: Response) -> str:
         """Return a stable code for an unsuccessful OpenAI response."""
         if response.error is None or response.error.code is None:
-            return "openai_response_failed"
+            return f"{cls.provider_name}_response_failed"
 
         return str(response.error.code)
 
-    @staticmethod
-    def _response_error_message(response: Response) -> str:
+    @classmethod
+    def _response_error_message(cls, response: Response) -> str:
         """Return the provider error message when available."""
         if response.error is None:
-            return "OpenAI response failed"
+            return f"{cls.provider_display_name} response failed"
 
         return response.error.message
 
@@ -356,62 +362,82 @@ class OpenAIChatCapability:
     def _api_error_code(cls, error: APIError) -> str:
         """Translate an OpenAI SDK exception into a stable error code."""
         if isinstance(error, AuthenticationError):
-            return "openai_authentication_failed"
+            return f"{cls.provider_name}_authentication_failed"
 
         if isinstance(error, PermissionDeniedError):
-            return "openai_permission_denied"
+            return f"{cls.provider_name}_permission_denied"
 
         if isinstance(error, RateLimitError):
             if cls._is_quota_error(error):
-                return "openai_quota_exceeded"
+                return f"{cls.provider_name}_quota_exceeded"
 
-            return "openai_rate_limit_exceeded"
+            return f"{cls.provider_name}_rate_limit_exceeded"
 
         if isinstance(error, BadRequestError):
-            return "openai_invalid_request"
+            return f"{cls.provider_name}_invalid_request"
 
         if isinstance(error, APITimeoutError):
-            return "openai_timeout"
+            return f"{cls.provider_name}_timeout"
 
         if isinstance(error, APIConnectionError):
-            return "openai_connection_failed"
+            return f"{cls.provider_name}_connection_failed"
 
         if isinstance(error, APIStatusError):
-            return f"openai_http_{error.status_code}"
+            return f"{cls.provider_name}_http_{error.status_code}"
 
-        return "openai_api_error"
+        return f"{cls.provider_name}_api_error"
 
     @classmethod
     def _api_error_message(cls, error: APIError) -> str:
         """Return a client-safe OpenAI error message."""
         if isinstance(error, AuthenticationError):
-            return "OpenAI authentication failed. Check the configured API key."
+            return (
+                f"{cls.provider_display_name} authentication failed. Check the configured API key."
+            )
 
         if isinstance(error, PermissionDeniedError):
-            return "The configured OpenAI project does not have permission to perform this request."
+            if cls.provider_name == "openai":
+                return (
+                    "The configured OpenAI project does not have permission "
+                    "to perform this request."
+                )
+
+            return (
+                f"The configured {cls.provider_display_name} service does not have "
+                "permission to perform this request."
+            )
 
         if isinstance(error, RateLimitError):
             if cls._is_quota_error(error):
+                if cls.provider_name != "openai":
+                    return (
+                        f"{cls.provider_display_name} rejected the request because "
+                        "its capacity or quota was exhausted."
+                    )
+
                 return (
                     "The configured OpenAI project has no available API "
                     "quota. Check its billing, credits, and usage limits."
                 )
 
-            return "OpenAI temporarily rejected the request because a rate limit was exceeded."
+            return (
+                f"{cls.provider_display_name} temporarily rejected the request "
+                "because a rate limit was exceeded."
+            )
 
         if isinstance(error, BadRequestError):
-            return "OpenAI rejected the request as invalid."
+            return f"{cls.provider_display_name} rejected the request as invalid."
 
         if isinstance(error, APITimeoutError):
-            return "The request to OpenAI timed out."
+            return f"The request to {cls.provider_display_name} timed out."
 
         if isinstance(error, APIConnectionError):
-            return "Trussium could not connect to OpenAI."
+            return f"Trussium could not connect to {cls.provider_display_name}."
 
         if isinstance(error, APIStatusError):
-            return f"OpenAI returned HTTP status {error.status_code}."
+            return f"{cls.provider_display_name} returned HTTP status {error.status_code}."
 
-        return "An unexpected OpenAI API error occurred."
+        return f"An unexpected {cls.provider_display_name} API error occurred."
 
     @classmethod
     def _api_error_category(
