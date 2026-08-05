@@ -3,7 +3,7 @@
 from enum import StrEnum
 from functools import lru_cache
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,6 +13,34 @@ class Environment(StrEnum):
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
+
+
+class ProviderName(StrEnum):
+    """Supported runtime chat providers."""
+
+    OPENAI = "openai"
+    OLLAMA = "ollama"
+
+
+class ProviderSettings(BaseModel):
+    """Chat provider configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    name: ProviderName = Field(
+        default=ProviderName.OPENAI,
+        description="Active chat provider.",
+    )
+
+    base_url: AnyHttpUrl | None = Field(
+        default=None,
+        description="Optional OpenAI-compatible provider base URL.",
+    )
+
+    api_key: SecretStr | None = Field(
+        default=None,
+        description="Optional provider credential.",
+    )
 
 
 class RuntimeSettings(BaseModel):
@@ -73,6 +101,7 @@ class Settings(BaseSettings):
     )
 
     runtime: RuntimeSettings = RuntimeSettings()
+    provider: ProviderSettings = ProviderSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
 
 

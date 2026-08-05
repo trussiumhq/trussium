@@ -13,6 +13,7 @@ def main() -> None:
     """Start the Trussium runtime."""
     settings = get_settings()
     chat_capability = create_chat_capability_from_environment(
+        provider=settings.provider,
         timeouts=settings.timeouts,
     )
 

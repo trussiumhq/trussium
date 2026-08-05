@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from trussium.config.settings import Environment, Settings
+from trussium.config.settings import Environment, ProviderName, Settings
 
 
 def test_default_settings() -> None:
@@ -11,6 +11,9 @@ def test_default_settings() -> None:
     assert settings.runtime.host == "0.0.0.0"
     assert settings.runtime.port == 9000
     assert settings.runtime.debug is False
+    assert settings.provider.name is ProviderName.OPENAI
+    assert settings.provider.base_url is None
+    assert settings.provider.api_key is None
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
 
@@ -32,6 +35,49 @@ def test_timeout_settings_support_environment_overrides(
 
     assert settings.timeouts.provider_request_seconds == 12.5
     assert settings.timeouts.stream_idle_seconds == 4.25
+
+
+def test_provider_settings_support_environment_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Nested provider settings should use typed immutable values."""
+    monkeypatch.setenv("TRUSSIUM_PROVIDER__NAME", "ollama")
+    monkeypatch.setenv(
+        "TRUSSIUM_PROVIDER__BASE_URL",
+        "http://ollama.internal:11434/v1",
+    )
+    monkeypatch.setenv("TRUSSIUM_PROVIDER__API_KEY", "private-provider-key")
+
+    settings = Settings()
+
+    assert settings.provider.name is ProviderName.OLLAMA
+    assert str(settings.provider.base_url) == "http://ollama.internal:11434/v1"
+    assert settings.provider.api_key is not None
+    assert settings.provider.api_key.get_secret_value() == "private-provider-key"
+    assert "private-provider-key" not in repr(settings.provider)
+
+    with pytest.raises(ValidationError):
+        settings.provider.name = ProviderName.OPENAI
+
+
+def test_provider_settings_reject_unsupported_provider(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only providers with runtime composition should be selectable."""
+    monkeypatch.setenv("TRUSSIUM_PROVIDER__NAME", "unsupported")
+
+    with pytest.raises(ValidationError):
+        Settings()
+
+
+def test_provider_settings_reject_non_http_base_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Provider base URLs should use an HTTP transport."""
+    monkeypatch.setenv("TRUSSIUM_PROVIDER__BASE_URL", "ftp://provider.example/v1")
+
+    with pytest.raises(ValidationError):
+        Settings()
 
 
 @pytest.mark.parametrize(

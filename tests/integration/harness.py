@@ -160,8 +160,9 @@ def create_integration_runtime(
     *,
     repository_root: Path,
     log_directory: Path,
+    provider_name: str = "openai",
 ) -> IntegrationRuntime:
-    """Start the fake OpenAI API and production Trussium entry point."""
+    """Start a compatible fake API and production Trussium entry point."""
     fake_openai_port = reserve_loopback_port()
     runtime_port = reserve_loopback_port()
     fake_openai_url = f"http://127.0.0.1:{fake_openai_port}"
@@ -199,14 +200,28 @@ def create_integration_runtime(
     runtime_environment = environment.copy()
     runtime_environment.update(
         {
-            "OPENAI_API_KEY": "e2e-test-api-key",
-            "OPENAI_BASE_URL": f"{fake_openai_url}/v1",
             "TRUSSIUM_RUNTIME__HOST": "127.0.0.1",
             "TRUSSIUM_RUNTIME__PORT": str(runtime_port),
             "TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS": "5",
             "TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS": "5",
         }
     )
+
+    if provider_name == "openai":
+        runtime_environment.update(
+            {
+                "OPENAI_API_KEY": "e2e-test-api-key",
+                "OPENAI_BASE_URL": f"{fake_openai_url}/v1",
+            }
+        )
+    else:
+        runtime_environment.update(
+            {
+                "TRUSSIUM_PROVIDER__NAME": provider_name,
+                "TRUSSIUM_PROVIDER__BASE_URL": f"{fake_openai_url}/v1",
+                "TRUSSIUM_PROVIDER__API_KEY": "e2e-test-api-key",
+            }
+        )
     runtime_process = start_process(
         [
             sys.executable,

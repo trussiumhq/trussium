@@ -100,6 +100,7 @@ addopts = [
 
 markers = [
     "integration: end-to-end tests using real local network processes",
+    "ollama: opt-in compatibility tests requiring a local Ollama model",
 ]
 
 

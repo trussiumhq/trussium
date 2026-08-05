@@ -28,3 +28,23 @@ def integration_runtime(
     finally:
         runtime.runtime_process.stop()
         runtime.fake_openai_process.stop()
+
+
+@pytest.fixture(scope="session")
+def ollama_compatible_runtime(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Iterator[IntegrationRuntime]:
+    """Run production Trussium with Ollama identity over the compatible API."""
+    repository_root = Path(__file__).resolve().parents[2]
+    log_directory = tmp_path_factory.mktemp("ollama-compatible-process-logs")
+    runtime = create_integration_runtime(
+        repository_root=repository_root,
+        log_directory=log_directory,
+        provider_name="ollama",
+    )
+
+    try:
+        yield runtime
+    finally:
+        runtime.runtime_process.stop()
+        runtime.fake_openai_process.stop()
