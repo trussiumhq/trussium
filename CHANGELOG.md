@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.14.0 (2026-08-05)
+
+### Features
+
+- **runtime**: Add execution context propagation
+  ([`720f95d`](https://github.com/trussiumhq/trussium/commit/720f95dccc279df152c1de864378334dc4bc8247))
+
+
 ## v0.13.0 (2026-08-04)
 
 ### Features
