@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium now also ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, and automated GHCR publication. The immediate focus is package build and installation validation followed by graceful shutdown under active workloads.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, and automated GHCR publication. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases. The immediate focus is graceful shutdown under active requests and streams.
 
 ---
 
@@ -91,6 +91,14 @@ Establish a dependable engineering workflow for local development, continuous in
 - Multi-platform AMD64 and ARM64 container builds
 - Container build provenance and SBOM generation
 - Docker base-image dependency updates
+- Deterministic Python wheel and source-distribution builds
+- Distribution content and core-metadata validation
+- Isolated wheel and source-distribution installation validation
+- Installed dependency-consistency checks
+- Installed runtime HTTP, request-correlation, and shutdown smoke tests
+- Runtime version metadata derived from the installed distribution
+- Wheel and source-distribution assets attached to GitHub releases
+- Dedicated package build and installation CI stage
 
 ### Remaining
 
@@ -99,7 +107,6 @@ Establish a dependable engineering workflow for local development, continuous in
 - Verify secret-scanning configuration
 - Verify release automation across supported release scenarios
 - Document release recovery procedures
-- Add package build and installation validation
 
 This milestone can be marked completed once every listed automation is active, verified, and documented in the repository.
 
@@ -630,12 +637,14 @@ Project releases are automated through GitHub Actions and include:
 - GitHub Releases
 - Dependency updates
 - Release notes derived from conventional commits
+- Validated Python wheels and source distributions
+- Isolated installation and installed-runtime smoke tests
+- Python distribution assets attached to GitHub Releases
 
 Future release improvements should include:
 
 - Upgrade notes for breaking changes
 - Release recovery procedures
-- Package installation validation
 - Compatibility guarantees for public interfaces
 - Independent versioning for separately released repositories
 
@@ -645,14 +654,13 @@ Public interface stability should be clearly documented before the first stable 
 
 ## Immediate Priorities
 
-The next priorities are:
+The next priority is:
 
-1. Add package build and installation validation
-2. Validate graceful shutdown under active requests and streams
+1. Validate graceful shutdown under active requests and streams
 
-These priorities close the remaining artifact and process-lifecycle gaps before
-expanding into Kubernetes packaging, routing, governance, additional
-protocols, or additional AI capabilities.
+This priority closes the remaining process-lifecycle gap before expanding into
+Kubernetes packaging, routing, governance, additional protocols, or additional
+AI capabilities.
 
 ---
 

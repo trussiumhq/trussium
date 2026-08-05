@@ -53,6 +53,17 @@ jobs:
             echo "tag=$tag" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Validate release packages
+        if: steps.release.outputs.tag != ''
+        run: scripts/package-smoke-test.sh "$GITHUB_WORKSPACE/dist"
+
+      - name: Publish release packages
+        if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: uv run semantic-release publish --tag "$RELEASE_TAG"
+
       - name: Dispatch container publication
         if: steps.release.outputs.tag != ''
         env:

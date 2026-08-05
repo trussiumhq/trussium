@@ -180,6 +180,31 @@ Run a specific test module or test case by passing its path.
 uv run pytest tests/integration/test_chat_runtime.py
 ```
 
+## Package validation
+
+Build the wheel and source distribution, inspect their metadata and contents,
+install each into a clean Python 3.12 environment, and exercise both installed
+runtimes:
+
+```bash
+scripts/package-smoke-test.sh
+```
+
+The default workflow uses a temporary directory. Pass an absolute output path
+to keep the validated artifacts:
+
+```bash
+mkdir -p dist
+scripts/package-smoke-test.sh "$(pwd)/dist"
+```
+
+The smoke test verifies isolated production dependencies, distribution and
+runtime version alignment, the typing marker, site-packages imports, liveness,
+readiness, request correlation, and bounded `SIGTERM` shutdown.
+
+See the [Python Packaging Guide](PACKAGING.md) for the complete artifact
+contract, local installation, CI behavior, and GitHub release publication.
+
 ## Container validation
 
 Docker is required only for container work. Run Dockerfile build checks and the

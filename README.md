@@ -143,6 +143,7 @@ Project documentation is available in the `docs/` directory.
 - [Vision](docs/VISION.md)
 - [Architecture](docs/ARCHITECTURE.MD)
 - [Roadmap](docs/ROADMAP.md)
+- [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - Architecture Decision Records (ADRs) *(coming soon)*
 
