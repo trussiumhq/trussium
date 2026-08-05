@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.20.0 (2026-08-05)
+
+### Features
+
+- **provider**: Validate Ollama compatibility
+  ([`ea4832d`](https://github.com/trussiumhq/trussium/commit/ea4832ded5233f93053f65af2d1ebef747554467))
+
+
 ## v0.19.0 (2026-08-05)
 
 ### Features
