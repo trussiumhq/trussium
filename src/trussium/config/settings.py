@@ -65,6 +65,14 @@ class RuntimeSettings(BaseModel):
         description="Enable debug mode.",
     )
 
+    graceful_shutdown_seconds: int = Field(
+        default=30,
+        gt=0,
+        description=(
+            "Maximum time to drain active requests before they are cancelled during shutdown."
+        ),
+    )
+
 
 class TimeoutSettings(BaseModel):
     """Provider execution timeout configuration."""

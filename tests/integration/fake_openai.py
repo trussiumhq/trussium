@@ -1,5 +1,6 @@
 """Deterministic local OpenAI Responses API used by integration tests."""
 
+import asyncio
 import json
 from collections.abc import AsyncIterator
 from typing import cast
@@ -10,6 +11,35 @@ from fastapi.responses import JSONResponse, Response, StreamingResponse
 app = FastAPI(title="Fake OpenAI Responses API")
 
 _last_request: dict[str, object] | None = None
+_control_events: dict[str, asyncio.Event] = {}
+_control_states: dict[str, dict[str, bool]] = {}
+
+_CONTROLLED_JSON_MODEL = "e2e-shutdown-json"
+_CONTROLLED_STREAM_MODEL = "e2e-shutdown-stream"
+
+
+def _control_event(model: str) -> asyncio.Event:
+    """Return the release gate for a controlled provider workload."""
+    return _control_events.setdefault(model, asyncio.Event())
+
+
+def _control_state(model: str) -> dict[str, bool]:
+    """Return observable lifecycle state for a controlled workload."""
+    return _control_states.setdefault(
+        model,
+        {
+            "active": False,
+            "released": False,
+            "completed": False,
+            "finalized": False,
+            "cancelled": False,
+        },
+    )
+
+
+def _mark_control_state(model: str, key: str) -> None:
+    """Mark one controlled-workload lifecycle transition."""
+    _control_state(model)[key] = True
 
 
 def _response_payload(
@@ -80,6 +110,26 @@ async def recorded_request() -> dict[str, object | None]:
     return {"request": _last_request}
 
 
+@app.get("/control/{model}")
+async def controlled_workload_state(model: str) -> dict[str, object]:
+    """Expose deterministic provider state to the process test harness."""
+    return {
+        "model": model,
+        "state": _control_state(model),
+    }
+
+
+@app.post("/control/{model}/release")
+async def release_controlled_workload(model: str) -> dict[str, object]:
+    """Allow a controlled provider workload to finish successfully."""
+    _mark_control_state(model, "released")
+    _control_event(model).set()
+    return {
+        "model": model,
+        "released": True,
+    }
+
+
 @app.post("/v1/responses", response_model=None)
 async def create_response(request: Request) -> Response:
     """Return deterministic JSON, SSE, or rate-limit responses."""
@@ -106,6 +156,18 @@ async def create_response(request: Request) -> Response:
             },
         )
 
+    if model == _CONTROLLED_JSON_MODEL:
+        _mark_control_state(model, "active")
+
+        try:
+            await _control_event(model).wait()
+            _mark_control_state(model, "completed")
+        except asyncio.CancelledError:
+            _mark_control_state(model, "cancelled")
+            raise
+        finally:
+            _mark_control_state(model, "finalized")
+
     if not streaming:
         return JSONResponse(
             content=_response_payload(
@@ -131,47 +193,67 @@ async def create_response(request: Request) -> Response:
             status_value="completed",
         )
 
-        yield _sse_event(
-            "response.created",
-            {
-                "type": "response.created",
-                "sequence_number": 0,
-                "response": created_response,
-            },
-        )
-        yield _sse_event(
-            "response.output_text.delta",
-            {
-                "type": "response.output_text.delta",
-                "sequence_number": 1,
-                "item_id": f"msg_{response_id}",
-                "output_index": 0,
-                "content_index": 0,
-                "delta": "Hello from ",
-                "logprobs": [],
-            },
-        )
-        yield _sse_event(
-            "response.output_text.delta",
-            {
-                "type": "response.output_text.delta",
-                "sequence_number": 2,
-                "item_id": f"msg_{response_id}",
-                "output_index": 0,
-                "content_index": 0,
-                "delta": "the integration stream.",
-                "logprobs": [],
-            },
-        )
-        yield _sse_event(
-            "response.completed",
-            {
-                "type": "response.completed",
-                "sequence_number": 3,
-                "response": completed_response,
-            },
-        )
-        yield "data: [DONE]\n\n"
+        controlled = model == _CONTROLLED_STREAM_MODEL
+
+        try:
+            if controlled:
+                _mark_control_state(model, "active")
+
+            yield _sse_event(
+                "response.created",
+                {
+                    "type": "response.created",
+                    "sequence_number": 0,
+                    "response": created_response,
+                },
+            )
+
+            if controlled:
+                await _control_event(model).wait()
+
+            yield _sse_event(
+                "response.output_text.delta",
+                {
+                    "type": "response.output_text.delta",
+                    "sequence_number": 1,
+                    "item_id": f"msg_{response_id}",
+                    "output_index": 0,
+                    "content_index": 0,
+                    "delta": "Hello from ",
+                    "logprobs": [],
+                },
+            )
+            yield _sse_event(
+                "response.output_text.delta",
+                {
+                    "type": "response.output_text.delta",
+                    "sequence_number": 2,
+                    "item_id": f"msg_{response_id}",
+                    "output_index": 0,
+                    "content_index": 0,
+                    "delta": "the integration stream.",
+                    "logprobs": [],
+                },
+            )
+            yield _sse_event(
+                "response.completed",
+                {
+                    "type": "response.completed",
+                    "sequence_number": 3,
+                    "response": completed_response,
+                },
+            )
+            yield "data: [DONE]\n\n"
+
+            if controlled:
+                _mark_control_state(model, "completed")
+        except asyncio.CancelledError:
+            if controlled:
+                _mark_control_state(model, "cancelled")
+            raise
+        finally:
+            if controlled:
+                _mark_control_state(model, "finalized")
 
     return StreamingResponse(
         stream_events(),

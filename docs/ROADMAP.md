@@ -25,7 +25,7 @@ Client
 
 Both streaming and non-streaming requests use normalized provider errors. Every HTTP request has request and execution identifiers and emits structured JSON lifecycle logs containing its correlation metadata, HTTP method, path, status code, and duration.
 
-The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, and correlated lifecycles without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, and automated GHCR publication. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases. The immediate focus is graceful shutdown under active requests and streams.
+The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, correlated lifecycles, and bounded graceful shutdown without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, automated GHCR publication, and configurable active-workload draining. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases. The immediate focus is production Kubernetes deployment manifests.
 
 ---
 
@@ -187,13 +187,20 @@ Build the foundational runtime components required by capabilities, providers, A
 - Production entry-point startup validation over real TCP connections
 - Environment-driven runtime composition validation
 - Bounded readiness polling and process-failure diagnostics
+- Immutable typed graceful-shutdown configuration
+- Environment-configurable active-workload drain deadline
+- Production server cancellation-cleanup lifecycle
+- Graceful shutdown for active non-streaming requests
+- Graceful shutdown for active SSE streams
+- Prompt over-deadline provider-stream finalization
+- Correlated shutdown cancellation lifecycle events
+- Bounded active-workload process shutdown validation
 
 ### Remaining
 
 - Unified runtime exception hierarchy
 - Lifecycle hooks for runtime services
 - Core runtime service registry
-- Graceful shutdown validation
 - Runtime startup diagnostics
 - Runtime component health reporting
 
@@ -382,6 +389,12 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - End-to-end request and execution correlation assertions
 - End-to-end structured lifecycle ordering assertions
 - Sensitive prompt and credential log-exclusion assertions
+- Real-process active JSON request shutdown draining
+- Real-process active SSE shutdown draining
+- Listening-socket closure during active-workload shutdown
+- Over-deadline SSE cancellation and upstream finalization
+- Shutdown cancellation lifecycle correlation and ordering
+- Bounded signal-aware production process exit assertions
 - Explicit OpenAI and Ollama runtime composition
 - Ollama normalized JSON completion tests
 - Ollama normalized SSE completion tests
@@ -483,6 +496,9 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Build provenance and software bill of materials generation
 - Container build-context allowlisting
 - Production container operations documentation
+- Configurable graceful shutdown for active requests and streams
+- Bounded cancelled-request resource cleanup
+- Active-workload graceful shutdown operations documentation
 
 ### Remaining
 
@@ -656,11 +672,11 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Validate graceful shutdown under active requests and streams
+1. Add production Kubernetes deployment manifests
 
-This priority closes the remaining process-lifecycle gap before expanding into
-Kubernetes packaging, routing, governance, additional protocols, or additional
-AI capabilities.
+This priority begins Kubernetes packaging now that the runtime process,
+container, release artifacts, and active-workload shutdown contract are
+validated end to end.
 
 ---
 

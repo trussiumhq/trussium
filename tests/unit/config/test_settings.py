@@ -11,6 +11,7 @@ def test_default_settings() -> None:
     assert settings.runtime.host == "0.0.0.0"
     assert settings.runtime.port == 9000
     assert settings.runtime.debug is False
+    assert settings.runtime.graceful_shutdown_seconds == 30
     assert settings.provider.name is ProviderName.OPENAI
     assert settings.provider.base_url is None
     assert settings.provider.api_key is None
@@ -35,6 +36,23 @@ def test_timeout_settings_support_environment_overrides(
 
     assert settings.timeouts.provider_request_seconds == 12.5
     assert settings.timeouts.stream_idle_seconds == 4.25
+
+
+def test_runtime_settings_support_graceful_shutdown_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The server drain deadline should use typed nested runtime settings."""
+    monkeypatch.setenv(
+        "TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS",
+        "12",
+    )
+
+    settings = Settings()
+
+    assert settings.runtime.graceful_shutdown_seconds == 12
+
+    with pytest.raises(ValidationError):
+        settings.runtime.graceful_shutdown_seconds = 4
 
 
 def test_provider_settings_support_environment_overrides(
@@ -93,6 +111,19 @@ def test_timeout_settings_reject_non_positive_values(
 ) -> None:
     """Invalid runtime deadlines should fail configuration validation."""
     monkeypatch.setenv(environment_name, "0")
+
+    with pytest.raises(ValidationError):
+        Settings()
+
+
+def test_runtime_settings_reject_non_positive_grace_period(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An immediate shutdown deadline should fail configuration validation."""
+    monkeypatch.setenv(
+        "TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS",
+        "0",
+    )
 
     with pytest.raises(ValidationError):
         Settings()

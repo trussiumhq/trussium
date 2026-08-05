@@ -145,6 +145,7 @@ Project documentation is available in the `docs/` directory.
 - [Roadmap](docs/ROADMAP.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
+- [Graceful Shutdown Guide](docs/SHUTDOWN.md)
 - Architecture Decision Records (ADRs) *(coming soon)*
 
 A dedicated documentation site will be published as the project matures.

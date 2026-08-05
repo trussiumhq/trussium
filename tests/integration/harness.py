@@ -12,6 +12,7 @@ from time import monotonic, sleep
 import httpx
 
 _STARTUP_TIMEOUT_SECONDS = 15.0
+_SHUTDOWN_TIMEOUT_SECONDS = 5.0
 
 
 @dataclass(frozen=True)
@@ -33,13 +34,31 @@ class ManagedProcess:
         if self.process.poll() is not None:
             return
 
-        self.process.terminate()
+        self.send_sigterm()
 
         try:
-            self.process.wait(timeout=5)
+            self.process.wait(timeout=_SHUTDOWN_TIMEOUT_SECONDS)
         except subprocess.TimeoutExpired:
             self.process.kill()
-            self.process.wait(timeout=5)
+            self.process.wait(timeout=_SHUTDOWN_TIMEOUT_SECONDS)
+
+    def send_sigterm(self) -> None:
+        """Deliver the production shutdown signal without waiting for exit."""
+        self.process.terminate()
+
+    def wait_for_exit(
+        self,
+        *,
+        timeout_seconds: float = _SHUTDOWN_TIMEOUT_SECONDS,
+    ) -> int:
+        """Require the child to exit within a deterministic bound."""
+        try:
+            return self.process.wait(timeout=timeout_seconds)
+        except subprocess.TimeoutExpired as error:
+            raise AssertionError(
+                f"Process did not exit within {timeout_seconds} seconds.\n"
+                f"Process output:\n{self.output()}"
+            ) from error
 
 
 @dataclass(frozen=True)
@@ -89,6 +108,72 @@ class IntegrationRuntime:
 
         raise AssertionError(
             f"Timed out waiting for {event!r} for {request_id!r}.\n"
+            f"Runtime output:\n{self.runtime_process.output()}"
+        )
+
+    def wait_for_provider_state(
+        self,
+        *,
+        model: str,
+        state: str,
+        timeout_seconds: float = 5.0,
+    ) -> dict[str, bool]:
+        """Wait for a controlled fake-provider lifecycle transition."""
+        deadline = monotonic() + timeout_seconds
+        last_state: dict[str, bool] = {}
+
+        with httpx.Client(timeout=0.5) as client:
+            while monotonic() < deadline:
+                response = client.get(
+                    f"{self.fake_openai_url}/control/{model}",
+                )
+                response.raise_for_status()
+                payload = response.json()
+                last_state = payload["state"]
+
+                if last_state.get(state) is True:
+                    return last_state
+
+                sleep(0.02)
+
+        raise AssertionError(
+            f"Timed out waiting for provider state {state!r} for {model!r}. "
+            f"Last state: {last_state!r}.\n"
+            f"Provider output:\n{self.fake_openai_process.output()}"
+        )
+
+    def release_provider_workload(self, *, model: str) -> None:
+        """Release a controlled fake-provider request or stream."""
+        response = httpx.post(
+            f"{self.fake_openai_url}/control/{model}/release",
+            timeout=2,
+        )
+        response.raise_for_status()
+
+    def wait_until_not_accepting_requests(
+        self,
+        *,
+        timeout_seconds: float = 2.0,
+    ) -> None:
+        """Require the shutting-down runtime to close its listening socket."""
+        deadline = monotonic() + timeout_seconds
+
+        while monotonic() < deadline:
+            try:
+                httpx.get(
+                    f"{self.base_url}/health/live",
+                    headers={"Connection": "close"},
+                    timeout=0.2,
+                )
+            except httpx.ConnectError:
+                return
+            except httpx.HTTPError:
+                pass
+
+            sleep(0.02)
+
+        raise AssertionError(
+            "Runtime continued accepting new connections after SIGTERM.\n"
             f"Runtime output:\n{self.runtime_process.output()}"
         )
 
@@ -161,6 +246,7 @@ def create_integration_runtime(
     repository_root: Path,
     log_directory: Path,
     provider_name: str = "openai",
+    graceful_shutdown_seconds: int = 30,
 ) -> IntegrationRuntime:
     """Start a compatible fake API and production Trussium entry point."""
     fake_openai_port = reserve_loopback_port()
@@ -202,6 +288,7 @@ def create_integration_runtime(
         {
             "TRUSSIUM_RUNTIME__HOST": "127.0.0.1",
             "TRUSSIUM_RUNTIME__PORT": str(runtime_port),
+            "TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS": str(graceful_shutdown_seconds),
             "TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS": "5",
             "TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS": "5",
         }
