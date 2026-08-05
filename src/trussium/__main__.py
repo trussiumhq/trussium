@@ -12,7 +12,9 @@ from trussium.config.settings import get_settings
 def main() -> None:
     """Start the Trussium runtime."""
     settings = get_settings()
-    chat_capability = create_chat_capability_from_environment()
+    chat_capability = create_chat_capability_from_environment(
+        timeouts=settings.timeouts,
+    )
 
     app = create_application(
         settings=settings,

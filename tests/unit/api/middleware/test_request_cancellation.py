@@ -227,6 +227,60 @@ def test_asgi_24_client_disconnect_is_suppressed_and_logged() -> None:
     assert handler.records[1].exc_info is None
 
 
+def test_asgi_23_disconnect_after_terminal_body_remains_completed() -> None:
+    """A connection close after the terminal response body is not cancellation."""
+    logger, handler = create_test_logger()
+
+    async def application(
+        scope: Scope,
+        receive: Receive,
+        send: Send,
+    ) -> None:
+        _ = scope
+        await send(
+            {
+                "type": "http.response.start",
+                "status": 200,
+                "headers": [],
+            }
+        )
+        await send(
+            {
+                "type": "http.response.body",
+                "body": b"complete",
+                "more_body": False,
+            }
+        )
+        await receive()
+
+    async def receive() -> Message:
+        return {
+            "type": "http.disconnect",
+        }
+
+    async def send(message: Message) -> None:
+        _ = message
+
+    middleware = RequestLoggingMiddleware(
+        cast(ASGIApp, application),
+        logger=logger,
+    )
+
+    asyncio.run(
+        middleware(
+            create_http_scope(spec_version="2.3"),
+            receive,
+            send,
+        )
+    )
+
+    assert [record.event for record in handler.records] == [
+        "http.request.started",
+        "http.request.completed",
+    ]
+    assert handler.records[1].http_status_code == 200
+
+
 def test_outer_task_cancellation_is_logged_and_reraised() -> None:
     """Cooperative task cancellation should remain visible to the caller."""
     logger, handler = create_test_logger()

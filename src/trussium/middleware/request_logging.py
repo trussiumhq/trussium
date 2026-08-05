@@ -57,6 +57,7 @@ class RequestLoggingMiddleware:
         started_at = perf_counter()
         status_code: int | None = None
         client_disconnected = False
+        response_complete = False
 
         self._logger.info(
             "HTTP request started",
@@ -71,7 +72,7 @@ class RequestLoggingMiddleware:
         async def send_with_status(
             message: Message,
         ) -> None:
-            nonlocal status_code
+            nonlocal response_complete, status_code
 
             if message["type"] == "http.response.start":
                 response_status = message.get("status")
@@ -80,6 +81,9 @@ class RequestLoggingMiddleware:
                     status_code = response_status
 
             await send(message)
+
+            if message["type"] == "http.response.body" and message.get("more_body", False) is False:
+                response_complete = True
 
         async def receive_with_disconnect() -> Message:
             nonlocal client_disconnected
@@ -131,7 +135,7 @@ class RequestLoggingMiddleware:
             )
             raise
 
-        if client_disconnected:
+        if client_disconnected and not response_complete:
             self._log_cancelled(
                 request_id=request_id,
                 method=method,

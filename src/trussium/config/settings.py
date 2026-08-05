@@ -38,6 +38,24 @@ class RuntimeSettings(BaseModel):
     )
 
 
+class TimeoutSettings(BaseModel):
+    """Provider execution timeout configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    provider_request_seconds: float = Field(
+        default=60.0,
+        gt=0,
+        description="Maximum duration of a non-streaming provider request.",
+    )
+
+    stream_idle_seconds: float = Field(
+        default=30.0,
+        gt=0,
+        description="Maximum wait between provider stream events.",
+    )
+
+
 class Settings(BaseSettings):
     """Application settings."""
 
@@ -45,6 +63,7 @@ class Settings(BaseSettings):
         env_prefix="TRUSSIUM_",
         env_file=".env",
         env_file_encoding="utf-8",
+        env_nested_delimiter="__",
         extra="ignore",
     )
 
@@ -54,6 +73,7 @@ class Settings(BaseSettings):
     )
 
     runtime: RuntimeSettings = RuntimeSettings()
+    timeouts: TimeoutSettings = TimeoutSettings()
 
 
 @lru_cache

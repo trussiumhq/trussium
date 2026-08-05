@@ -1,5 +1,6 @@
 """Tests for chat-completion HTTP endpoints."""
 
+import asyncio
 import json
 from collections.abc import AsyncIterator
 from typing import cast
@@ -25,6 +26,13 @@ from trussium.capabilities.chat import (
 from trussium.capabilities.errors import (
     CapabilityErrorCategory,
     CapabilityExecutionError,
+)
+from trussium.runtime import (
+    PROVIDER_REQUEST_TIMEOUT_CODE,
+    PROVIDER_REQUEST_TIMEOUT_MESSAGE,
+    PROVIDER_STREAM_TIMEOUT_CODE,
+    PROVIDER_STREAM_TIMEOUT_MESSAGE,
+    TimeoutChatCapability,
 )
 
 
@@ -121,6 +129,37 @@ class FailingChatCapability:
             code=self._error.code,
             message=self._error.message,
         )
+
+
+class SlowChatCapability:
+    """Delay provider execution for HTTP timeout tests."""
+
+    def __init__(self) -> None:
+        """Initialize provider finalization state."""
+        self.stream_finalized = False
+
+    async def complete(
+        self,
+        request: ChatCompletionRequest,
+    ) -> ChatCompletionResponse:
+        """Delay a non-streaming completion."""
+        await asyncio.sleep(1)
+        return await StubChatCapability().complete(request)
+
+    async def stream(
+        self,
+        request: ChatCompletionRequest,
+    ) -> AsyncIterator[ChatStreamEvent]:
+        """Start a stream and then stall until its idle deadline."""
+        try:
+            yield ChatStreamStartEvent(
+                id="slow-stream-1",
+                provider="slow-provider",
+                model=request.model,
+            )
+            await asyncio.sleep(1)
+        finally:
+            self.stream_finalized = True
 
 
 def parse_sse_events(
@@ -303,6 +342,78 @@ def test_chat_completion_returns_normalized_provider_error() -> None:
             "message": error_message,
         }
     }
+
+
+def test_chat_completion_runtime_timeout_returns_504() -> None:
+    """A Trussium-enforced provider deadline should use the timeout envelope."""
+    capability = TimeoutChatCapability(
+        SlowChatCapability(),
+        provider_request_seconds=0.001,
+        stream_idle_seconds=1,
+    )
+    app = create_application(chat_capability=capability)
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "test-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": False,
+        },
+    )
+
+    assert response.status_code == status.HTTP_504_GATEWAY_TIMEOUT
+    assert response.json() == {
+        "detail": {
+            "code": PROVIDER_REQUEST_TIMEOUT_CODE,
+            "message": PROVIDER_REQUEST_TIMEOUT_MESSAGE,
+        }
+    }
+
+
+def test_chat_stream_runtime_timeout_emits_normalized_error() -> None:
+    """A stalled SSE stream should end with one correlated timeout event."""
+    provider = SlowChatCapability()
+    capability = TimeoutChatCapability(
+        provider,
+        provider_request_seconds=1,
+        stream_idle_seconds=0.001,
+    )
+    app = create_application(chat_capability=capability)
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "test-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": True,
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert parse_sse_events(response.text) == [
+        (
+            "start",
+            {
+                "type": "start",
+                "id": "slow-stream-1",
+                "provider": "slow-provider",
+                "model": "test-model",
+            },
+        ),
+        (
+            "error",
+            {
+                "type": "error",
+                "id": "slow-stream-1",
+                "code": PROVIDER_STREAM_TIMEOUT_CODE,
+                "message": PROVIDER_STREAM_TIMEOUT_MESSAGE,
+            },
+        ),
+    ]
+    assert provider.stream_finalized is True
 
 
 def test_chat_completion_returns_503_without_provider() -> None:

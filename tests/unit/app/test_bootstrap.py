@@ -6,6 +6,7 @@ from trussium.app.bootstrap import (
     create_chat_capability_from_environment,
 )
 from trussium.observability import LoggingProviderChatCapability
+from trussium.runtime import TimeoutChatCapability
 
 
 def test_missing_openai_api_key_disables_chat_capability(
@@ -33,4 +34,8 @@ def test_openai_api_key_enables_logged_openai_capability(
     assert isinstance(
         capability,
         LoggingProviderChatCapability,
+    )
+    assert isinstance(
+        capability._capability,
+        TimeoutChatCapability,
     )

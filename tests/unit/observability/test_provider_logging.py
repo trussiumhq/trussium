@@ -35,7 +35,10 @@ from trussium.observability import (
     RuntimeContextFilter,
 )
 from trussium.runtime import (
+    PROVIDER_REQUEST_TIMEOUT_CODE,
+    PROVIDER_STREAM_TIMEOUT_CODE,
     ExecutionContext,
+    TimeoutChatCapability,
     get_execution_context,
     reset_request_id,
     set_request_id,
@@ -220,6 +223,37 @@ class CancellingChatProvider:
                 model=request.model,
             )
             await asyncio.Event().wait()
+        finally:
+            self.stream_closed = True
+
+
+class SlowTimeoutChatProvider:
+    """Delay execution until Trussium's configured timeout expires."""
+
+    def __init__(self) -> None:
+        """Initialize stream finalization state."""
+        self.stream_closed = False
+
+    async def complete(
+        self,
+        request: ChatCompletionRequest,
+    ) -> ChatCompletionResponse:
+        """Delay a non-streaming provider request."""
+        await asyncio.sleep(1)
+        return create_response(request)
+
+    async def stream(
+        self,
+        request: ChatCompletionRequest,
+    ) -> AsyncIterator[ChatStreamEvent]:
+        """Start a provider stream and then stop producing events."""
+        try:
+            yield ChatStreamStartEvent(
+                id="timeout-provider-stream",
+                provider="test-provider",
+                model=request.model,
+            )
+            await asyncio.sleep(1)
         finally:
             self.stream_closed = True
 
@@ -690,3 +724,67 @@ def test_nested_stream_close_finalizes_provider_before_cancellation_logs() -> No
     assert all(
         record.execution_id == "execution-cancelled-stream-123" for record in handler.records
     )
+
+
+def test_nested_non_streaming_timeout_logs_failed_lifecycles() -> None:
+    """A provider deadline should fail both correlated execution lifecycles."""
+    logger, handler = create_test_logger()
+    timed_provider = TimeoutChatCapability(
+        SlowTimeoutChatProvider(),
+        provider_request_seconds=0.001,
+        stream_idle_seconds=1,
+    )
+    provider = LoggingProviderChatCapability(
+        timed_provider,
+        provider="test-provider",
+        logger=logger,
+    )
+    capability = LoggingChatCapability(provider, logger=logger)
+
+    with pytest.raises(CapabilityExecutionError) as error_info:
+        asyncio.run(capability.complete(create_request()))
+
+    assert error_info.value.code == PROVIDER_REQUEST_TIMEOUT_CODE
+    assert [record.event for record in handler.records] == [
+        "capability.execution.started",
+        "provider.execution.started",
+        "provider.execution.failed",
+        "capability.execution.failed",
+    ]
+    assert handler.records[2].error_code == PROVIDER_REQUEST_TIMEOUT_CODE
+    assert handler.records[3].error_code == PROVIDER_REQUEST_TIMEOUT_CODE
+
+
+def test_nested_stream_timeout_logs_failed_lifecycles_and_closes_provider() -> None:
+    """An idle provider stream should fail both lifecycles and close upstream."""
+    logger, handler = create_test_logger()
+    decorated_provider = SlowTimeoutChatProvider()
+    timed_provider = TimeoutChatCapability(
+        decorated_provider,
+        provider_request_seconds=1,
+        stream_idle_seconds=0.001,
+    )
+    provider = LoggingProviderChatCapability(
+        timed_provider,
+        provider="test-provider",
+        logger=logger,
+    )
+    capability = LoggingChatCapability(provider, logger=logger)
+
+    events = asyncio.run(
+        collect_events(
+            capability.stream(create_request(streaming=True)),
+        )
+    )
+
+    assert [event.type for event in events] == ["start", "error"]
+    assert events[-1].id == "timeout-provider-stream"
+    assert decorated_provider.stream_closed is True
+    assert [record.event for record in handler.records] == [
+        "capability.execution.started",
+        "provider.execution.started",
+        "provider.execution.failed",
+        "capability.execution.failed",
+    ]
+    assert handler.records[2].error_code == PROVIDER_STREAM_TIMEOUT_CODE
+    assert handler.records[3].error_code == PROVIDER_STREAM_TIMEOUT_CODE
