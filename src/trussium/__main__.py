@@ -1,12 +1,11 @@
 """Trussium runtime entry point."""
 
-import uvicorn
-
 from trussium.app import create_application
 from trussium.app.bootstrap import (
     create_chat_capability_from_environment,
 )
 from trussium.config.settings import get_settings
+from trussium.runtime.server import create_server
 
 
 def main() -> None:
@@ -22,11 +21,11 @@ def main() -> None:
         chat_capability=chat_capability,
     )
 
-    uvicorn.run(
+    server = create_server(
         app,
-        host=settings.runtime.host,
-        port=settings.runtime.port,
+        settings=settings.runtime,
     )
+    server.run()
 
 
 if __name__ == "__main__":

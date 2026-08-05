@@ -177,6 +177,15 @@ The image uses an exec-form entry point and declares `SIGTERM`. `docker stop`
 therefore signals the Python process directly, allowing Uvicorn to complete
 application shutdown before the bounded Docker stop timeout expires.
 
+Active requests and streams drain for 30 seconds by default. Set
+`TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS` to a positive whole number to
+change that deadline. The Docker or orchestrator stop timeout must exceed the
+configured drain deadline, Trussium's one-second cancellation-cleanup bound,
+and normal exit overhead; a five-second deployment margin is recommended.
+
+See the [Graceful Shutdown Guide](SHUTDOWN.md) for the full signal, draining,
+cancellation, structured-log, and deployment-timing contract.
+
 ## Publication workflow
 
 Pull requests and pushes to `main` run Docker build checks and the complete

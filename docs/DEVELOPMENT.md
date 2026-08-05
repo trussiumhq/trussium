@@ -65,6 +65,12 @@ uv run python -m trussium
 Without provider credentials, the runtime starts with health endpoints while
 the chat endpoint reports that no provider is configured.
 
+The production entry point drains active requests and SSE streams for 30
+seconds after `SIGTERM` by default. Override the positive whole-number deadline
+with `TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS`. See the
+[Graceful Shutdown Guide](SHUTDOWN.md) for lifecycle semantics, deployment
+timing, correlated cancellation logs, and deterministic process validation.
+
 ## OpenAI provider
 
 Existing OpenAI deployments can continue to use the OpenAI SDK environment
