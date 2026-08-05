@@ -3,12 +3,15 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
 from trussium.api.dependencies import get_chat_capability
 from trussium.api.errors import capability_error_status_code
-from trussium.api.sse import stream_chat_events
+from trussium.api.sse import (
+    ClosableStreamingResponse,
+    stream_chat_events,
+)
 from trussium.capabilities.chat import (
     ChatCapability,
     ChatCompletionRequest,
@@ -80,7 +83,7 @@ async def create_chat_completion(
         HTTPException: When non-streaming capability execution fails.
     """
     if request.stream:
-        return StreamingResponse(
+        return ClosableStreamingResponse(
             content=stream_chat_events(
                 capability=capability,
                 request=request,

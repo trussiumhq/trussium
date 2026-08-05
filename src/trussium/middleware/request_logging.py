@@ -1,8 +1,10 @@
 """Structured HTTP request logging middleware."""
 
 import logging
+from asyncio import CancelledError
 from time import perf_counter
 
+from starlette.requests import ClientDisconnect
 from starlette.types import (
     ASGIApp,
     Message,
@@ -54,6 +56,7 @@ class RequestLoggingMiddleware:
         path = str(scope.get("path", ""))
         started_at = perf_counter()
         status_code: int | None = None
+        client_disconnected = False
 
         self._logger.info(
             "HTTP request started",
@@ -78,18 +81,43 @@ class RequestLoggingMiddleware:
 
             await send(message)
 
+        async def receive_with_disconnect() -> Message:
+            nonlocal client_disconnected
+
+            message = await receive()
+
+            if message["type"] == "http.disconnect":
+                client_disconnected = True
+
+            return message
+
         try:
             await self._app(
                 scope,
-                receive,
+                receive_with_disconnect,
                 send_with_status,
             )
-        except Exception:
-            duration_ms = round(
-                (perf_counter() - started_at) * 1000,
-                3,
+        except ClientDisconnect:
+            self._log_cancelled(
+                request_id=request_id,
+                method=method,
+                path=path,
+                status_code=status_code,
+                started_at=started_at,
+                cancellation_reason="client_disconnect",
             )
-
+            return
+        except CancelledError:
+            self._log_cancelled(
+                request_id=request_id,
+                method=method,
+                path=path,
+                status_code=status_code,
+                started_at=started_at,
+                cancellation_reason="task_cancelled",
+            )
+            raise
+        except Exception:
             self._logger.exception(
                 "HTTP request failed",
                 extra={
@@ -98,15 +126,21 @@ class RequestLoggingMiddleware:
                     "http_method": method,
                     "http_path": path,
                     "http_status_code": (status_code if status_code is not None else 500),
-                    "duration_ms": duration_ms,
+                    "duration_ms": self._duration_ms(started_at),
                 },
             )
             raise
 
-        duration_ms = round(
-            (perf_counter() - started_at) * 1000,
-            3,
-        )
+        if client_disconnected:
+            self._log_cancelled(
+                request_id=request_id,
+                method=method,
+                path=path,
+                status_code=status_code,
+                started_at=started_at,
+                cancellation_reason="client_disconnect",
+            )
+            return
 
         self._logger.info(
             "HTTP request completed",
@@ -116,6 +150,40 @@ class RequestLoggingMiddleware:
                 "http_method": method,
                 "http_path": path,
                 "http_status_code": status_code,
-                "duration_ms": duration_ms,
+                "duration_ms": self._duration_ms(started_at),
             },
+        )
+
+    def _log_cancelled(
+        self,
+        *,
+        request_id: str | None,
+        method: str,
+        path: str,
+        status_code: int | None,
+        started_at: float,
+        cancellation_reason: str,
+    ) -> None:
+        """Emit a structured HTTP request cancellation event."""
+        self._logger.info(
+            "HTTP request cancelled",
+            extra={
+                "event": "http.request.cancelled",
+                "request_id": request_id,
+                "http_method": method,
+                "http_path": path,
+                "http_status_code": status_code,
+                "duration_ms": self._duration_ms(started_at),
+                "cancellation_reason": cancellation_reason,
+            },
+        )
+
+    @staticmethod
+    def _duration_ms(
+        started_at: float,
+    ) -> float:
+        """Return elapsed request time in milliseconds."""
+        return round(
+            (perf_counter() - started_at) * 1000,
+            3,
         )
