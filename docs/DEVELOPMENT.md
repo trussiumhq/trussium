@@ -180,6 +180,24 @@ Run a specific test module or test case by passing its path.
 uv run pytest tests/integration/test_chat_runtime.py
 ```
 
+## Container validation
+
+Docker is required only for container work. Run Dockerfile build checks and the
+complete production-image smoke test:
+
+```bash
+docker build --check .
+scripts/container-smoke-test.sh
+```
+
+The smoke test builds the image, validates its metadata and contents, and runs
+it with a read-only filesystem, dropped capabilities, no privilege escalation,
+and a dynamic host port. It verifies Docker health, HTTP health endpoints,
+request correlation, the non-root runtime identity, and graceful shutdown.
+
+See the [Container Guide](CONTAINERS.md) for build metadata, GHCR tags,
+provider configuration, supported platforms, and hardened run commands.
+
 ---
 
 # Linting
