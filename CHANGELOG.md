@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.22.0 (2026-08-05)
+
+### Features
+
+- **packaging**: Validate distribution artifacts
+  ([`1627a0d`](https://github.com/trussiumhq/trussium/commit/1627a0dbca4e78d3b0a63a40aa27dfd3d5e11a44))
+
+
 ## v0.21.1 (2026-08-05)
 
 ### Bug Fixes
