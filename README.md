@@ -155,12 +155,15 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.1.0 \
+  --version 0.2.0 \
   --namespace trussium-system
 ```
 
-Chart v0.1.0 defaults to runtime v0.24.0. The chart deploys the runtime only;
-it does not install the future Trussium Operator.
+Chart v0.2.0 defaults to runtime v0.25.0 and enables the production CPU
+autoscaler and runtime metrics contract. It requires a working Kubernetes
+Metrics API by default; fixed replicas remain available by disabling
+autoscaling. The chart deploys the runtime only and does not install the future
+Trussium Operator.
 
 ---
 
