@@ -116,7 +116,7 @@ def test_production_overlay_defines_availability_and_release_image_contract() ->
         {
             "name": "ghcr.io/trussiumhq/trussium",
             "newName": "ghcr.io/trussiumhq/trussium",
-            "newTag": "0.23.0",
+            "newTag": "0.24.0",
         }
     ]
     assert patch["spec"]["replicas"] == 2
@@ -163,7 +163,7 @@ def test_production_overlay_renders_complete_deployment() -> None:
     deployment = by_kind["Deployment"]
     assert deployment["spec"]["replicas"] == 2
     assert deployment["spec"]["template"]["spec"]["containers"][0]["image"] == (
-        "ghcr.io/trussiumhq/trussium:0.23.0"
+        "ghcr.io/trussiumhq/trussium:0.24.0"
     )
 
 

@@ -204,6 +204,8 @@ the [Kubernetes Deployment Guide](KUBERNETES.md).
 
 ## Current limitations
 
-The container release does not yet include a Helm chart, runtime metrics,
-distributed tracing, or provider-specific model runtimes. No model weights or
-provider credentials are bundled in the image.
+The runtime does not yet include production metrics, distributed tracing, or
+provider-specific model runtimes. The official Helm chart is released
+independently from
+[`trussiumhq/trussium-helm`](https://github.com/trussiumhq/trussium-helm).
+No model weights or provider credentials are bundled in the image.

@@ -4,6 +4,14 @@ Trussium includes a Kustomize base and a production overlay for Kubernetes. The
 production deployment runs two hardened replicas behind a ClusterIP Service on
 port 9000 and uses the release image pinned in the overlay.
 
+The independently versioned official
+[`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages
+the same production contract. Use Helm when values-driven configuration and
+Helm-managed install, upgrade, rollback, and uninstall lifecycles are desired.
+Use the maintained Kustomize overlay when direct rendered-manifest ownership or
+overlay composition is preferred. The chart deploys the runtime only and does
+not install the future Trussium Operator.
+
 ## Resources
 
 The maintained production overlay renders:
@@ -78,6 +86,29 @@ Secrets, Sealed Secrets, or a cloud secret-store CSI driver can create the same
 `trussium-provider` Secret without changing the Deployment.
 
 Health endpoints remain available when the optional provider Secret is absent.
+
+## Deploy with Helm
+
+After creating the namespace, image-pull Secret, and any provider Secret above,
+authenticate to GHCR and install chart v0.1.0:
+
+```bash
+helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
+
+helm install trussium \
+  oci://ghcr.io/trussiumhq/charts/trussium \
+  --version 0.1.0 \
+  --namespace trussium-system \
+  --wait
+```
+
+Chart v0.1.0 defaults to runtime v0.24.0. Chart and runtime versions are
+independent; the chart's `appVersion` records its default compatible runtime.
+The chart repository documents every value, existing Secret integration,
+customization, upgrades, rollbacks, removal, and release compatibility.
+
+The remaining sections describe the maintained Kustomize path. Do not manage
+the same runtime release with both Helm and Kustomize.
 
 ## Validate and deploy
 

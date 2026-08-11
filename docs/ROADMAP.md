@@ -27,7 +27,9 @@ Both streaming and non-streaming requests use normalized provider errors. Every 
 
 The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, correlated lifecycles, and bounded graceful shutdown without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, automated GHCR publication, and configurable active-workload draining. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases.
 
-Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened replicated pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The immediate focus is a Helm chart built on the validated Kubernetes deployment contract.
+Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened replicated pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test.
+
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) now packages the same validated contract for configurable installation, upgrades, and rollbacks. Its v0.1.0 release targets runtime v0.24.0, validates values through JSON Schema, exercises the complete Helm lifecycle in Kind, and publishes both a GitHub release asset and an OCI artifact. The immediate cloud-native focus is horizontal autoscaling built on production runtime metrics.
 
 ---
 
@@ -519,10 +521,13 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Client-side Kustomize render and schema validation automation
 - Real Kind-cluster deployment, replica, security, health, and correlation smoke tests
 - Kubernetes customization, upgrade, rollback, scaling, and removal documentation
+- Independently versioned production `trussium` Helm chart
+- Schema-validated Helm values and existing Secret integration
+- Real Kind-cluster Helm install, health, upgrade, rollback, and uninstall validation
+- Automated Helm release packaging, GitHub release assets, and OCI publication
 
 ### Remaining
 
-- Helm chart
 - Horizontal autoscaling
 - OpenTelemetry instrumentation
 - Prometheus metrics
@@ -687,11 +692,11 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add a production Helm chart
+1. Add horizontal autoscaling
 
-This priority packages the now-validated Kubernetes resource, configuration,
-security, availability, release-version, and operational contracts for
-customizable installation and upgrades.
+This priority builds on the delivered Kubernetes and Helm deployment contracts
+by exposing production runtime metrics and defining safe replica scaling
+behavior for request and streaming workloads.
 
 ---
 
