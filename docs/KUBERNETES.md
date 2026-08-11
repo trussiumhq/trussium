@@ -112,28 +112,31 @@ and current distributed-propagation boundaries.
 ## Deploy with Helm
 
 After creating the namespace, image-pull Secret, and any provider Secret above,
-authenticate to GHCR and install chart v0.2.0:
+authenticate to GHCR and install chart v0.3.0:
 
 ```bash
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.2.0 \
+  --version 0.3.0 \
   --namespace trussium-system \
   --wait
 ```
 
-Chart v0.2.0 defaults to runtime v0.25.0. Chart and runtime versions are
+Chart v0.3.0 defaults to runtime v0.26.0. Chart and runtime versions are
 independent; the chart's `appVersion` records its default compatible runtime.
 The chart enables the same two-to-ten-replica CPU HPA and runtime metrics
-contract by default, so a working Kubernetes Metrics API is required. Use
-fixed replicas when that API is intentionally unavailable:
+contract by default, so a working Kubernetes Metrics API is required. It also
+renders the runtime's tracing enablement, service identity, sampling ratio,
+OTLP HTTP/protobuf endpoint, and export timeout while leaving tracing disabled
+by default. The chart does not install a collector or tracing backend. Use fixed
+replicas when the Metrics API is intentionally unavailable:
 
 ```bash
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.2.0 \
+  --version 0.3.0 \
   --namespace trussium-system \
   --set autoscaling.enabled=false \
   --set replicaCount=2 \
