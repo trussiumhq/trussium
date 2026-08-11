@@ -120,6 +120,7 @@ required_modules = {
 expected_dependencies = {
     "fastapi",
     "openai",
+    "prometheus-client",
     "pydantic",
     "pydantic-settings",
     "uvicorn",
@@ -290,6 +291,18 @@ for path in ("/health/live", "/health/ready"):
         assert response.status == 200
         assert json.load(response) == {"status": "ok"}
         assert response.headers["X-Request-ID"] == request_id
+
+metrics_request = urllib.request.Request(
+    f"http://127.0.0.1:{port}/metrics",
+    headers={"X-Request-ID": request_id},
+)
+with urllib.request.urlopen(metrics_request, timeout=1) as response:
+    assert response.status == 200
+    assert response.headers["Content-Type"].startswith("text/plain")
+    assert response.headers["X-Request-ID"] == request_id
+    metrics = response.read().decode()
+    assert "python_info" in metrics
+    assert "trussium_http_requests_active 0.0" in metrics
 PY
         then
             ready="true"

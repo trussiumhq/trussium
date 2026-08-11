@@ -92,6 +92,17 @@ class TimeoutSettings(BaseModel):
     )
 
 
+class ObservabilitySettings(BaseModel):
+    """Runtime observability configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    metrics_enabled: bool = Field(
+        default=True,
+        description="Expose Prometheus-compatible runtime metrics at /metrics.",
+    )
+
+
 class Settings(BaseSettings):
     """Application settings."""
 
@@ -111,6 +122,7 @@ class Settings(BaseSettings):
     runtime: RuntimeSettings = RuntimeSettings()
     provider: ProviderSettings = ProviderSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
+    observability: ObservabilitySettings = ObservabilitySettings()
 
 
 @lru_cache

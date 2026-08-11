@@ -69,6 +69,9 @@ def test_smoke_script_validates_runtime_security_and_shutdown() -> None:
     assert "--cap-drop ALL" in script
     assert "no-new-privileges:true" in script
     assert "container-smoke-61" in script
+    assert '"http://127.0.0.1:${host_port}/metrics"' in script
+    assert "trussium_http_requests_active" in script
+    assert "process_start_time_seconds" in script
     assert 'docker exec "$container" id -u' in script
     assert 'docker stop --time 10 "$container"' in script
     assert "graceful shutdown exit code" in script

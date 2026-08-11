@@ -5,6 +5,7 @@ namespace: trussium-system
 
 resources:
   - ../../base
+  - horizontal-pod-autoscaler.yaml
   - pod-disruption-budget.yaml
 
 patches:

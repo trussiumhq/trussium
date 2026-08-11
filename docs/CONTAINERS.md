@@ -77,9 +77,9 @@ scripts/container-smoke-test.sh
 
 The script builds the image, verifies its metadata and runtime contents, starts
 it on a dynamically allocated host port with hardened security options, waits
-for Docker health, checks liveness, readiness, and request correlation, verifies
-the runtime UID/GID, and confirms clean `SIGTERM` shutdown. It always removes
-the temporary container.
+for Docker health, checks liveness, readiness, process and request metrics, and
+request correlation, verifies the runtime UID/GID, and confirms clean
+`SIGTERM` shutdown. It always removes the temporary container.
 
 Set `TRUSSIUM_CONTAINER_IMAGE` to choose the local test tag:
 
@@ -108,6 +108,7 @@ Check container and application health:
 ```bash
 docker inspect --format '{{.State.Health.Status}}' trussium
 curl http://127.0.0.1:9000/health/ready
+curl http://127.0.0.1:9000/metrics
 ```
 
 ## Running with OpenAI
@@ -204,8 +205,7 @@ the [Kubernetes Deployment Guide](KUBERNETES.md).
 
 ## Current limitations
 
-The runtime does not yet include production metrics, distributed tracing, or
-provider-specific model runtimes. The official Helm chart is released
-independently from
+The runtime does not yet include distributed tracing or provider-specific
+model runtimes. The official Helm chart is released independently from
 [`trussiumhq/trussium-helm`](https://github.com/trussiumhq/trussium-helm).
 No model weights or provider credentials are bundled in the image.

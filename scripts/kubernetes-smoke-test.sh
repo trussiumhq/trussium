@@ -7,6 +7,8 @@ cluster="${TRUSSIUM_KIND_CLUSTER:-trussium-smoke-$$}"
 context="kind-$cluster"
 namespace="trussium-system"
 image="${TRUSSIUM_KUBERNETES_IMAGE:-trussium:kubernetes-smoke}"
+metrics_server_version="v0.8.1"
+metrics_server_manifest="https://github.com/kubernetes-sigs/metrics-server/releases/download/$metrics_server_version/components.yaml"
 rendered="$(mktemp)"
 headers="$(mktemp)"
 body="$(mktemp)"
@@ -56,6 +58,12 @@ docker build --quiet --tag "$image" "$repository_root"
 kind load docker-image "$image" --name "$cluster"
 
 "$repository_root/scripts/kubernetes-validate.sh"
+kubectl --context "$context" apply -f "$metrics_server_manifest"
+kubectl --context "$context" -n kube-system patch deployment metrics-server \
+    --type=json \
+    --patch='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+kubectl --context "$context" -n kube-system rollout status deployment/metrics-server \
+    --timeout=180s
 kubectl kustomize "$repository_root/deploy/kubernetes/overlays/production" \
     | sed "s|image: ghcr.io/trussiumhq/trussium:[^[:space:]]*|image: $image|" \
     >"$rendered"
@@ -63,8 +71,45 @@ kubectl --context "$context" apply -f "$rendered"
 kubectl --context "$context" -n "$namespace" rollout status deployment/trussium \
     --timeout=180s
 
+attempt=0
+while [ "$attempt" -lt 90 ]; do
+    ready_replicas="$(kubectl --context "$context" -n "$namespace" get deployment trussium \
+        -o jsonpath='{.status.readyReplicas}')"
+    scaling_active="$(kubectl --context "$context" -n "$namespace" \
+        get horizontalpodautoscaler/trussium \
+        -o jsonpath='{.status.conditions[?(@.type=="ScalingActive")].status}')"
+
+    if [ "$ready_replicas" = "2" ] && [ "$scaling_active" = "True" ]; then
+        break
+    fi
+
+    attempt=$((attempt + 1))
+    sleep 2
+done
+
+if [ "$attempt" -ge 90 ]; then
+    kubectl --context "$context" -n "$namespace" get deployment,pods,horizontalpodautoscaler >&2
+    kubectl --context "$context" -n "$namespace" describe horizontalpodautoscaler trussium >&2
+    echo "horizontal autoscaling did not become active within 180 seconds" >&2
+    exit 1
+fi
+
 assert_equal "$(kubectl --context "$context" -n "$namespace" get deployment trussium \
     -o jsonpath='{.status.readyReplicas}')" "2" "ready replicas"
+assert_equal "$(kubectl --context "$context" -n "$namespace" get horizontalpodautoscaler trussium \
+    -o jsonpath='{.spec.minReplicas}')" "2" "minimum replicas"
+assert_equal "$(kubectl --context "$context" -n "$namespace" get horizontalpodautoscaler trussium \
+    -o jsonpath='{.spec.maxReplicas}')" "10" "maximum replicas"
+assert_equal "$(kubectl --context "$context" -n "$namespace" get horizontalpodautoscaler trussium \
+    -o jsonpath='{.spec.metrics[0].containerResource.container}')" "trussium" \
+    "autoscaled container"
+assert_equal "$(kubectl --context "$context" -n "$namespace" get horizontalpodautoscaler trussium \
+    -o jsonpath='{.spec.metrics[0].containerResource.name}')" "cpu" \
+    "autoscaling resource"
+assert_equal "$(kubectl --context "$context" -n "$namespace" get horizontalpodautoscaler trussium \
+    -o jsonpath='{.spec.metrics[0].containerResource.target.averageUtilization}')" "70" \
+    "target CPU utilization"
+assert_equal "$scaling_active" "True" "active horizontal scaling"
 assert_equal "$(kubectl --context "$context" -n "$namespace" get deployment trussium \
     -o jsonpath='{.spec.template.spec.securityContext.runAsUser}')" "10001" "runtime UID"
 assert_equal "$(kubectl --context "$context" -n "$namespace" get deployment trussium \
@@ -114,5 +159,12 @@ curl --fail --silent --show-error \
 assert_equal "$(cat "$body")" '{"status":"ok"}' "readiness response"
 request_id="$(awk 'tolower($1) == "x-request-id:" {gsub("\r", "", $2); print $2}' "$headers")"
 assert_equal "$request_id" "kubernetes-smoke-69" "request correlation header"
+
+curl --fail --silent --show-error \
+    "http://127.0.0.1:$port/metrics" \
+    --output "$body"
+
+grep -q '^trussium_http_requests_active 0\.0$' "$body"
+grep -q '^process_start_time_seconds ' "$body"
 
 echo "Kubernetes smoke test passed for $image on Kind cluster $cluster"

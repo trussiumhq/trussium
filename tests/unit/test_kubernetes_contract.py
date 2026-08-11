@@ -93,6 +93,7 @@ def test_config_map_and_secret_example_separate_safe_and_sensitive_settings() ->
 
     assert config_map["data"] == {
         "TRUSSIUM_ENVIRONMENT": "production",
+        "TRUSSIUM_OBSERVABILITY__METRICS_ENABLED": "true",
         "TRUSSIUM_RUNTIME__HOST": "0.0.0.0",
         "TRUSSIUM_RUNTIME__PORT": "9000",
         "TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS": "30",
@@ -109,8 +110,13 @@ def test_production_overlay_defines_availability_and_release_image_contract() ->
     kustomization = _load_yaml(_PRODUCTION_OVERLAY / "kustomization.yaml")
     patch = _load_yaml(_PRODUCTION_OVERLAY / "deployment-patch.yaml")
     disruption_budget = _load_yaml(_PRODUCTION_OVERLAY / "pod-disruption-budget.yaml")
+    autoscaler = _load_yaml(_PRODUCTION_OVERLAY / "horizontal-pod-autoscaler.yaml")
 
-    assert kustomization["resources"] == ["../../base", "pod-disruption-budget.yaml"]
+    assert kustomization["resources"] == [
+        "../../base",
+        "horizontal-pod-autoscaler.yaml",
+        "pod-disruption-budget.yaml",
+    ]
     assert kustomization["patches"] == [{"path": "deployment-patch.yaml"}]
     assert kustomization["images"] == [
         {
@@ -119,7 +125,7 @@ def test_production_overlay_defines_availability_and_release_image_contract() ->
             "newTag": "0.24.0",
         }
     ]
-    assert patch["spec"]["replicas"] == 2
+    assert "replicas" not in patch["spec"]
     assert patch["spec"]["strategy"] == {
         "type": "RollingUpdate",
         "rollingUpdate": {"maxUnavailable": 0, "maxSurge": 1},
@@ -130,6 +136,40 @@ def test_production_overlay_defines_availability_and_release_image_contract() ->
     )
     assert disruption_budget["apiVersion"] == "policy/v1"
     assert disruption_budget["spec"]["maxUnavailable"] == 1
+    assert autoscaler["apiVersion"] == "autoscaling/v2"
+    assert autoscaler["spec"]["scaleTargetRef"] == {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "name": "trussium",
+    }
+    assert autoscaler["spec"]["minReplicas"] == 2
+    assert autoscaler["spec"]["maxReplicas"] == 10
+    assert autoscaler["spec"]["metrics"] == [
+        {
+            "type": "ContainerResource",
+            "containerResource": {
+                "name": "cpu",
+                "container": "trussium",
+                "target": {"type": "Utilization", "averageUtilization": 70},
+            },
+        }
+    ]
+    assert autoscaler["spec"]["behavior"]["scaleUp"] == {
+        "stabilizationWindowSeconds": 0,
+        "selectPolicy": "Max",
+        "policies": [
+            {"type": "Percent", "value": 100, "periodSeconds": 60},
+            {"type": "Pods", "value": 4, "periodSeconds": 60},
+        ],
+    }
+    assert autoscaler["spec"]["behavior"]["scaleDown"] == {
+        "stabilizationWindowSeconds": 300,
+        "selectPolicy": "Min",
+        "policies": [
+            {"type": "Percent", "value": 25, "periodSeconds": 60},
+            {"type": "Pods", "value": 1, "periodSeconds": 60},
+        ],
+    }
 
 
 @pytest.mark.skipif(shutil.which("kubectl") is None, reason="kubectl is not installed")
@@ -154,6 +194,7 @@ def test_production_overlay_renders_complete_deployment() -> None:
         "ConfigMap",
         "Service",
         "Deployment",
+        "HorizontalPodAutoscaler",
         "PodDisruptionBudget",
     }
     namespaced_documents = [document for document in documents if document["kind"] != "Namespace"]
@@ -161,10 +202,13 @@ def test_production_overlay_renders_complete_deployment() -> None:
         document["metadata"]["namespace"] == "trussium-system" for document in namespaced_documents
     )
     deployment = by_kind["Deployment"]
-    assert deployment["spec"]["replicas"] == 2
+    assert deployment["spec"]["replicas"] == 1
     assert deployment["spec"]["template"]["spec"]["containers"][0]["image"] == (
         "ghcr.io/trussiumhq/trussium:0.24.0"
     )
+    autoscaler = by_kind["HorizontalPodAutoscaler"]
+    assert autoscaler["spec"]["scaleTargetRef"]["name"] == "trussium"
+    assert autoscaler["spec"]["minReplicas"] == 2
 
 
 def test_release_automation_stamps_the_production_image_tag() -> None:
@@ -187,6 +231,12 @@ def test_kubernetes_validation_is_executable_and_runs_in_ci() -> None:
     assert "kubectl kustomize" in validate_path.read_text()
     assert 'kubectl apply --dry-run=client -f "$rendered"' in validate_path.read_text()
     assert "kind create cluster" in smoke_path.read_text()
+    assert 'metrics_server_version="v0.8.1"' in smoke_path.read_text()
+    assert "metrics-server/releases/download/$metrics_server_version/components.yaml" in (
+        smoke_path.read_text()
+    )
+    assert "horizontalpodautoscaler/trussium" in smoke_path.read_text()
+    assert "ScalingActive" in smoke_path.read_text()
     assert "rollout status deployment/trussium" in smoke_path.read_text()
     assert "kubernetes-smoke-69" in smoke_path.read_text()
     assert "uses: helm/kind-action@v1" in workflow

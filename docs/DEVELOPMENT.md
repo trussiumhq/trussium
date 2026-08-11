@@ -71,6 +71,13 @@ with `TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS`. See the
 [Graceful Shutdown Guide](SHUTDOWN.md) for lifecycle semantics, deployment
 timing, correlated cancellation logs, and deterministic process validation.
 
+Prometheus-compatible metrics are exposed at `/metrics` by default. The
+request gauge covers the complete JSON or SSE lifecycle, while health and
+scrape traffic are excluded. Set
+`TRUSSIUM_OBSERVABILITY__METRICS_ENABLED=false` to disable instrumentation and
+the endpoint. See the [Runtime Metrics Guide](METRICS.md) for the metric and
+label contract.
+
 ## OpenAI provider
 
 Existing OpenAI deployments can continue to use the OpenAI SDK environment
@@ -206,7 +213,8 @@ scripts/package-smoke-test.sh "$(pwd)/dist"
 
 The smoke test verifies isolated production dependencies, distribution and
 runtime version alignment, the typing marker, site-packages imports, liveness,
-readiness, request correlation, and bounded `SIGTERM` shutdown.
+readiness, runtime metrics, request correlation, and bounded `SIGTERM`
+shutdown.
 
 See the [Python Packaging Guide](PACKAGING.md) for the complete artifact
 contract, local installation, CI behavior, and GitHub release publication.
