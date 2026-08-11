@@ -19,6 +19,7 @@ from trussium.observability.provider import (
     UNEXPECTED_PROVIDER_ERROR_CODE,
     LoggingProviderChatCapability,
 )
+from trussium.observability.tracing import RuntimeTracing
 
 __all__ = [
     "CHAT_CAPABILITY_NAME",
@@ -29,6 +30,7 @@ __all__ = [
     "LoggingProviderChatCapability",
     "RuntimeContextFilter",
     "RuntimeMetrics",
+    "RuntimeTracing",
     "StructuredJsonFormatter",
     "configure_logging",
     "get_logger",

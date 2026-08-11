@@ -78,6 +78,20 @@ scrape traffic are excluded. Set
 the endpoint. See the [Runtime Metrics Guide](METRICS.md) for the metric and
 label contract.
 
+OpenTelemetry tracing is disabled by default. To exercise app-scoped request,
+capability, and provider spans against a local OTLP HTTP/protobuf collector:
+
+```bash
+export TRUSSIUM_OBSERVABILITY__TRACING_ENABLED=true
+export TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT=http://127.0.0.1:4318/v1/traces
+uv run python -m trussium
+```
+
+Inbound W3C trace context and structured-log correlation are supported; the
+runtime does not capture prompts, bodies, credentials, query strings, or
+exception messages. See the [OpenTelemetry Tracing Guide](TRACING.md) for the
+configuration, sampling, span, privacy, and current propagation contracts.
+
 ## OpenAI provider
 
 Existing OpenAI deployments can continue to use the OpenAI SDK environment

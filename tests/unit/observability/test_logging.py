@@ -4,8 +4,13 @@ import io
 import json
 import logging
 
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+from trussium.config.settings import ObservabilitySettings
 from trussium.observability import (
     RuntimeContextFilter,
+    RuntimeTracing,
     StructuredJsonFormatter,
     configure_logging,
     get_logger,
@@ -34,6 +39,8 @@ def test_structured_formatter_returns_valid_json() -> None:
     record.event = "test.event"
     record.request_id = "request-123"
     record.execution_id = "execution-123"
+    record.trace_id = "0af7651916cd43dd8448eb211c80319c"
+    record.span_id = "b7ad6b7169203331"
     record.http_method = "GET"
     record.http_path = "/test"
     record.http_status_code = 200
@@ -50,6 +57,8 @@ def test_structured_formatter_returns_valid_json() -> None:
     assert payload["event"] == "test.event"
     assert payload["request_id"] == "request-123"
     assert payload["execution_id"] == "execution-123"
+    assert payload["trace_id"] == "0af7651916cd43dd8448eb211c80319c"
+    assert payload["span_id"] == "b7ad6b7169203331"
     assert payload["http_method"] == "GET"
     assert payload["http_path"] == "/test"
     assert payload["http_status_code"] == 200
@@ -143,6 +152,32 @@ def test_runtime_context_filter_enriches_log_record() -> None:
             assert record.__dict__["model"] == "gpt-5.6"
     finally:
         reset_request_id(context_token)
+
+
+def test_runtime_context_filter_enriches_active_trace_context() -> None:
+    """The filter should correlate records with the current sampled span."""
+    exporter = InMemorySpanExporter()
+    tracing = RuntimeTracing(
+        ObservabilitySettings(tracing_enabled=True),
+        span_processor=SimpleSpanProcessor(exporter),
+    )
+
+    with tracing.tracer.start_as_current_span("logging-test") as span:
+        record = logging.LogRecord(
+            name="trussium.test",
+            level=logging.INFO,
+            pathname=__file__,
+            lineno=1,
+            msg="Test message",
+            args=(),
+            exc_info=None,
+        )
+
+        assert RuntimeContextFilter().filter(record) is True
+        assert record.__dict__["trace_id"] == f"{span.get_span_context().trace_id:032x}"
+        assert record.__dict__["span_id"] == f"{span.get_span_context().span_id:016x}"
+
+    tracing.shutdown()
 
 
 def test_configured_logging_inherits_runtime_context() -> None:

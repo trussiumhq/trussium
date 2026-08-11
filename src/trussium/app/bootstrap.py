@@ -4,6 +4,7 @@ import os
 from typing import Final
 
 from openai import AsyncOpenAI
+from opentelemetry.trace import Tracer
 
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import (
@@ -24,12 +25,14 @@ def create_chat_capability_from_environment(
     *,
     provider: ProviderSettings | None = None,
     timeouts: TimeoutSettings | None = None,
+    tracer: Tracer | None = None,
 ) -> ChatCapability | None:
     """Create the configured runtime chat capability.
 
     Args:
         provider: Optional provider configuration.
         timeouts: Optional provider timeout configuration.
+        tracer: Optional application-owned OpenTelemetry tracer.
 
     Returns:
         The configured provider capability, or ``None`` when OpenAI is
@@ -61,6 +64,7 @@ def create_chat_capability_from_environment(
             stream_idle_seconds=resolved_timeouts.stream_idle_seconds,
         ),
         provider=adapter.provider_name,
+        tracer=tracer,
     )
 
 

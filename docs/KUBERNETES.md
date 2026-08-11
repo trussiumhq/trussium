@@ -65,6 +65,7 @@ The ConfigMap contains safe production defaults:
 - A 30-second graceful-shutdown drain deadline.
 - Provider-request and stream-idle deadlines.
 - Prometheus-compatible runtime metrics enabled at `/metrics`.
+- OpenTelemetry tracing disabled until a collector endpoint is configured.
 
 Create provider configuration through Kubernetes Secret management. For
 OpenAI:
@@ -91,6 +92,22 @@ Secrets, Sealed Secrets, or a cloud secret-store CSI driver can create the same
 `trussium-provider` Secret without changing the Deployment.
 
 Health endpoints remain available when the optional provider Secret is absent.
+
+To export traces, patch the non-secret ConfigMap values in a deployment-owned
+overlay. The endpoint must be reachable from the pod and normally targets an
+OpenTelemetry Collector Service:
+
+```yaml
+data:
+  TRUSSIUM_OBSERVABILITY__TRACING_ENABLED: "true"
+  TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME: "trussium"
+  TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO: "0.1"
+  TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT: "http://otel-collector.observability.svc:4318/v1/traces"
+```
+
+Trussium does not install a collector. See the
+[OpenTelemetry Tracing Guide](TRACING.md) for sampling, privacy, lifecycle,
+and current distributed-propagation boundaries.
 
 ## Deploy with Helm
 
@@ -188,6 +205,7 @@ Common customizations include:
 - Changing autoscaling bounds, CPU target, resource requests, and topology
   rules to match measured demand and cluster size.
 - Referencing an organization-managed registry or provider Secret.
+- Enabling OTLP trace export to an organization-managed collector.
 
 ## Horizontal autoscaling
 

@@ -112,6 +112,8 @@ required_modules = {
     "trussium/api/chat.py",
     "trussium/app/factory.py",
     "trussium/config/settings.py",
+    "trussium/middleware/request_tracing.py",
+    "trussium/observability/tracing.py",
     "trussium/providers/ollama/chat.py",
     "trussium/providers/openai/chat.py",
     "trussium/runtime/context.py",
@@ -120,6 +122,9 @@ required_modules = {
 expected_dependencies = {
     "fastapi",
     "openai",
+    "opentelemetry-api",
+    "opentelemetry-exporter-otlp-proto-http",
+    "opentelemetry-sdk",
     "prometheus-client",
     "pydantic",
     "pydantic-settings",

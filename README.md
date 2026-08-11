@@ -112,7 +112,9 @@ uv run python -m trussium
 
 Trussium listens on port 9000 by default. Health endpoints remain available
 without provider credentials. Prometheus-compatible runtime metrics are
-available at `http://127.0.0.1:9000/metrics`.
+available at `http://127.0.0.1:9000/metrics`. App-scoped OpenTelemetry tracing
+and OTLP/HTTP export are available through explicit observability settings and
+remain disabled by default.
 
 ### Container quick start
 
@@ -175,6 +177,7 @@ Project documentation is available in the `docs/` directory.
 - [Architecture](docs/ARCHITECTURE.MD)
 - [Roadmap](docs/ROADMAP.md)
 - [Runtime Metrics Guide](docs/METRICS.md)
+- [OpenTelemetry Tracing Guide](docs/TRACING.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)

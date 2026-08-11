@@ -94,6 +94,7 @@ def test_config_map_and_secret_example_separate_safe_and_sensitive_settings() ->
     assert config_map["data"] == {
         "TRUSSIUM_ENVIRONMENT": "production",
         "TRUSSIUM_OBSERVABILITY__METRICS_ENABLED": "true",
+        "TRUSSIUM_OBSERVABILITY__TRACING_ENABLED": "false",
         "TRUSSIUM_RUNTIME__HOST": "0.0.0.0",
         "TRUSSIUM_RUNTIME__PORT": "9000",
         "TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS": "30",

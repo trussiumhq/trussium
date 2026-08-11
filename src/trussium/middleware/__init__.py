@@ -10,10 +10,12 @@ from trussium.middleware.request_logging import (
 from trussium.middleware.request_metrics import (
     RequestMetricsMiddleware,
 )
+from trussium.middleware.request_tracing import RequestTracingMiddleware
 
 __all__ = [
     "REQUEST_ID_HEADER",
     "RequestCorrelationMiddleware",
     "RequestLoggingMiddleware",
     "RequestMetricsMiddleware",
+    "RequestTracingMiddleware",
 ]

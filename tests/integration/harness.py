@@ -142,6 +142,34 @@ class IntegrationRuntime:
             f"Provider output:\n{self.fake_openai_process.output()}"
         )
 
+    def wait_for_trace_exports(
+        self,
+        *,
+        minimum_count: int,
+        timeout_seconds: float = 5.0,
+    ) -> list[dict[str, object]]:
+        """Wait for the fake collector to receive OTLP trace payloads."""
+        deadline = monotonic() + timeout_seconds
+        exports: list[dict[str, object]] = []
+
+        with httpx.Client(timeout=0.5) as client:
+            while monotonic() < deadline:
+                response = client.get(f"{self.fake_openai_url}/recorded-traces")
+                response.raise_for_status()
+                payload = response.json()
+                exports = payload["exports"]
+
+                if len(exports) >= minimum_count:
+                    return exports
+
+                sleep(0.02)
+
+        raise AssertionError(
+            f"Timed out waiting for {minimum_count} OTLP trace exports. "
+            f"Last exports: {exports!r}.\n"
+            f"Runtime output:\n{self.runtime_process.output()}"
+        )
+
     def release_provider_workload(self, *, model: str) -> None:
         """Release a controlled fake-provider request or stream."""
         response = httpx.post(
@@ -291,6 +319,11 @@ def create_integration_runtime(
             "TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS": str(graceful_shutdown_seconds),
             "TRUSSIUM_TIMEOUTS__PROVIDER_REQUEST_SECONDS": "5",
             "TRUSSIUM_TIMEOUTS__STREAM_IDLE_SECONDS": "5",
+            "TRUSSIUM_OBSERVABILITY__TRACING_ENABLED": "true",
+            "TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME": "trussium-integration",
+            "TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT": (f"{fake_openai_url}/v1/traces"),
+            "TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS": "2",
+            "OTEL_BSP_SCHEDULE_DELAY": "50",
         }
     )
 
