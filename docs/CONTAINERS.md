@@ -138,6 +138,23 @@ docker run --rm \
 
 Legacy `OPENAI_API_KEY` and `OPENAI_BASE_URL` variables remain supported.
 
+## OpenTelemetry tracing
+
+Tracing is disabled by default. Enable OTLP HTTP/protobuf export through the
+container environment only after selecting a collector reachable from the
+container network:
+
+```text
+TRUSSIUM_OBSERVABILITY__TRACING_ENABLED=true
+TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME=trussium
+TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO=0.1
+TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT=http://otel-collector:4318/v1/traces
+```
+
+The loopback endpoint default refers to the Trussium container itself. See the
+[OpenTelemetry Tracing Guide](TRACING.md) for the span hierarchy, structured
+log correlation, privacy contract, and clean-shutdown export behavior.
+
 ## Running with Ollama
 
 The container must use a network address that reaches the Ollama server. Inside
@@ -205,7 +222,7 @@ the [Kubernetes Deployment Guide](KUBERNETES.md).
 
 ## Current limitations
 
-The runtime does not yet include distributed tracing or provider-specific
-model runtimes. The official Helm chart is released independently from
+The runtime does not yet propagate trace context into outbound provider HTTP
+requests or include provider-specific model runtimes. The official Helm chart is released independently from
 [`trussiumhq/trussium-helm`](https://github.com/trussiumhq/trussium-helm).
 No model weights or provider credentials are bundled in the image.

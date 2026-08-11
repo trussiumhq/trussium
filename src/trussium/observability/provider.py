@@ -6,6 +6,9 @@ from collections.abc import AsyncIterator
 from time import perf_counter
 from typing import Final
 
+from opentelemetry import trace
+from opentelemetry.trace import NoOpTracerProvider, SpanKind, Status, StatusCode, Tracer
+
 from trussium.capabilities.chat import (
     ChatCapability,
     ChatCompletionRequest,
@@ -30,6 +33,7 @@ class LoggingProviderChatCapability:
         *,
         provider: str,
         logger: logging.Logger | None = None,
+        tracer: Tracer | None = None,
     ) -> None:
         """Initialize the provider logging decorator.
 
@@ -37,6 +41,7 @@ class LoggingProviderChatCapability:
             capability: Provider chat adapter to decorate.
             provider: Stable provider identifier.
             logger: Optional logger override.
+            tracer: Optional application-owned OpenTelemetry tracer.
 
         Raises:
             ValueError: When the provider identifier is empty.
@@ -49,6 +54,9 @@ class LoggingProviderChatCapability:
         self._capability = capability
         self._provider = normalized_provider
         self._logger = logger or get_logger("provider")
+        self._tracer = tracer or NoOpTracerProvider().get_tracer(
+            "trussium.provider",
+        )
 
     async def complete(
         self,
@@ -66,9 +74,24 @@ class LoggingProviderChatCapability:
             CapabilityExecutionError: When provider execution fails.
             Exception: When the decorated provider raises unexpectedly.
         """
-        with bind_execution_context(
-            provider=self._provider,
-            model=request.model,
+        with (
+            bind_execution_context(
+                provider=self._provider,
+                model=request.model,
+            ),
+            self._tracer.start_as_current_span(
+                "trussium.provider.chat",
+                kind=SpanKind.CLIENT,
+                attributes={
+                    "gen_ai.operation.name": "chat",
+                    "gen_ai.provider.name": self._provider,
+                    "gen_ai.request.model": request.model,
+                    "trussium.provider": self._provider,
+                    "trussium.streaming": False,
+                },
+                record_exception=False,
+                set_status_on_exception=False,
+            ),
         ):
             started_at = perf_counter()
             self._log_started(
@@ -120,9 +143,24 @@ class LoggingProviderChatCapability:
             CapabilityExecutionError: When provider execution fails.
             Exception: When the decorated provider raises unexpectedly.
         """
-        with bind_execution_context(
-            provider=self._provider,
-            model=request.model,
+        with (
+            bind_execution_context(
+                provider=self._provider,
+                model=request.model,
+            ),
+            self._tracer.start_as_current_span(
+                "trussium.provider.chat",
+                kind=SpanKind.CLIENT,
+                attributes={
+                    "gen_ai.operation.name": "chat",
+                    "gen_ai.provider.name": self._provider,
+                    "gen_ai.request.model": request.model,
+                    "trussium.provider": self._provider,
+                    "trussium.streaming": True,
+                },
+                record_exception=False,
+                set_status_on_exception=False,
+            ),
         ):
             started_at = perf_counter()
             failed = False
@@ -182,6 +220,10 @@ class LoggingProviderChatCapability:
         streaming: bool,
     ) -> None:
         """Emit a provider execution cancelled event."""
+        self._set_span_outcome(
+            outcome="cancelled",
+            error_code="task_cancelled",
+        )
         self._logger.info(
             "Provider execution cancelled",
             extra={
@@ -213,6 +255,7 @@ class LoggingProviderChatCapability:
         streaming: bool,
     ) -> None:
         """Emit a provider execution completed event."""
+        self._set_span_outcome(outcome="completed")
         self._logger.info(
             "Provider execution completed",
             extra={
@@ -230,6 +273,10 @@ class LoggingProviderChatCapability:
         error_code: str,
     ) -> None:
         """Emit a normalized provider execution failed event."""
+        self._set_span_outcome(
+            outcome="failed",
+            error_code=error_code,
+        )
         self._logger.error(
             "Provider execution failed",
             extra={
@@ -247,6 +294,10 @@ class LoggingProviderChatCapability:
         streaming: bool,
     ) -> None:
         """Emit an unexpected provider execution failed event."""
+        self._set_span_outcome(
+            outcome="failed",
+            error_code=UNEXPECTED_PROVIDER_ERROR_CODE,
+        )
         self._logger.exception(
             "Provider execution failed",
             extra={
@@ -266,3 +317,17 @@ class LoggingProviderChatCapability:
             (perf_counter() - started_at) * 1000,
             3,
         )
+
+    @staticmethod
+    def _set_span_outcome(
+        *,
+        outcome: str,
+        error_code: str | None = None,
+    ) -> None:
+        """Attach a bounded terminal outcome to the active span."""
+        span = trace.get_current_span()
+        span.set_attribute("trussium.outcome", outcome)
+
+        if error_code is not None:
+            span.set_attribute("error.type", error_code)
+            span.set_status(Status(StatusCode.ERROR, error_code))

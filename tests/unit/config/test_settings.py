@@ -18,6 +18,11 @@ def test_default_settings() -> None:
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
     assert settings.observability.metrics_enabled is True
+    assert settings.observability.tracing_enabled is False
+    assert settings.observability.tracing_service_name == "trussium"
+    assert settings.observability.tracing_sample_ratio == 1.0
+    assert str(settings.observability.otlp_traces_endpoint) == "http://127.0.0.1:4318/v1/traces"
+    assert settings.observability.otlp_export_timeout_seconds == 10.0
 
 
 def test_timeout_settings_support_environment_overrides(
@@ -68,6 +73,59 @@ def test_observability_settings_support_metrics_override(
 
     with pytest.raises(ValidationError):
         settings.observability.metrics_enabled = True
+
+
+def test_observability_settings_support_tracing_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Tracing should use typed immutable nested settings."""
+    monkeypatch.setenv("TRUSSIUM_OBSERVABILITY__TRACING_ENABLED", "true")
+    monkeypatch.setenv(
+        "TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME",
+        "  trussium-edge  ",
+    )
+    monkeypatch.setenv("TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO", "0.25")
+    monkeypatch.setenv(
+        "TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT",
+        "https://collector.example/v1/traces",
+    )
+    monkeypatch.setenv(
+        "TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS",
+        "2.5",
+    )
+
+    settings = Settings()
+
+    assert settings.observability.tracing_enabled is True
+    assert settings.observability.tracing_service_name == "trussium-edge"
+    assert settings.observability.tracing_sample_ratio == 0.25
+    assert str(settings.observability.otlp_traces_endpoint) == "https://collector.example/v1/traces"
+    assert settings.observability.otlp_export_timeout_seconds == 2.5
+
+    with pytest.raises(ValidationError):
+        settings.observability.tracing_enabled = False
+
+
+@pytest.mark.parametrize(
+    ("environment_name", "value"),
+    [
+        ("TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME", "   "),
+        ("TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO", "-0.1"),
+        ("TRUSSIUM_OBSERVABILITY__TRACING_SAMPLE_RATIO", "1.1"),
+        ("TRUSSIUM_OBSERVABILITY__OTLP_EXPORT_TIMEOUT_SECONDS", "0"),
+        ("TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT", "grpc://collector:4317"),
+    ],
+)
+def test_observability_settings_reject_invalid_tracing_values(
+    monkeypatch: pytest.MonkeyPatch,
+    environment_name: str,
+    value: str,
+) -> None:
+    """Invalid tracing configuration should fail before runtime startup."""
+    monkeypatch.setenv(environment_name, value)
+
+    with pytest.raises(ValidationError):
+        Settings()
 
 
 def test_provider_settings_support_environment_overrides(

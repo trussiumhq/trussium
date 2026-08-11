@@ -63,6 +63,13 @@ def _assert_correlated_lifecycle(
     execution_id = execution_ids.pop()
     assert isinstance(execution_id, str)
     assert str(UUID(execution_id)) == execution_id
+
+    trace_ids = {record["trace_id"] for record in records}
+    assert len(trace_ids) == 1
+    trace_id = trace_ids.pop()
+    assert isinstance(trace_id, str)
+    assert len(trace_id) == 32
+    assert all(len(str(record["span_id"])) == 16 for record in records)
     assert "End-to-end secret prompt." not in json.dumps(records)
     assert "e2e-test-api-key" not in json.dumps(records)
 
@@ -168,6 +175,16 @@ def test_non_streaming_completion_crosses_full_provider_path(
         request_id=request_id,
     )
     assert records[-1]["http_status_code"] == 200
+
+    trace_exports = integration_runtime.wait_for_trace_exports(
+        minimum_count=1,
+    )
+    assert any(
+        trace_export["content_type"] == "application/x-protobuf"
+        and isinstance(trace_export["size"], int)
+        and trace_export["size"] > 0
+        for trace_export in trace_exports
+    )
 
 
 def test_streaming_completion_crosses_full_provider_path(

@@ -2,8 +2,9 @@
 
 from enum import StrEnum
 from functools import lru_cache
+from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, SecretStr
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, SecretStr, StringConstraints
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -100,6 +101,37 @@ class ObservabilitySettings(BaseModel):
     metrics_enabled: bool = Field(
         default=True,
         description="Expose Prometheus-compatible runtime metrics at /metrics.",
+    )
+
+    tracing_enabled: bool = Field(
+        default=False,
+        description="Export OpenTelemetry runtime traces.",
+    )
+
+    tracing_service_name: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, min_length=1),
+    ] = Field(
+        default="trussium",
+        description="OpenTelemetry service.name resource value.",
+    )
+
+    tracing_sample_ratio: float = Field(
+        default=1.0,
+        ge=0.0,
+        le=1.0,
+        description="Root trace sampling probability from zero to one.",
+    )
+
+    otlp_traces_endpoint: AnyHttpUrl = Field(
+        default=AnyHttpUrl("http://127.0.0.1:4318/v1/traces"),
+        description="OTLP HTTP/protobuf traces endpoint.",
+    )
+
+    otlp_export_timeout_seconds: float = Field(
+        default=10.0,
+        gt=0.0,
+        description="Maximum OTLP trace export request duration.",
     )
 
 

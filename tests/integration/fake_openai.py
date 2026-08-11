@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse, Response, StreamingResponse
 app = FastAPI(title="Fake OpenAI Responses API")
 
 _last_request: dict[str, object] | None = None
+_recorded_trace_exports: list[dict[str, object]] = []
 _control_events: dict[str, asyncio.Event] = {}
 _control_states: dict[str, dict[str, bool]] = {}
 
@@ -108,6 +109,28 @@ async def health() -> dict[str, str]:
 async def recorded_request() -> dict[str, object | None]:
     """Return the most recent request observed by the fake provider."""
     return {"request": _last_request}
+
+
+@app.get("/recorded-traces")
+async def recorded_traces() -> dict[str, object]:
+    """Return metadata for OTLP trace payloads received by the fake collector."""
+    return {
+        "count": len(_recorded_trace_exports),
+        "exports": _recorded_trace_exports,
+    }
+
+
+@app.post("/v1/traces")
+async def collect_traces(request: Request) -> Response:
+    """Accept an OTLP HTTP/protobuf trace export without decoding user data."""
+    body = await request.body()
+    _recorded_trace_exports.append(
+        {
+            "content_type": request.headers.get("content-type"),
+            "size": len(body),
+        }
+    )
+    return Response(status_code=status.HTTP_200_OK)
 
 
 @app.get("/control/{model}")

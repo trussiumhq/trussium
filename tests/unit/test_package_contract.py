@@ -20,6 +20,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert "uv pip check --python" in script
     assert 'metadata.version("trussium") == expected_version' in script
     assert 'resources.files("trussium").joinpath("py.typed").is_file()' in script
+    assert '"trussium/observability/tracing.py"' in script
+    assert '"opentelemetry-exporter-otlp-proto-http"' in script
     assert '"$python" -m trussium' in script
     assert 'for path in ("/health/live", "/health/ready")' in script
     assert 'f"http://127.0.0.1:{port}/metrics"' in script
@@ -28,6 +30,15 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'kill -TERM "$runtime_pid"' in script
     assert "runtime did not stop within 10 seconds" in script
     assert 'grep -q "Application shutdown complete"' in script
+
+
+def test_package_declares_complete_opentelemetry_runtime_dependencies() -> None:
+    configuration = tomllib.loads((_REPOSITORY_ROOT / "pyproject.toml").read_text())
+    dependencies = configuration["project"]["dependencies"]
+
+    assert "opentelemetry-api>=1.44.0" in dependencies
+    assert "opentelemetry-sdk>=1.44.0" in dependencies
+    assert "opentelemetry-exporter-otlp-proto-http>=1.44.0" in dependencies
 
 
 def test_ci_has_dedicated_package_build_and_installation_job() -> None:

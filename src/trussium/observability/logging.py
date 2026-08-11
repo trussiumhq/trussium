@@ -6,6 +6,8 @@ import sys
 from datetime import UTC, datetime
 from typing import Final, TextIO
 
+from opentelemetry import trace
+
 from trussium.runtime import get_execution_context
 
 _TRUSSIUM_LOGGER_NAME: Final = "trussium"
@@ -14,6 +16,8 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "event",
     "request_id",
     "execution_id",
+    "trace_id",
+    "span_id",
     "http_method",
     "http_path",
     "http_status_code",
@@ -43,6 +47,7 @@ class RuntimeContextFilter(logging.Filter):
             Always ``True`` so the record is emitted.
         """
         context = get_execution_context()
+        span_context = trace.get_current_span().get_span_context()
 
         context_fields: dict[str, str | None] = {
             "request_id": context.request_id,
@@ -58,6 +63,16 @@ class RuntimeContextFilter(logging.Filter):
                     field_name,
                     field_value,
                 )
+
+        if span_context.is_valid:
+            record.__dict__.setdefault(
+                "trace_id",
+                f"{span_context.trace_id:032x}",
+            )
+            record.__dict__.setdefault(
+                "span_id",
+                f"{span_context.span_id:016x}",
+            )
 
         return True
 

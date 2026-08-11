@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from trussium import __main__
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import RuntimeSettings, Settings
+from trussium.observability import RuntimeTracing
 
 
 def test_main_module_exists() -> None:
@@ -34,9 +35,11 @@ def test_main_configures_bounded_graceful_shutdown(
             observed["ran"] = True
 
     def create_capability(**_: object) -> ChatCapability:
+        observed["capability_arguments"] = _
         return capability
 
     def create_app(**_: object) -> FastAPI:
+        observed["application_arguments"] = _
         return application
 
     def configure_server(
@@ -62,6 +65,23 @@ def test_main_configures_bounded_graceful_shutdown(
     monkeypatch.setattr(__main__, "create_server", configure_server)
 
     __main__.main()
+
+    capability_arguments = cast(
+        dict[str, object],
+        observed.pop("capability_arguments"),
+    )
+    application_arguments = cast(
+        dict[str, object],
+        observed.pop("application_arguments"),
+    )
+    tracing = application_arguments["tracing"]
+
+    assert isinstance(tracing, RuntimeTracing)
+    assert capability_arguments["provider"] is settings.provider
+    assert capability_arguments["timeouts"] is settings.timeouts
+    assert capability_arguments["tracer"] is tracing.tracer
+    assert application_arguments["settings"] is settings
+    assert application_arguments["chat_capability"] is capability
 
     assert observed == {
         "app": application,

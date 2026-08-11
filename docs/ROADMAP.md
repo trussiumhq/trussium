@@ -27,9 +27,9 @@ Both streaming and non-streaming requests use normalized provider errors. Every 
 
 The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, correlated lifecycles, and bounded graceful shutdown without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, automated GHCR publication, and configurable active-workload draining. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases.
 
-Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics.
+Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers now add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. Tracing remains disabled by default until an operator supplies a reachable collector endpoint.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) now packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.2.0 targets runtime v0.25.0, enables runtime metrics and the production CPU autoscaler by default, validates values through JSON Schema, exercises autoscaled and fixed-replica lifecycles in Kind, and publishes both a GitHub release asset and an OCI artifact. The immediate observability focus is OpenTelemetry instrumentation built on the delivered execution context, structured lifecycle logging, and production metrics foundation.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) now packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.2.0 targets runtime v0.25.0, enables runtime metrics and the production CPU autoscaler by default, validates values through JSON Schema, exercises autoscaled and fixed-replica lifecycles in Kind, and publishes both a GitHub release asset and an OCI artifact. The immediate observability focus is distributed tracing: injecting W3C context into provider requests and validating cross-service traces while retaining the delivered privacy and lifecycle boundaries.
 
 ---
 
@@ -535,10 +535,20 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Named-container CPU target with bounded scale-up and stabilized scale-down
 - Pinned Metrics Server Kind validation with an active live HPA
 - Runtime metrics, scraping, and autoscaling operations documentation
+- OpenTelemetry API, SDK, and OTLP HTTP/protobuf exporter integration
+- App-scoped tracer provider, resource, parent-based sampler, processor, and exporter ownership
+- Inbound W3C `traceparent` extraction without process-global provider mutation
+- Complete HTTP server, capability internal, and provider client spans for JSON and SSE lifecycles
+- Completed, failed, and cancelled span outcome handling
+- Health, readiness, and metrics trace exclusion
+- Bounded semantic and `trussium.*` span attributes without payload or credential capture
+- Automatic structured-log enrichment with active trace and span identifiers
+- Typed immutable trace enablement, service, sampling, endpoint, and timeout configuration
+- OTLP protobuf real-process export validation against a deterministic local collector
+- OpenTelemetry sampling, privacy, collector, lifecycle, and troubleshooting documentation
 
 ### Remaining
 
-- OpenTelemetry instrumentation
 - Distributed tracing
 - Structured operational logs
 - Runtime dashboards
@@ -700,12 +710,13 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add OpenTelemetry instrumentation
+1. Add distributed tracing
 
-This priority builds on the delivered execution context, bounded structured
-lifecycle events, Prometheus-compatible metrics, and cloud-native deployment
-contracts by introducing standards-based trace propagation and export without
-coupling the runtime to a specific observability backend.
+This priority builds on the delivered inbound trace extraction, app-scoped
+OpenTelemetry span hierarchy, OTLP export, structured-log correlation, and
+privacy contract by injecting W3C context into outbound provider requests and
+validating coherent cross-service traces without global HTTP client
+instrumentation.
 
 ---
 
