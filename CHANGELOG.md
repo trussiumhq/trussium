@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.26.0 (2026-08-11)
+
+### Documentation
+
+- Document Helm v0.2 autoscaling release
+  ([`7c045db`](https://github.com/trussiumhq/trussium/commit/7c045db8b99aa0b913292ffeb31fa0eb6beb3d4a))
+
+### Features
+
+- **observability**: Add OpenTelemetry instrumentation
+  ([`6671eff`](https://github.com/trussiumhq/trussium/commit/6671effc589acccc61ffa6a93eeb04299532fe3b))
+
+
 ## v0.25.0 (2026-08-11)
 
 ### Documentation
