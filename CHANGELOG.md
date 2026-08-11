@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.25.0 (2026-08-11)
+
+### Documentation
+
+- Document official Helm chart release
+  ([`18ac523`](https://github.com/trussiumhq/trussium/commit/18ac523068c35658b841efaa6c959d2557b93a4b))
+
+### Features
+
+- **observability**: Add runtime metrics and autoscaling
+  ([`da942f9`](https://github.com/trussiumhq/trussium/commit/da942f93079e48a306cbb98f0ca1d0d01c44dcba))
+
+
 ## v0.24.0 (2026-08-05)
 
 ### Features
