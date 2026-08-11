@@ -122,7 +122,7 @@ def test_production_overlay_defines_availability_and_release_image_contract() ->
         {
             "name": "ghcr.io/trussiumhq/trussium",
             "newName": "ghcr.io/trussiumhq/trussium",
-            "newTag": "0.24.0",
+            "newTag": "0.25.0",
         }
     ]
     assert "replicas" not in patch["spec"]
@@ -204,7 +204,7 @@ def test_production_overlay_renders_complete_deployment() -> None:
     deployment = by_kind["Deployment"]
     assert deployment["spec"]["replicas"] == 1
     assert deployment["spec"]["template"]["spec"]["containers"][0]["image"] == (
-        "ghcr.io/trussiumhq/trussium:0.24.0"
+        "ghcr.io/trussiumhq/trussium:0.25.0"
     )
     autoscaler = by_kind["HorizontalPodAutoscaler"]
     assert autoscaler["spec"]["scaleTargetRef"]["name"] == "trussium"
