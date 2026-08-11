@@ -80,6 +80,7 @@ def test_runtime_health_over_real_network(
             headers={"X-Request-ID": "e2e-health-live-57"},
         )
         readiness = client.get("/health/ready")
+        metrics = client.get("/metrics")
 
     assert liveness.status_code == 200
     assert liveness.json() == {"status": "ok"}
@@ -87,6 +88,10 @@ def test_runtime_health_over_real_network(
     assert readiness.status_code == 200
     assert readiness.json() == {"status": "ok"}
     assert str(UUID(readiness.headers["x-request-id"])) == readiness.headers["x-request-id"]
+    assert metrics.status_code == 200
+    assert metrics.headers["content-type"].startswith("text/plain")
+    assert "python_info" in metrics.text
+    assert "trussium_http_requests_active 0.0" in metrics.text
 
 
 def test_non_streaming_completion_crosses_full_provider_path(

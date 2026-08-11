@@ -3,14 +3,17 @@
 from fastapi import FastAPI
 
 from trussium.api import api_router
+from trussium.api.metrics import router as metrics_router
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
 from trussium.middleware import (
     RequestCorrelationMiddleware,
     RequestLoggingMiddleware,
+    RequestMetricsMiddleware,
 )
 from trussium.observability import (
     LoggingChatCapability,
+    RuntimeMetrics,
     configure_logging,
 )
 
@@ -50,6 +53,15 @@ def create_application(
         )
         else chat_capability
     )
+
+    if resolved_settings.observability.metrics_enabled:
+        runtime_metrics = RuntimeMetrics()
+        application.state.runtime_metrics = runtime_metrics
+        application.add_middleware(
+            RequestMetricsMiddleware,
+            metrics=runtime_metrics,
+        )
+        application.include_router(metrics_router)
 
     application.add_middleware(
         RequestLoggingMiddleware,

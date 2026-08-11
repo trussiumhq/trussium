@@ -7,9 +7,13 @@ from trussium.middleware.request_id import (
 from trussium.middleware.request_logging import (
     RequestLoggingMiddleware,
 )
+from trussium.middleware.request_metrics import (
+    RequestMetricsMiddleware,
+)
 
 __all__ = [
     "REQUEST_ID_HEADER",
     "RequestCorrelationMiddleware",
     "RequestLoggingMiddleware",
+    "RequestMetricsMiddleware",
 ]

@@ -118,6 +118,14 @@ assert_equal "$(cat "$response_body")" '{"status":"ok"}' "readiness body"
 
 request_id="$(awk 'tolower($1) == "x-request-id:" {gsub("\r", "", $2); print $2}' "$response_headers")"
 assert_equal "$request_id" "container-smoke-61" "request correlation header"
+
+curl --fail --silent --show-error \
+    "http://127.0.0.1:${host_port}/metrics" \
+    --output "$response_body"
+
+grep -q '^trussium_http_requests_active 0\.0$' "$response_body"
+grep -q '^process_start_time_seconds ' "$response_body"
+
 assert_equal "$(docker exec "$container" id -u)" "10001" "runtime UID"
 assert_equal "$(docker exec "$container" id -g)" "10001" "runtime GID"
 

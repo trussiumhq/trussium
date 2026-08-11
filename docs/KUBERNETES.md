@@ -1,8 +1,8 @@
 # Kubernetes Deployment Guide
 
 Trussium includes a Kustomize base and a production overlay for Kubernetes. The
-production deployment runs two hardened replicas behind a ClusterIP Service on
-port 9000 and uses the release image pinned in the overlay.
+production deployment runs between two and ten hardened replicas behind a
+ClusterIP Service on port 9000 and uses the release image pinned in the overlay.
 
 The independently versioned official
 [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages
@@ -20,19 +20,23 @@ The maintained production overlay renders:
 - A ServiceAccount without API token automounting and with a private-registry
   pull-secret reference.
 - A ConfigMap for non-secret runtime settings.
-- A two-replica Deployment with rolling updates and topology spreading.
+- A Deployment with rolling updates and topology spreading.
 - A ClusterIP Service on port 9000.
 - A PodDisruptionBudget allowing at most one unavailable replica.
+- An `autoscaling/v2` HorizontalPodAutoscaler maintaining two to ten replicas
+  against the named runtime container's CPU utilization.
 
 Provider credentials are deliberately excluded. The Deployment optionally
 loads a `trussium-provider` Secret when one exists.
 
 ## Prerequisites
 
-- A Kubernetes cluster with `policy/v1` PodDisruptionBudget support.
+- A Kubernetes cluster with `policy/v1` PodDisruptionBudget and
+  `autoscaling/v2` HorizontalPodAutoscaler support.
+- A working Kubernetes Metrics API, commonly provided by Metrics Server.
 - `kubectl` with integrated Kustomize support.
-- Permission to create Namespace, workload, Service, ConfigMap, Secret, and
-  PodDisruptionBudget resources.
+- Permission to create Namespace, workload, Service, ConfigMap, Secret,
+  PodDisruptionBudget, and HorizontalPodAutoscaler resources.
 - Access to `ghcr.io/trussiumhq/trussium`.
 
 The Trussium GHCR package is private. Create a classic GitHub personal access
@@ -60,6 +64,7 @@ The ConfigMap contains safe production defaults:
 - Port 9000 and all-interface binding.
 - A 30-second graceful-shutdown drain deadline.
 - Provider-request and stream-idle deadlines.
+- Prometheus-compatible runtime metrics enabled at `/metrics`.
 
 Create provider configuration through Kubernetes Secret management. For
 OpenAI:
@@ -133,7 +138,7 @@ kubectl rollout status \
 Inspect the deployed resources:
 
 ```bash
-kubectl get all,poddisruptionbudget \
+kubectl get all,poddisruptionbudget,horizontalpodautoscaler \
   --namespace trussium-system \
   --selector app.kubernetes.io/name=trussium
 ```
@@ -151,6 +156,7 @@ In another terminal:
 ```bash
 curl http://127.0.0.1:9000/health/live
 curl http://127.0.0.1:9000/health/ready
+curl http://127.0.0.1:9000/metrics
 ```
 
 ## Customize safely
@@ -165,21 +171,47 @@ Common customizations include:
 - Patching the ConfigMap with provider name or base URL settings that are not
   secret.
 - Adjusting resource requests and limits from measured usage.
-- Changing replica count and topology rules to match cluster size.
+- Changing autoscaling bounds, CPU target, resource requests, and topology
+  rules to match measured demand and cluster size.
 - Referencing an organization-managed registry or provider Secret.
 
-The maintained production overlay uses two replicas. Manual horizontal scaling
-is supported:
+## Horizontal autoscaling
+
+The maintained production overlay uses an `autoscaling/v2`
+HorizontalPodAutoscaler with these conservative defaults:
+
+- Minimum `2` and maximum `10` replicas.
+- Average CPU utilization target of `70%` for the named `trussium` container.
+- At most a 100% or four-pod increase per 60 seconds, selecting the larger
+  permitted scale-up.
+- A 300-second scale-down stabilization window.
+- At most a 25% or one-pod decrease per 60 seconds, selecting the smaller
+  permitted scale-down.
+
+The CPU target is calculated relative to the container's CPU request, so keep
+that request representative of observed steady-state use. Metrics Server (or
+another resource Metrics API implementation) supplies this standard metric;
+Trussium does not install it.
+
+Inspect current status and events:
 
 ```bash
-kubectl scale deployment/trussium \
-  --namespace trussium-system \
-  --replicas=4
+kubectl get horizontalpodautoscaler/trussium \
+  --namespace trussium-system
+kubectl describe horizontalpodautoscaler/trussium \
+  --namespace trussium-system
 ```
 
-Reapplying the production overlay restores its declared replica count. Use a
-separate overlay when another count is the desired steady state. Horizontal
-autoscaling is not included yet.
+Do not declare `spec.replicas` in a production Deployment patch managed by the
+autoscaler. Reapplying a conflicting replica count can cause unnecessary
+scaling churn. Patch the HorizontalPodAutoscaler's bounds or omit it in a
+deployment-owned overlay when fixed manual scaling is required.
+
+The `/metrics` endpoint additionally exposes
+`trussium_http_requests_active`, which remains accurate for active SSE streams.
+It is not used by the default HPA. A deployment-owned Prometheus Adapter rule
+can publish that gauge to Kubernetes Custom Metrics API without changing the
+bounded metric-label contract. See the [Runtime Metrics Guide](METRICS.md).
 
 ## Health, security, and shutdown
 
@@ -224,9 +256,11 @@ configuration matches the running revision.
 ## Local cluster smoke test
 
 The complete smoke test builds the local image, creates or reuses a Kind
-cluster, loads the image, applies the rendered production resources, waits for
-both replicas, verifies security and disruption settings, and exercises
-liveness, readiness, and request correlation through the Service.
+cluster, loads the image, installs a pinned Metrics Server, applies the rendered
+production resources, waits for both replicas, verifies that the autoscaler is
+active against live CPU metrics, checks security and disruption settings, and
+exercises liveness, readiness, runtime metrics, and request correlation through
+the Service.
 
 ```bash
 scripts/kubernetes-smoke-test.sh

@@ -17,6 +17,7 @@ def test_default_settings() -> None:
     assert settings.provider.api_key is None
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
+    assert settings.observability.metrics_enabled is True
 
 
 def test_timeout_settings_support_environment_overrides(
@@ -53,6 +54,20 @@ def test_runtime_settings_support_graceful_shutdown_override(
 
     with pytest.raises(ValidationError):
         settings.runtime.graceful_shutdown_seconds = 4
+
+
+def test_observability_settings_support_metrics_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Metrics exposure should use typed immutable nested settings."""
+    monkeypatch.setenv("TRUSSIUM_OBSERVABILITY__METRICS_ENABLED", "false")
+
+    settings = Settings()
+
+    assert settings.observability.metrics_enabled is False
+
+    with pytest.raises(ValidationError):
+        settings.observability.metrics_enabled = True
 
 
 def test_provider_settings_support_environment_overrides(

@@ -22,6 +22,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'resources.files("trussium").joinpath("py.typed").is_file()' in script
     assert '"$python" -m trussium' in script
     assert 'for path in ("/health/live", "/health/ready")' in script
+    assert 'f"http://127.0.0.1:{port}/metrics"' in script
+    assert 'assert "trussium_http_requests_active 0.0" in metrics' in script
     assert 'request_id="package-smoke-65-$label"' in script
     assert 'kill -TERM "$runtime_pid"' in script
     assert "runtime did not stop within 10 seconds" in script
