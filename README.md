@@ -147,6 +147,20 @@ The published GHCR package currently requires an image-pull Secret. See the
 [Kubernetes Deployment Guide](docs/KUBERNETES.md) for private-registry setup,
 provider configuration, customization, validation, upgrades, and rollback.
 
+For configurable installation and Helm-managed upgrades, use the independently
+versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-helm):
+
+```bash
+helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
+helm install trussium \
+  oci://ghcr.io/trussiumhq/charts/trussium \
+  --version 0.1.0 \
+  --namespace trussium-system
+```
+
+Chart v0.1.0 defaults to runtime v0.24.0. The chart deploys the runtime only;
+it does not install the future Trussium Operator.
+
 ---
 
 ## Documentation
@@ -159,6 +173,7 @@ Project documentation is available in the `docs/` directory.
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)
+- [Official Helm Chart](https://github.com/trussiumhq/trussium-helm)
 - [Graceful Shutdown Guide](docs/SHUTDOWN.md)
 - Architecture Decision Records (ADRs) *(coming soon)*
 
