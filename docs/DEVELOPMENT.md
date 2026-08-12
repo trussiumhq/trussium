@@ -243,6 +243,22 @@ shutdown.
 See the [Python Packaging Guide](PACKAGING.md) for the complete artifact
 contract, local installation, CI behavior, and GitHub release publication.
 
+## Dashboard validation
+
+Dashboard JSON is maintained in `deploy/observability/grafana/dashboards/`.
+Run its exact telemetry and privacy contracts with Pytest, then provision all
+three models into the pinned real Grafana container:
+
+```bash
+uv run pytest tests/unit/observability/test_dashboards.py
+scripts/dashboard-smoke-test.sh
+```
+
+The container test requires Docker, selects test-only Prometheus, Loki, and
+Tempo data sources, verifies every stable dashboard UID through Grafana's API,
+and always removes the temporary container. See the
+[Runtime Dashboards Guide](DASHBOARDS.md) before changing queries or variables.
+
 ## Container validation
 
 Docker is required only for container work. Run Dockerfile build checks and the

@@ -113,22 +113,28 @@ Trussium does not install a collector. See the
 [OpenTelemetry Tracing Guide](TRACING.md) for sampling, privacy, lifecycle,
 outbound provider propagation, and downstream receiver boundaries.
 
+The repository also provides portable Grafana dashboard JSON for an existing
+Prometheus, Loki, and Tempo stack. Neither Kustomize nor Helm installs Grafana,
+those backends, dashboard custom resources, a `ServiceMonitor`, or log and
+trace collectors. See the [Runtime Dashboards Guide](DASHBOARDS.md) for
+collection contracts and operator-owned import or provisioning.
+
 ## Deploy with Helm
 
 After creating the namespace, image-pull Secret, and any provider Secret above,
-authenticate to GHCR and install chart v0.3.1:
+authenticate to GHCR and install chart v0.3.2:
 
 ```bash
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.1 \
+  --version 0.3.2 \
   --namespace trussium-system \
   --wait
 ```
 
-Chart v0.3.1 defaults to runtime v0.27.0. Chart and runtime versions are
+Chart v0.3.2 defaults to runtime v0.28.0. Chart and runtime versions are
 independent; the chart's `appVersion` records its default compatible runtime.
 The chart enables the same two-to-ten-replica CPU HPA and runtime metrics
 contract by default, so a working Kubernetes Metrics API is required. It also
@@ -140,7 +146,7 @@ replicas when the Metrics API is intentionally unavailable:
 ```bash
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.1 \
+  --version 0.3.2 \
   --namespace trussium-system \
   --set autoscaling.enabled=false \
   --set replicaCount=2 \

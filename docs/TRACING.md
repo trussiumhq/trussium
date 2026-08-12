@@ -147,6 +147,15 @@ The checked-in Kubernetes base keeps tracing disabled. A deployment-owned
 overlay or Helm values should enable it only after supplying a reachable
 endpoint and an intentional sampling policy.
 
+## Grafana trace investigation
+
+The versioned `Trussium Runtime Traces` dashboard provides Tempo TraceQL
+searches for recent, failed, and slow traces and for each level of the HTTP,
+capability, and provider span hierarchy. Select a Tempo data source and set its
+`service` variable to the configured OpenTelemetry service name. The dashboard
+does not enable tracing, deploy Tempo or a collector, or change sampling. See
+the [Runtime Dashboards Guide](DASHBOARDS.md) for import and operator workflow.
+
 ## Current boundary
 
 Trussium injects provider request context but does not install global HTTP

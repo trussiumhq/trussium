@@ -119,6 +119,9 @@ through privacy-bounded W3C Trace Context propagation. Tracing remains disabled
 by default. Startup, configuration, shutdown, graceful-drain, and trace-export
 state is emitted as bounded structured operational JSON without credentials,
 payloads, endpoints, or exception messages.
+Portable Grafana dashboards turn those stable Prometheus, Loki, and Tempo
+contracts into operator views without installing or configuring observability
+backends.
 
 ### Container quick start
 
@@ -161,11 +164,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.1 \
+  --version 0.3.2 \
   --namespace trussium-system
 ```
 
-Chart v0.3.1 defaults to runtime v0.27.0 and enables the production CPU
+Chart v0.3.2 defaults to runtime v0.28.0 and enables the production CPU
 autoscaler and runtime metrics contract. It also exposes schema-validated
 OpenTelemetry tracing values while keeping trace export disabled until an
 operator supplies a reachable collector endpoint. The chart requires a working
@@ -185,6 +188,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Metrics Guide](docs/METRICS.md)
 - [OpenTelemetry Tracing Guide](docs/TRACING.md)
 - [Structured Operational Logging Guide](docs/OPERATIONAL_LOGGING.md)
+- [Runtime Dashboards Guide](docs/DASHBOARDS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)
