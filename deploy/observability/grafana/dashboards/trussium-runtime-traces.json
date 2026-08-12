@@ -1,0 +1,313 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Tempo TraceQL investigation view for Trussium HTTP, capability, and provider spans.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [
+    {
+      "icon": "doc",
+      "includeVars": false,
+      "keepTime": false,
+      "tags": [],
+      "targetBlank": true,
+      "title": "Trussium tracing contract",
+      "type": "link",
+      "url": "https://github.com/trussiumhq/trussium/blob/main/docs/TRACING.md"
+    }
+  ],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "This dashboard searches the existing Trussium span hierarchy. Select a Tempo data source and set the service name configured by `TRUSSIUM_OBSERVABILITY__TRACING_SERVICE_NAME`.\n\nOpen a trace result to inspect the HTTP SERVER → capability INTERNAL → provider CLIENT chain. Use `trace_id` from structured logs for exact backend correlation when supported.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "Trace investigation contract",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "${tempo}"
+      },
+      "description": "Recent traces containing a span from the selected Trussium service.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "limit": 50,
+          "query": "{ resource.service.name = \"$service\" }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Recent Trussium traces",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "${tempo}"
+      },
+      "description": "Traces containing an error-status span from the selected Trussium service.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "limit": 30,
+          "query": "{ resource.service.name = \"$service\" && status = error }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Failed traces",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "${tempo}"
+      },
+      "description": "Traces containing a span longer than the selected threshold.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "limit": 30,
+          "query": "{ resource.service.name = \"$service\" && duration > $slow_threshold }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Slow traces",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "${tempo}"
+      },
+      "description": "Traces containing the Trussium HTTP server span.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 22
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "limit": 20,
+          "query": "{ resource.service.name = \"$service\" && name = \"HTTP POST\" && kind = server }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "HTTP server spans",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "${tempo}"
+      },
+      "description": "Traces containing the provider-neutral chat capability span.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 22
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "limit": 20,
+          "query": "{ resource.service.name = \"$service\" && name = \"trussium.capability.chat\" && kind = internal }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Capability spans",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "${tempo}"
+      },
+      "description": "Traces containing the provider client span.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 22
+      },
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "limit": 20,
+          "query": "{ resource.service.name = \"$service\" && name = \"trussium.provider.chat\" && kind = client }",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Provider client spans",
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": [
+    "trussium",
+    "runtime",
+    "tempo",
+    "traces"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "label": "Tempo",
+        "name": "tempo",
+        "options": [],
+        "query": "tempo",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "trussium",
+          "value": "trussium"
+        },
+        "label": "Service name",
+        "name": "service",
+        "options": [
+          {
+            "selected": true,
+            "text": "trussium",
+            "value": "trussium"
+          }
+        ],
+        "query": "trussium",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "1s",
+          "value": "1s"
+        },
+        "label": "Slow span threshold",
+        "name": "slow_threshold",
+        "options": [
+          {
+            "selected": true,
+            "text": "1s",
+            "value": "1s"
+          }
+        ],
+        "query": "1s",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Trussium Runtime Traces",
+  "uid": "trussium-runtime-traces",
+  "version": 1,
+  "weekStart": ""
+}

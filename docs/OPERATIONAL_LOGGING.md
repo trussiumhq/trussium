@@ -80,10 +80,13 @@ status 2 without printing Pydantic's rejected values. Third-party library and
 platform logs are outside the Trussium event schema and should be governed by
 the deployment's normal collection and retention policy.
 
-## Collection and alerting
+## Collection and dashboards
 
 Collect standard output with the container platform's existing log pipeline
 and parse each JSON line. Preserve `event`, `level`, and correlation fields as
 structured attributes. Alerting and dashboard definitions are not installed by
-the runtime; they are the next observability layer built on this stable event,
-metric, and trace contract.
+the runtime. The versioned `Trussium Runtime Logs` dashboard provides Loki
+queries for configuration, lifecycle, execution, shutdown, and export events
+without turning correlation fields into index labels. See the
+[Runtime Dashboards Guide](DASHBOARDS.md) for collection expectations, import,
+and privacy boundaries. Alerting guidance remains a separate roadmap item.

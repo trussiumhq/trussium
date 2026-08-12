@@ -60,3 +60,15 @@ jobs:
 
       - name: Build and validate distribution packages
         run: scripts/package-smoke-test.sh
+
+  dashboards:
+    name: Grafana Dashboard Import
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Provision dashboards in Grafana
+        run: scripts/dashboard-smoke-test.sh

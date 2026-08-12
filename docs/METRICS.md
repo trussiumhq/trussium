@@ -60,6 +60,16 @@ not require that optional integration: its default HorizontalPodAutoscaler
 uses the standard per-container CPU resource metric from Kubernetes Metrics
 API.
 
+## Grafana overview
+
+The versioned `Trussium Runtime Overview` dashboard queries this exact metric
+contract for demand, active work, success percentage, failures and
+cancellations, p50/p95/p99 duration, status distribution, process CPU, resident
+memory, and uptime. Select its Prometheus data source plus the deployment's
+`job` and `instance` values after import. The dashboard does not introduce new
+labels, recording rules, scrape configuration, or alerts. See the
+[Runtime Dashboards Guide](DASHBOARDS.md) for import and provisioning.
+
 ## Streaming semantics
 
 Instrumentation wraps the pure ASGI request lifecycle. An SSE request remains

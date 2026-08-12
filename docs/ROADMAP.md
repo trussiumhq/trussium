@@ -29,7 +29,7 @@ The runtime now propagates immutable execution context across asynchronous and s
 
 Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. W3C `traceparent` and optional `tracestate` now continue the active provider CLIENT span across OpenAI and Ollama-compatible JSON and SSE requests without global HTTP instrumentation. Unsampled decisions propagate correctly, while baggage, arbitrary headers, request IDs, payloads, and credentials remain behind the runtime privacy boundary. Tracing remains disabled by default until an operator supplies a reachable collector endpoint. Stable structured operational events now report bounded configuration summaries, provider configuration readiness, application and server lifecycle transitions, graceful-drain outcomes, and trace-export failures. Invalid settings and background failures expose only counts, error classes, and stable codes rather than rejected values, endpoints, exception text, payloads, or credentials.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.1 targets runtime v0.27.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. With metrics, tracing, correlated execution logs, and structured operational events delivered, the immediate observability focus is operator-facing runtime dashboards.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.2 targets runtime v0.28.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. Three portable Grafana dashboards now turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views for runtime health, request demand, latency, failures, lifecycle state, and trace investigation. They preserve selectable backend ownership, bounded telemetry dimensions, and the existing privacy boundary. With those views delivered, the immediate observability focus is deployment-owned alerting guidance.
 
 ---
 
@@ -564,10 +564,17 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Fixed operational-field allowlist and documented privacy boundary
 - Unit and real-process operational event validation
 - Structured operational logging collection and troubleshooting documentation
+- Independently importable Grafana runtime overview, structured-log, and trace dashboards
+- Stable dashboard UIDs with selectable Prometheus, Loki, and Tempo data sources
+- Runtime demand, active-work, outcome, status, latency, CPU, memory, and uptime panels
+- Operational configuration, lifecycle, failure, cancellation, shutdown, and export log views
+- Recent, failed, slow, HTTP, capability, and provider trace searches
+- Dashboard query contracts preserving bounded metric labels and telemetry privacy
+- Pinned real-Grafana provisioning and dashboard API validation in continuous integration
+- Dashboard import, provisioning, collection, operator workflow, and troubleshooting documentation
 
 ### Remaining
 
-- Runtime dashboards
 - Alerting guidance
 - Readiness dependency checks
 
@@ -726,12 +733,13 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add runtime dashboards
+1. Add alerting guidance
 
-This priority will turn the delivered bounded metrics, structured request and
-operational events, and distributed traces into an operator-facing view of
-runtime health, request volume, latency, active work, failures, provider state,
-and shutdown outcomes without expanding telemetry cardinality or privacy scope.
+This priority will define portable, deployment-owned alert conditions and
+runbook guidance over the delivered dashboards and stable metric, log, and
+trace contracts. Thresholds, evaluation windows, notification routing, and
+service objectives will remain explicit operator choices rather than hidden
+runtime defaults.
 
 ---
 

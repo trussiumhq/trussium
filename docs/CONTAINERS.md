@@ -233,3 +233,7 @@ provider-specific model runtimes. The official Helm chart is released
 independently from
 [`trussiumhq/trussium-helm`](https://github.com/trussiumhq/trussium-helm).
 No model weights or provider credentials are bundled in the image.
+Runtime dashboard JSON is maintained as a deployment artifact in the source
+repository and is not copied into the minimal runtime image. Import it into an
+operator-owned Grafana as described in the
+[Runtime Dashboards Guide](DASHBOARDS.md).
