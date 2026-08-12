@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.27.0 (2026-08-12)
+
+### Documentation
+
+- Align Helm v0.3.0 release references
+  ([`06a5f68`](https://github.com/trussiumhq/trussium/commit/06a5f6843c09529b53c10169c45c4871c18ee691))
+
+### Features
+
+- **observability**: Add distributed tracing
+  ([`28a4355`](https://github.com/trussiumhq/trussium/commit/28a43555fe2d2dde0b7a8fb34456adf514a79a77))
+
+
 ## v0.26.0 (2026-08-11)
 
 ### Documentation
