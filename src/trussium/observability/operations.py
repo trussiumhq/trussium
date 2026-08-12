@@ -1,0 +1,70 @@
+"""Bounded structured operational event logging."""
+
+from typing import Final
+
+from trussium import __version__
+from trussium.config.settings import Settings
+from trussium.observability.logging import get_logger
+
+RUNTIME_CONFIGURATION_INVALID: Final = "runtime.configuration.invalid"
+RUNTIME_CONFIGURATION_LOADED: Final = "runtime.configuration.loaded"
+PROVIDER_CONFIGURATION_READY: Final = "provider.configuration.ready"
+PROVIDER_CONFIGURATION_UNAVAILABLE: Final = "provider.configuration.unavailable"
+OBSERVABILITY_CONFIGURATION_LOADED: Final = "observability.configuration.loaded"
+RUNTIME_STARTED: Final = "runtime.started"
+RUNTIME_STOPPING: Final = "runtime.stopping"
+RUNTIME_STOPPED: Final = "runtime.stopped"
+TRACING_SHUTDOWN_COMPLETED: Final = "observability.tracing.shutdown.completed"
+TRACING_SHUTDOWN_FAILED: Final = "observability.tracing.shutdown.failed"
+TRACE_EXPORT_FAILED: Final = "observability.trace_export.failed"
+RUNTIME_SHUTDOWN_STARTED: Final = "runtime.shutdown.started"
+RUNTIME_SHUTDOWN_DRAIN_TIMEOUT: Final = "runtime.shutdown.drain_timeout"
+RUNTIME_SHUTDOWN_CLEANUP_TIMEOUT: Final = "runtime.shutdown.cleanup_timeout"
+RUNTIME_SHUTDOWN_COMPLETED: Final = "runtime.shutdown.completed"
+
+
+def log_startup_configuration(
+    settings: Settings,
+    *,
+    provider_configured: bool,
+) -> None:
+    """Emit safe configuration summaries for runtime startup."""
+    runtime_logger = get_logger("runtime")
+    provider_logger = get_logger("provider")
+    observability_logger = get_logger("observability")
+    runtime_logger.info(
+        "Runtime configuration loaded",
+        extra={
+            "event": RUNTIME_CONFIGURATION_LOADED,
+            "runtime_version": __version__,
+            "environment": settings.environment.value,
+            "port": settings.runtime.port,
+            "debug": settings.runtime.debug,
+            "graceful_shutdown_seconds": settings.runtime.graceful_shutdown_seconds,
+        },
+    )
+
+    provider_event = (
+        PROVIDER_CONFIGURATION_READY if provider_configured else PROVIDER_CONFIGURATION_UNAVAILABLE
+    )
+    provider_level = provider_logger.info if provider_configured else provider_logger.warning
+    provider_level(
+        "Provider configuration ready"
+        if provider_configured
+        else "Provider configuration unavailable",
+        extra={
+            "event": provider_event,
+            "provider": settings.provider.name.value,
+            "provider_configured": provider_configured,
+        },
+    )
+
+    observability_logger.info(
+        "Observability configuration loaded",
+        extra={
+            "event": OBSERVABILITY_CONFIGURATION_LOADED,
+            "metrics_enabled": settings.observability.metrics_enabled,
+            "tracing_enabled": settings.observability.tracing_enabled,
+            "trace_sample_ratio": settings.observability.tracing_sample_ratio,
+        },
+    )

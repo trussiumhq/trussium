@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from time import perf_counter
 
 from fastapi import FastAPI
 
@@ -16,10 +17,17 @@ from trussium.middleware import (
     RequestTracingMiddleware,
 )
 from trussium.observability import (
+    RUNTIME_STARTED,
+    RUNTIME_STOPPED,
+    RUNTIME_STOPPING,
+    TRACING_SHUTDOWN_COMPLETED,
+    TRACING_SHUTDOWN_FAILED,
     LoggingChatCapability,
     RuntimeMetrics,
     RuntimeTracing,
     configure_logging,
+    get_logger,
+    log_startup_configuration,
 )
 
 
@@ -47,13 +55,69 @@ def create_application(
     runtime_tracing = tracing or RuntimeTracing(
         resolved_settings.observability,
     )
+    runtime_logger = get_logger("runtime")
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+        started_at = perf_counter()
+        log_startup_configuration(
+            resolved_settings,
+            provider_configured=chat_capability is not None,
+        )
+        runtime_logger.info(
+            "Runtime started",
+            extra={
+                "event": RUNTIME_STARTED,
+            },
+        )
+
         try:
             yield
         finally:
-            runtime_tracing.shutdown()
+            runtime_logger.info(
+                "Runtime stopping",
+                extra={
+                    "event": RUNTIME_STOPPING,
+                },
+            )
+
+            try:
+                runtime_tracing.shutdown()
+            except Exception as error:
+                runtime_logger.error(
+                    "Tracing shutdown failed",
+                    extra={
+                        "event": TRACING_SHUTDOWN_FAILED,
+                        "error_code": "tracing_shutdown_failed",
+                        "error_type": type(error).__name__,
+                    },
+                )
+                runtime_logger.error(
+                    "Runtime stopped with an operational failure",
+                    extra={
+                        "event": RUNTIME_STOPPED,
+                        "duration_ms": round((perf_counter() - started_at) * 1000, 3),
+                        "outcome": "failed",
+                    },
+                )
+                raise
+
+            runtime_logger.info(
+                "Tracing shutdown completed",
+                extra={
+                    "event": TRACING_SHUTDOWN_COMPLETED,
+                    "tracing_enabled": runtime_tracing.enabled,
+                    "outcome": "completed" if runtime_tracing.enabled else "disabled",
+                },
+            )
+            runtime_logger.info(
+                "Runtime stopped",
+                extra={
+                    "event": RUNTIME_STOPPED,
+                    "duration_ms": round((perf_counter() - started_at) * 1000, 3),
+                    "outcome": "completed",
+                },
+            )
 
     application = FastAPI(
         title="Trussium",

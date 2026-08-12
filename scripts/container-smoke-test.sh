@@ -129,8 +129,14 @@ grep -q '^process_start_time_seconds ' "$response_body"
 assert_equal "$(docker exec "$container" id -u)" "10001" "runtime UID"
 assert_equal "$(docker exec "$container" id -g)" "10001" "runtime GID"
 
+docker logs "$container" 2>&1 | grep -q '"event":"runtime.configuration.loaded"'
+docker logs "$container" 2>&1 | grep -q '"event":"provider.configuration.unavailable"'
+docker logs "$container" 2>&1 | grep -q '"event":"runtime.started"'
+
 docker stop --time 10 "$container" >/dev/null
 assert_equal "$(docker inspect --format '{{.State.ExitCode}}' "$container")" "0" \
     "graceful shutdown exit code"
+docker logs "$container" 2>&1 | grep -q '"event":"runtime.shutdown.completed"'
+docker logs "$container" 2>&1 | grep -q '"outcome":"completed"'
 
 echo "Container smoke test passed for $image"

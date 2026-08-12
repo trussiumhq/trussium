@@ -12,6 +12,10 @@ import yaml
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 _KUBERNETES_ROOT = _REPOSITORY_ROOT / "deploy" / "kubernetes"
 _PRODUCTION_OVERLAY = _KUBERNETES_ROOT / "overlays" / "production"
+_PROJECT_CONFIGURATION = tomllib.loads(
+    (_REPOSITORY_ROOT / "pyproject.toml").read_text(encoding="utf-8")
+)
+_PROJECT_VERSION = cast(str, _PROJECT_CONFIGURATION["project"]["version"])
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -123,7 +127,7 @@ def test_production_overlay_defines_availability_and_release_image_contract() ->
         {
             "name": "ghcr.io/trussiumhq/trussium",
             "newName": "ghcr.io/trussiumhq/trussium",
-            "newTag": "0.26.0",
+            "newTag": _PROJECT_VERSION,
         }
     ]
     assert "replicas" not in patch["spec"]
@@ -205,7 +209,7 @@ def test_production_overlay_renders_complete_deployment() -> None:
     deployment = by_kind["Deployment"]
     assert deployment["spec"]["replicas"] == 1
     assert deployment["spec"]["template"]["spec"]["containers"][0]["image"] == (
-        "ghcr.io/trussiumhq/trussium:0.26.0"
+        f"ghcr.io/trussiumhq/trussium:{_PROJECT_VERSION}"
     )
     autoscaler = by_kind["HorizontalPodAutoscaler"]
     assert autoscaler["spec"]["scaleTargetRef"]["name"] == "trussium"
@@ -214,9 +218,7 @@ def test_production_overlay_renders_complete_deployment() -> None:
 
 def test_release_automation_stamps_the_production_image_tag() -> None:
     """Semantic releases should keep the deployment image aligned with the release."""
-    configuration = tomllib.loads((_REPOSITORY_ROOT / "pyproject.toml").read_text())
-
-    assert configuration["tool"]["semantic_release"]["version_variables"] == [
+    assert _PROJECT_CONFIGURATION["tool"]["semantic_release"]["version_variables"] == [
         "deploy/kubernetes/overlays/production/kustomization.yaml:newTag"
     ]
 
@@ -240,6 +242,8 @@ def test_kubernetes_validation_is_executable_and_runs_in_ci() -> None:
     assert "ScalingActive" in smoke_path.read_text()
     assert "rollout status deployment/trussium" in smoke_path.read_text()
     assert "kubernetes-smoke-69" in smoke_path.read_text()
+    assert '"event":"runtime.configuration.loaded"' in smoke_path.read_text()
+    assert '"event":"provider.configuration.unavailable"' in smoke_path.read_text()
     assert "uses: helm/kind-action@v1" in workflow
     assert "run: scripts/kubernetes-validate.sh" in workflow
     assert "run: scripts/kubernetes-smoke-test.sh" in workflow

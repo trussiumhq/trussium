@@ -92,6 +92,10 @@ Secrets, Sealed Secrets, or a cloud secret-store CSI driver can create the same
 `trussium-provider` Secret without changing the Deployment.
 
 Health endpoints remain available when the optional provider Secret is absent.
+Pods then emit the bounded `provider.configuration.unavailable` warning while
+continuing to serve health and metrics endpoints. Collect standard output as
+JSON; the [Structured Operational Logging Guide](OPERATIONAL_LOGGING.md)
+documents stable events and privacy boundaries.
 
 To export traces, patch the non-secret ConfigMap values in a deployment-owned
 overlay. The endpoint must be reachable from the pod and normally targets an
@@ -112,19 +116,19 @@ outbound provider propagation, and downstream receiver boundaries.
 ## Deploy with Helm
 
 After creating the namespace, image-pull Secret, and any provider Secret above,
-authenticate to GHCR and install chart v0.3.0:
+authenticate to GHCR and install chart v0.3.1:
 
 ```bash
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.0 \
+  --version 0.3.1 \
   --namespace trussium-system \
   --wait
 ```
 
-Chart v0.3.0 defaults to runtime v0.26.0. Chart and runtime versions are
+Chart v0.3.1 defaults to runtime v0.27.0. Chart and runtime versions are
 independent; the chart's `appVersion` records its default compatible runtime.
 The chart enables the same two-to-ten-replica CPU HPA and runtime metrics
 contract by default, so a working Kubernetes Metrics API is required. It also
@@ -136,7 +140,7 @@ replicas when the Metrics API is intentionally unavailable:
 ```bash
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.0 \
+  --version 0.3.1 \
   --namespace trussium-system \
   --set autoscaling.enabled=false \
   --set replicaCount=2 \

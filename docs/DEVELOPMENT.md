@@ -63,7 +63,11 @@ uv run python -m trussium
 ```
 
 Without provider credentials, the runtime starts with health endpoints while
-the chat endpoint reports that no provider is configured.
+the chat endpoint reports that no provider is configured. Standard output
+contains newline-delimited JSON summaries for configuration, provider state,
+startup, shutdown, drain deadlines, and trace-export failures. See the
+[Structured Operational Logging Guide](OPERATIONAL_LOGGING.md) for the stable
+event and privacy contract.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline
@@ -186,7 +190,12 @@ Run the end-to-end integration suite.
 uv run pytest tests/integration/ -m "not ollama"
 ```
 
-The integration suite starts the production `python -m trussium` entry point and a deterministic local OpenAI Responses API on dynamically allocated loopback ports. It sends real HTTP requests through Uvicorn and the OpenAI SDK, captures structured runtime logs, and cleans up every child process after the test session.
+The integration suite starts the production `python -m trussium` entry point
+and a deterministic local OpenAI Responses API on dynamically allocated
+loopback ports. It sends real HTTP requests through Uvicorn and the OpenAI SDK,
+captures request and process-level structured runtime logs, validates normal
+and forced shutdown event ordering, and cleans up every child process after the
+test session.
 
 Integration tests do not require Docker, internet access, an OpenAI account, or real credentials. They never contact the public OpenAI service.
 

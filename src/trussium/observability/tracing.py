@@ -1,14 +1,73 @@
 """Application-scoped OpenTelemetry tracing runtime."""
 
+from collections.abc import Sequence
+
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import SpanProcessor, TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.trace import ReadableSpan, SpanProcessor, TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    SpanExporter,
+    SpanExportResult,
+)
 from opentelemetry.sdk.trace.sampling import ParentBased, TraceIdRatioBased
 from opentelemetry.trace import NoOpTracerProvider, Tracer
 
 from trussium import __version__
 from trussium.config.settings import ObservabilitySettings
+from trussium.observability.logging import get_logger
+from trussium.observability.operations import TRACE_EXPORT_FAILED
+
+
+class OperationalSpanExporter(SpanExporter):
+    """Add bounded structured failure events around a span exporter."""
+
+    def __init__(
+        self,
+        exporter: SpanExporter,
+    ) -> None:
+        """Wrap an exporter without changing its success behavior."""
+        self._exporter = exporter
+        self._logger = get_logger("observability")
+
+    def export(
+        self,
+        spans: Sequence[ReadableSpan],
+    ) -> SpanExportResult:
+        """Export spans and report failures without sensitive payloads."""
+        try:
+            result = self._exporter.export(spans)
+        except Exception as error:
+            self._logger.error(
+                "Trace export failed",
+                extra={
+                    "event": TRACE_EXPORT_FAILED,
+                    "error_code": "trace_export_failed",
+                    "error_type": type(error).__name__,
+                    "span_count": len(spans),
+                },
+            )
+            return SpanExportResult.FAILURE
+
+        if result is SpanExportResult.FAILURE:
+            self._logger.error(
+                "Trace export failed",
+                extra={
+                    "event": TRACE_EXPORT_FAILED,
+                    "error_code": "trace_export_failed",
+                    "span_count": len(spans),
+                },
+            )
+
+        return result
+
+    def shutdown(self) -> None:
+        """Shut down the wrapped exporter."""
+        self._exporter.shutdown()
+
+    def force_flush(self, timeout_millis: int = 30_000) -> bool:
+        """Flush the wrapped exporter."""
+        return self._exporter.force_flush(timeout_millis)
 
 
 class RuntimeTracing:
@@ -46,9 +105,11 @@ class RuntimeTracing:
             span_processor
             if span_processor is not None
             else BatchSpanProcessor(
-                OTLPSpanExporter(
-                    endpoint=str(settings.otlp_traces_endpoint),
-                    timeout=settings.otlp_export_timeout_seconds,
+                OperationalSpanExporter(
+                    OTLPSpanExporter(
+                        endpoint=str(settings.otlp_traces_endpoint),
+                        timeout=settings.otlp_export_timeout_seconds,
+                    )
                 )
             )
         )

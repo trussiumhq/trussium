@@ -13,6 +13,7 @@ app = FastAPI(title="Fake OpenAI Responses API")
 _last_request: dict[str, object] | None = None
 _recorded_provider_requests: list[dict[str, object]] = []
 _recorded_trace_exports: list[dict[str, object]] = []
+_reject_trace_exports = False
 _control_events: dict[str, asyncio.Event] = {}
 _control_states: dict[str, dict[str, bool]] = {}
 
@@ -137,7 +138,23 @@ async def collect_traces(request: Request) -> Response:
             "size": len(body),
         }
     )
-    return Response(status_code=status.HTTP_200_OK)
+    return Response(
+        status_code=(
+            status.HTTP_503_SERVICE_UNAVAILABLE if _reject_trace_exports else status.HTTP_200_OK
+        )
+    )
+
+
+@app.post("/control/traces/{mode}")
+async def control_trace_exports(mode: str) -> dict[str, bool]:
+    """Enable or disable deterministic collector failure responses."""
+    global _reject_trace_exports
+
+    if mode not in {"accept", "reject"}:
+        return {"rejecting": _reject_trace_exports}
+
+    _reject_trace_exports = mode == "reject"
+    return {"rejecting": _reject_trace_exports}
 
 
 @app.get("/control/{model}")

@@ -30,6 +30,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'kill -TERM "$runtime_pid"' in script
     assert "runtime did not stop within 10 seconds" in script
     assert 'grep -q "Application shutdown complete"' in script
+    assert '"event":"runtime.configuration.loaded"' in script
+    assert '"event":"runtime.shutdown.completed"' in script
 
 
 def test_package_declares_complete_opentelemetry_runtime_dependencies() -> None:

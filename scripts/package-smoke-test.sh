@@ -114,6 +114,7 @@ required_modules = {
     "trussium/config/settings.py",
     "trussium/middleware/request_tracing.py",
     "trussium/observability/tracing.py",
+    "trussium/observability/operations.py",
     "trussium/providers/ollama/chat.py",
     "trussium/providers/openai/chat.py",
     "trussium/runtime/context.py",
@@ -358,6 +359,23 @@ PY
             fail "$label graceful shutdown returned exit code $exit_code"
             ;;
     esac
+
+    grep -q '"event":"runtime.configuration.loaded"' "$runtime_log" || {
+        cat "$runtime_log" >&2
+        fail "$label runtime did not log loaded configuration"
+    }
+    grep -q '"event":"provider.configuration.unavailable"' "$runtime_log" || {
+        cat "$runtime_log" >&2
+        fail "$label runtime did not log unavailable provider configuration"
+    }
+    grep -q '"event":"runtime.started"' "$runtime_log" || {
+        cat "$runtime_log" >&2
+        fail "$label runtime did not log startup completion"
+    }
+    grep -q '"event":"runtime.shutdown.completed"' "$runtime_log" || {
+        cat "$runtime_log" >&2
+        fail "$label runtime did not log shutdown completion"
+    }
 }
 
 validate_imports "$work_directory/wheel-environment" "$wheel" "wheel"
