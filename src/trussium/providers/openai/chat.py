@@ -38,6 +38,7 @@ from trussium.capabilities.errors import (
     CapabilityErrorCategory,
     CapabilityExecutionError,
 )
+from trussium.observability.propagation import outbound_trace_context_headers
 from trussium.runtime.streaming import close_async_resource
 
 OpenAIMessageRole = Literal["system", "user", "assistant"]
@@ -85,6 +86,7 @@ class OpenAIChatCapability:
                 temperature=request.temperature,
                 store=False,
                 stream=False,
+                extra_headers=outbound_trace_context_headers(),
             )
         except APIError as error:
             raise self._normalize_api_error(error) from error
@@ -106,6 +108,7 @@ class OpenAIChatCapability:
                 temperature=request.temperature,
                 store=False,
                 stream=True,
+                extra_headers=outbound_trace_context_headers(),
             )
 
             try:

@@ -6,12 +6,14 @@ from typing import cast
 import httpx
 import pytest
 from openai import APIConnectionError, AsyncOpenAI, AuthenticationError
+from opentelemetry import trace
 from tests.unit.providers.openai.test_chat import (
     FakeOpenAIClient,
     FakeResponse,
     FakeResponsesResource,
     FakeStreamEvent,
     FakeUsage,
+    active_test_span,
     collect_stream,
     create_http_response,
     create_request,
@@ -85,6 +87,30 @@ def test_stream_reports_ollama_provider_identity() -> None:
     assert isinstance(events[0], ChatStreamStartEvent)
     assert events[0].provider == "ollama"
     assert events[0].model == "llama3.1:8b"
+
+
+def test_compatible_adapter_injects_active_trace_context() -> None:
+    """Ollama-compatible requests should inherit shared W3C propagation."""
+    resource = FakeResponsesResource(
+        response=FakeResponse(
+            id="resp-ollama-1",
+            model="llama3.1:8b",
+            output_text="Hello from Ollama.",
+            usage=FakeUsage(
+                input_tokens=1,
+                output_tokens=1,
+                total_tokens=2,
+            ),
+        )
+    )
+
+    with trace.use_span(active_test_span(), end_on_exit=False):
+        asyncio.run(create_adapter(resource).complete(create_request()))
+
+    assert resource.last_request is not None
+    assert resource.last_request["extra_headers"] == {
+        "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    }
 
 
 def test_authentication_error_uses_ollama_code_and_safe_message() -> None:

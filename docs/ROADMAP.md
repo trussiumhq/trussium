@@ -27,9 +27,9 @@ Both streaming and non-streaming requests use normalized provider errors. Every 
 
 The runtime now propagates immutable execution context across asynchronous and streaming workflows. Structured logs automatically inherit available request, execution, capability, provider, and model fields. Capability and provider executions emit separately correlated structured lifecycle events across both non-streaming and streaming workflows. Active streams detect client disconnects, promptly release upstream resources, and emit correlated cancellation lifecycles. Trussium also enforces its own provider request deadlines and per-event stream-idle deadlines, independently of provider SDK defaults. A deterministic end-to-end suite validates the production process, real HTTP and SSE connections, OpenAI SDK boundary, normalized API contracts, correlated lifecycles, and bounded graceful shutdown without external services. Typed provider configuration selects OpenAI or Ollama while preserving legacy OpenAI environments, and live compatibility validation proves the same normalized path against a real self-hosted model. Trussium ships a hardened multi-platform production container with locked dependencies, non-root execution, OCI health metadata, real image smoke tests, automated GHCR publication, and configurable active-workload draining. Python wheels and source distributions are also built, inspected, installed into clean environments, exercised as real processes, and attached to semantic GitHub releases.
 
-Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers now add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. Tracing remains disabled by default until an operator supplies a reachable collector endpoint.
+Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. W3C `traceparent` and optional `tracestate` now continue the active provider CLIENT span across OpenAI and Ollama-compatible JSON and SSE requests without global HTTP instrumentation. Unsampled decisions propagate correctly, while baggage, arbitrary headers, request IDs, payloads, and credentials remain behind the runtime privacy boundary. Tracing remains disabled by default until an operator supplies a reachable collector endpoint.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) now packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.0 targets runtime v0.26.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. The immediate observability focus is distributed tracing: injecting W3C context into provider requests and validating cross-service traces while retaining the delivered privacy and lifecycle boundaries.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.0 targets runtime v0.26.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. The immediate observability focus is structured operational logs that retain bounded correlation while improving production diagnostics.
 
 ---
 
@@ -546,10 +546,14 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Typed immutable trace enablement, service, sampling, endpoint, and timeout configuration
 - OTLP protobuf real-process export validation against a deterministic local collector
 - OpenTelemetry sampling, privacy, collector, lifecycle, and troubleshooting documentation
+- Outbound W3C `traceparent` and optional `tracestate` provider propagation
+- OpenAI and Ollama-compatible JSON and SSE cross-service trace continuity
+- Sampled and unsampled downstream propagation without global HTTP instrumentation
+- Explicit baggage, arbitrary-header, request-ID, payload, and credential propagation boundaries
+- Deterministic downstream extraction and real-process OpenAI SDK propagation validation
 
 ### Remaining
 
-- Distributed tracing
 - Structured operational logs
 - Runtime dashboards
 - Alerting guidance
@@ -710,13 +714,13 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add distributed tracing
+1. Add structured operational logs
 
-This priority builds on the delivered inbound trace extraction, app-scoped
-OpenTelemetry span hierarchy, OTLP export, structured-log correlation, and
-privacy contract by injecting W3C context into outbound provider requests and
-validating coherent cross-service traces without global HTTP client
-instrumentation.
+This priority builds on the delivered correlated HTTP, capability, and provider
+lifecycle events by defining a bounded production log contract for startup,
+shutdown, configuration state, provider availability, exporter failures, and
+other operator-relevant runtime transitions without exposing payloads or
+credentials.
 
 ---
 

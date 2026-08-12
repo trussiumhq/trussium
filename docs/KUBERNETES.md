@@ -107,7 +107,7 @@ data:
 
 Trussium does not install a collector. See the
 [OpenTelemetry Tracing Guide](TRACING.md) for sampling, privacy, lifecycle,
-and current distributed-propagation boundaries.
+outbound provider propagation, and downstream receiver boundaries.
 
 ## Deploy with Helm
 
