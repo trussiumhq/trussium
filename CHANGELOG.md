@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.32.0 (2026-08-12)
+
+### Features
+
+- **runtime**: Add unified exception hierarchy
+  ([`2e34f94`](https://github.com/trussiumhq/trussium/commit/2e34f941bd19f65bcbee12a750cd6c4287277fad))
+
+
 ## v0.31.0 (2026-08-12)
 
 ### Features
