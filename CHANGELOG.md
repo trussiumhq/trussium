@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.29.0 (2026-08-12)
+
+### Features
+
+- **observability**: Add portable runtime dashboards
+  ([`210ed05`](https://github.com/trussiumhq/trussium/commit/210ed059695821852554db6f0a554561e8d7e917))
+
+
 ## v0.28.0 (2026-08-12)
 
 ### Features
