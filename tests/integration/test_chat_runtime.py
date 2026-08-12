@@ -11,6 +11,10 @@ from tests.integration.harness import IntegrationRuntime
 
 pytestmark = pytest.mark.integration
 
+_INBOUND_TRACE_ID = "0af7651916cd43dd8448eb211c80319c"
+_INBOUND_PARENT_SPAN_ID = "b7ad6b7169203331"
+_INBOUND_TRACEPARENT = f"00-{_INBOUND_TRACE_ID}-{_INBOUND_PARENT_SPAN_ID}-01"
+
 
 def _chat_request(
     *,
@@ -74,6 +78,29 @@ def _assert_correlated_lifecycle(
     assert "e2e-test-api-key" not in json.dumps(records)
 
 
+def _assert_outbound_trace_context(
+    provider_record: dict[str, object],
+    records: list[dict[str, object]],
+    *,
+    expected_tracestate: str | None = None,
+) -> None:
+    """Assert the provider received the active Trussium CLIENT span."""
+    traceparent = provider_record["traceparent"]
+    assert isinstance(traceparent, str)
+    version, trace_id, parent_span_id, trace_flags = traceparent.split("-")
+    provider_started = next(
+        record for record in records if record["event"] == "provider.execution.started"
+    )
+
+    assert version == "00"
+    assert trace_id == records[0]["trace_id"]
+    assert parent_span_id == provider_started["span_id"]
+    assert int(trace_flags, 16) & 0x01 == 0x01
+    assert provider_record["tracestate"] == expected_tracestate
+    assert provider_record["baggage"] is None
+    assert provider_record["request_id"] is None
+
+
 def test_runtime_health_over_real_network(
     integration_runtime: IntegrationRuntime,
 ) -> None:
@@ -113,7 +140,12 @@ def test_non_streaming_completion_crosses_full_provider_path(
     ) as client:
         response = client.post(
             "/v1/chat/completions",
-            headers={"X-Request-ID": request_id},
+            headers={
+                "X-Request-ID": request_id,
+                "baggage": "private-user-data=must-not-leave-runtime",
+                "traceparent": _INBOUND_TRACEPARENT,
+                "tracestate": "vendor=opaque-value",
+            },
             json=_chat_request(),
         )
 
@@ -175,6 +207,13 @@ def test_non_streaming_completion_crosses_full_provider_path(
         request_id=request_id,
     )
     assert records[-1]["http_status_code"] == 200
+    assert records[0]["trace_id"] == _INBOUND_TRACE_ID
+    _assert_outbound_trace_context(
+        provider_record,
+        records,
+        expected_tracestate="vendor=opaque-value",
+    )
+    assert "must-not-leave-runtime" not in json.dumps(provider_record)
 
     trace_exports = integration_runtime.wait_for_trace_exports(
         minimum_count=1,
@@ -270,6 +309,12 @@ def test_streaming_completion_crosses_full_provider_path(
     )
     assert all(record.get("streaming") is True for record in records[1:-1])
 
+    provider_record = httpx.get(
+        f"{integration_runtime.fake_openai_url}/recorded-request",
+        timeout=5,
+    ).json()["request"]
+    _assert_outbound_trace_context(provider_record, records)
+
 
 def test_provider_rate_limit_is_normalized_end_to_end(
     integration_runtime: IntegrationRuntime,
@@ -317,3 +362,14 @@ def test_provider_rate_limit_is_normalized_end_to_end(
     assert records[3]["error_code"] == "openai_rate_limit_exceeded"
     assert records[4]["error_code"] == "openai_rate_limit_exceeded"
     assert records[-1]["http_status_code"] == 429
+
+    provider_attempts = httpx.get(
+        f"{integration_runtime.fake_openai_url}/recorded-provider-requests",
+        timeout=5,
+    ).json()["requests"]
+    rate_limit_attempts = [
+        attempt for attempt in provider_attempts if attempt["body"]["model"] == "e2e-rate-limited"
+    ]
+    assert len(rate_limit_attempts) > 1
+    assert len({attempt["traceparent"] for attempt in rate_limit_attempts}) == 1
+    _assert_outbound_trace_context(rate_limit_attempts[-1], records)

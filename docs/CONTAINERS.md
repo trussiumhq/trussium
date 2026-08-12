@@ -153,7 +153,8 @@ TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT=http://otel-collector:4318/v1/trace
 
 The loopback endpoint default refers to the Trussium container itself. See the
 [OpenTelemetry Tracing Guide](TRACING.md) for the span hierarchy, structured
-log correlation, privacy contract, and clean-shutdown export behavior.
+log correlation, outbound provider propagation, privacy contract, and
+clean-shutdown export behavior.
 
 ## Running with Ollama
 
@@ -222,7 +223,9 @@ the [Kubernetes Deployment Guide](KUBERNETES.md).
 
 ## Current limitations
 
-The runtime does not yet propagate trace context into outbound provider HTTP
-requests or include provider-specific model runtimes. The official Helm chart is released independently from
+The runtime propagates W3C Trace Context to supported provider requests but
+does not install a collector, instrument the downstream service, or include
+provider-specific model runtimes. The official Helm chart is released
+independently from
 [`trussiumhq/trussium-helm`](https://github.com/trussiumhq/trussium-helm).
 No model weights or provider credentials are bundled in the image.

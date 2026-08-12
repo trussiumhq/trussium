@@ -87,10 +87,11 @@ export TRUSSIUM_OBSERVABILITY__OTLP_TRACES_ENDPOINT=http://127.0.0.1:4318/v1/tra
 uv run python -m trussium
 ```
 
-Inbound W3C trace context and structured-log correlation are supported; the
-runtime does not capture prompts, bodies, credentials, query strings, or
-exception messages. See the [OpenTelemetry Tracing Guide](TRACING.md) for the
-configuration, sampling, span, privacy, and current propagation contracts.
+Inbound W3C trace context, outbound provider propagation, and structured-log
+correlation are supported; the runtime does not capture prompts, bodies,
+credentials, query strings, baggage, or exception messages. See the
+[OpenTelemetry Tracing Guide](TRACING.md) for the configuration, sampling,
+span, privacy, and propagation contracts.
 
 ## OpenAI provider
 

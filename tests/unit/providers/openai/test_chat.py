@@ -7,6 +7,8 @@ from typing import cast
 
 import httpx
 import pytest
+from opentelemetry import trace
+from opentelemetry.trace import NonRecordingSpan, SpanContext, TraceFlags
 
 from openai import (
     AsyncOpenAI,
@@ -198,6 +200,18 @@ def create_http_response(
     )
 
 
+def active_test_span() -> NonRecordingSpan:
+    """Create a stable active span for provider propagation assertions."""
+    return NonRecordingSpan(
+        SpanContext(
+            trace_id=int("0af7651916cd43dd8448eb211c80319c", 16),
+            span_id=int("b7ad6b7169203331", 16),
+            is_remote=False,
+            trace_flags=TraceFlags(TraceFlags.SAMPLED),
+        )
+    )
+
+
 def test_adapter_satisfies_chat_capability_protocol() -> None:
     """The OpenAI adapter should satisfy the structural protocol."""
     resource = FakeResponsesResource(
@@ -284,6 +298,32 @@ def test_complete_translates_request_fields() -> None:
             "content": "Hello.",
         }
     ]
+    assert resource.last_request["extra_headers"] is None
+
+
+def test_complete_injects_active_trace_context_per_request() -> None:
+    """JSON provider requests should carry the current provider span."""
+    resource = FakeResponsesResource(
+        response=FakeResponse(
+            id="resp-1",
+            model="test-model",
+            output_text="Hello.",
+            usage=FakeUsage(
+                input_tokens=1,
+                output_tokens=1,
+                total_tokens=2,
+            ),
+        )
+    )
+    adapter = create_adapter(resource)
+
+    with trace.use_span(active_test_span(), end_on_exit=False):
+        asyncio.run(adapter.complete(create_request()))
+
+    assert resource.last_request is not None
+    assert resource.last_request["extra_headers"] == {
+        "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    }
 
 
 def test_complete_normalizes_length_finish_reason() -> None:
@@ -327,6 +367,35 @@ def test_tool_role_is_rejected() -> None:
                 create_request(role=ChatRole.TOOL),
             )
         )
+
+
+def test_stream_injects_active_trace_context_per_request() -> None:
+    """Streaming provider requests should carry the current provider span."""
+    response = FakeResponse(
+        id="resp-stream-1",
+        model="test-model",
+        output_text="Hello.",
+        usage=FakeUsage(
+            input_tokens=1,
+            output_tokens=1,
+            total_tokens=2,
+        ),
+    )
+    resource = FakeResponsesResource(
+        events=[
+            FakeStreamEvent(type="response.created", response=response),
+            FakeStreamEvent(type="response.completed", response=response),
+        ]
+    )
+    adapter = create_adapter(resource)
+
+    with trace.use_span(active_test_span(), end_on_exit=False):
+        asyncio.run(collect_stream(adapter, create_request(stream=True)))
+
+    assert resource.last_request is not None
+    assert resource.last_request["extra_headers"] == {
+        "traceparent": "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
+    }
 
 
 def test_stream_normalizes_openai_events() -> None:

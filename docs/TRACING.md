@@ -9,9 +9,11 @@ configuration creates no exporter and performs no collector network requests.
 One sampled chat request produces this hierarchy:
 
 ```text
-HTTP POST                         SERVER
-└── trussium.capability.chat      INTERNAL
-    └── trussium.provider.chat    CLIENT
+caller operation                  CLIENT (remote)
+└── HTTP POST                     SERVER
+    └── trussium.capability.chat  INTERNAL
+        └── trussium.provider.chat CLIENT
+            └── provider request  SERVER (downstream-owned)
 ```
 
 The server span covers the complete HTTP response, including the final body of
@@ -65,6 +67,34 @@ Existing `request_id`, `execution_id`, capability, provider, and model fields
 remain unchanged. The shared trace ID joins HTTP, capability, and provider
 events; their span IDs identify the active layer.
 
+## Distributed propagation
+
+For OpenAI and Ollama-compatible Responses API calls, Trussium injects W3C
+Trace Context into each outbound provider request. `traceparent` identifies the
+active `trussium.provider.chat` CLIENT span as the downstream remote parent.
+When present on the inbound request, valid `tracestate` is preserved across the
+server, capability, and provider spans and forwarded with `traceparent`.
+
+An instrumented provider, gateway, or test receiver can extract those headers
+and create a SERVER span in the same trace. This applies to both ordinary JSON
+responses and streaming SSE responses. The provider CLIENT span remains active
+for the full logical SDK operation, so any SDK-managed retries reuse the same
+logical parent rather than creating untracked Trussium retry spans.
+
+Propagation follows the active context even when it is not sampled. A valid
+unsampled parent is forwarded with its sampled bit clear, allowing downstream
+services to honor the decision even though Trussium exports no spans for that
+trace. When tracing is disabled or no valid span is active, Trussium sends no
+Trace Context headers.
+
+Trussium uses the W3C Trace Context propagator directly instead of the
+process-global propagator or global HTTP-client instrumentation. This preserves
+application-scoped ownership and existing injected OpenAI clients. It also
+creates a deliberate privacy boundary: Trussium forwards only `traceparent`
+and optional `tracestate`. OpenTelemetry baggage, request IDs, arbitrary
+inbound headers, prompts, completions, bodies, and credentials are not added to
+provider tracing metadata.
+
 ## Attributes and privacy
 
 The runtime records bounded operational attributes:
@@ -112,11 +142,12 @@ endpoint and an intentional sampling policy.
 
 ## Current boundary
 
-This feature extracts inbound W3C context and traces the runtime's internal
-HTTP, capability, and provider layers. It does not yet inject `traceparent`
-into the outbound provider HTTP request. That cross-service propagation,
-provider HTTP transport instrumentation, and end-to-end collector validation
-are the next distributed-tracing roadmap item.
+Trussium injects provider request context but does not install global HTTP
+transport instrumentation, create per-SDK-retry spans, or control downstream
+provider instrumentation. A downstream service must extract W3C Trace Context
+and create its own span to appear in the trace. Future provider adapters must
+explicitly adopt the same bounded propagation helper rather than inheriting
+process-global behavior.
 
 ## Troubleshooting
 
@@ -126,6 +157,11 @@ are the next distributed-tracing roadmap item.
   accepts `application/x-protobuf` on the configured endpoint.
 - Check sampling configuration and any inbound parent's sampled flag when no
   spans appear.
+- Inspect the downstream request for `traceparent` and ensure the receiver is
+  configured to extract W3C Trace Context when traces stop at the provider
+  boundary.
+- Do not expect an unsampled propagated trace to appear in the collector; the
+  header preserves the upstream decision for downstream services.
 - Allow the batch processor time to export, or stop the runtime cleanly so
   pending spans are flushed.
 - Use correlated structured logs to obtain a trace ID without enabling payload

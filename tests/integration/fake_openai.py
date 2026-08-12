@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse, Response, StreamingResponse
 app = FastAPI(title="Fake OpenAI Responses API")
 
 _last_request: dict[str, object] | None = None
+_recorded_provider_requests: list[dict[str, object]] = []
 _recorded_trace_exports: list[dict[str, object]] = []
 _control_events: dict[str, asyncio.Event] = {}
 _control_states: dict[str, dict[str, bool]] = {}
@@ -111,6 +112,12 @@ async def recorded_request() -> dict[str, object | None]:
     return {"request": _last_request}
 
 
+@app.get("/recorded-provider-requests")
+async def recorded_provider_requests() -> dict[str, object]:
+    """Return provider attempts observed during the integration session."""
+    return {"requests": _recorded_provider_requests}
+
+
 @app.get("/recorded-traces")
 async def recorded_traces() -> dict[str, object]:
     """Return metadata for OTLP trace payloads received by the fake collector."""
@@ -163,8 +170,13 @@ async def create_response(request: Request) -> Response:
     streaming = body.get("stream") is True
     _last_request = {
         "authorization": request.headers.get("authorization"),
+        "baggage": request.headers.get("baggage"),
         "body": body,
+        "request_id": request.headers.get("x-request-id"),
+        "traceparent": request.headers.get("traceparent"),
+        "tracestate": request.headers.get("tracestate"),
     }
+    _recorded_provider_requests.append(_last_request)
 
     if model == "e2e-rate-limited":
         return JSONResponse(
