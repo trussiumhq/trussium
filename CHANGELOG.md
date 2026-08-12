@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.31.0 (2026-08-12)
+
+### Features
+
+- **runtime**: Add dependency-aware readiness
+  ([`da6ce92`](https://github.com/trussiumhq/trussium/commit/da6ce92b35f1d67235ce4e0315c345a3c38b0df5))
+
+
 ## v0.30.0 (2026-08-12)
 
 ### Features
