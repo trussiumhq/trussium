@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.28.0 (2026-08-12)
+
+### Features
+
+- **observability**: Add structured operational logs
+  ([`d0dd218`](https://github.com/trussiumhq/trussium/commit/d0dd21827d47637baaebfe39cf4c09608d04f861))
+
+
 ## v0.27.0 (2026-08-12)
 
 ### Documentation
