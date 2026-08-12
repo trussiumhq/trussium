@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.30.0 (2026-08-12)
+
+### Features
+
+- **observability**: Add runtime alerting guidance
+  ([`e083eef`](https://github.com/trussiumhq/trussium/commit/e083eef271a5b449c3fe8b3640751f024f7d38cc))
+
+
 ## v0.29.0 (2026-08-12)
 
 ### Features
