@@ -72,3 +72,15 @@ jobs:
 
       - name: Provision dashboards in Grafana
         run: scripts/dashboard-smoke-test.sh
+
+  alert-rules:
+    name: Prometheus Alert Rule Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate alert rules and synthetic scenarios
+        run: scripts/alert-rules-smoke-test.sh

@@ -29,7 +29,7 @@ The runtime now propagates immutable execution context across asynchronous and s
 
 Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. W3C `traceparent` and optional `tracestate` now continue the active provider CLIENT span across OpenAI and Ollama-compatible JSON and SSE requests without global HTTP instrumentation. Unsampled decisions propagate correctly, while baggage, arbitrary headers, request IDs, payloads, and credentials remain behind the runtime privacy boundary. Tracing remains disabled by default until an operator supplies a reachable collector endpoint. Stable structured operational events now report bounded configuration summaries, provider configuration readiness, application and server lifecycle transitions, graceful-drain outcomes, and trace-export failures. Invalid settings and background failures expose only counts, error classes, and stable codes rather than rejected values, endpoints, exception text, payloads, or credentials.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.2 targets runtime v0.28.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. Three portable Grafana dashboards now turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views for runtime health, request demand, latency, failures, lifecycle state, and trace investigation. They preserve selectable backend ownership, bounded telemetry dimensions, and the existing privacy boundary. With those views delivered, the immediate observability focus is deployment-owned alerting guidance.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.3 targets runtime v0.29.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile now adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Thresholds, SLOs, routing, notification, and incident ownership remain deployment choices. With alerting guidance delivered, readiness dependency checks are the immediate cloud-native operations focus.
 
 ---
 
@@ -572,10 +572,17 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Dashboard query contracts preserving bounded metric labels and telemetry privacy
 - Pinned real-Grafana provisioning and dashboard API validation in continuous integration
 - Dashboard import, provisioning, collection, operator workflow, and troubleshooting documentation
+- Portable Prometheus runtime alert starter profile with stable names and runbook links
+- Missing-telemetry, sustained-failure, cancellation, p95-latency, and process-restart conditions
+- Minimum-traffic guards preserving failure, cancellation, and low-volume semantics
+- Explicit reference thresholds, hold windows, severity, tuning, routing, and maintenance guidance
+- Complete metric, structured-event, dashboard, log, and trace investigation runbooks
+- Privacy and cardinality boundaries for alerts and notification payloads
+- Digest-pinned real-Prometheus syntax and synthetic semantic validation in continuous integration
+- Operator-owned Alertmanager, Grafana Alerting, receiver, schedule, and incident-management boundaries
 
 ### Remaining
 
-- Alerting guidance
 - Readiness dependency checks
 
 Health checks and structured HTTP lifecycle logs have already been delivered as part of the runtime foundation.
@@ -733,13 +740,13 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add alerting guidance
+1. Add readiness dependency checks
 
-This priority will define portable, deployment-owned alert conditions and
-runbook guidance over the delivered dashboards and stable metric, log, and
-trace contracts. Thresholds, evaluation windows, notification routing, and
-service objectives will remain explicit operator choices rather than hidden
-runtime defaults.
+This priority will distinguish process readiness from configured provider and
+model dependency availability through bounded, provider-neutral health
+contracts. It will preserve fast liveness, avoid credential or payload
+exposure, and define failure, timeout, caching, and degradation semantics
+before changing `/health/ready` behavior.
 
 ---
 

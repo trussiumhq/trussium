@@ -1,0 +1,90 @@
+groups:
+  - name: trussium-runtime
+    interval: 30s
+    rules:
+      - alert: TrussiumRuntimeTelemetryMissing
+        expr: absent(trussium_http_requests_active)
+        for: 15m
+        labels:
+          severity: warning
+          component: runtime
+        annotations:
+          summary: Trussium runtime telemetry is missing
+          description: No Trussium active-request metric has been visible for 15 minutes.
+          runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimetelemetrymissing
+
+      - alert: TrussiumRuntimeRequestFailuresHigh
+        expr: |
+          (
+            sum by (job, instance) (
+              rate(trussium_http_requests_total{outcome="failed"}[5m])
+            )
+            /
+            clamp_min(
+              sum by (job, instance) (rate(trussium_http_requests_total[5m])),
+              1e-9
+            )
+          ) > 0.05
+          and on (job, instance)
+          sum by (job, instance) (rate(trussium_http_requests_total[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: critical
+          component: runtime
+        annotations:
+          summary: Trussium request failure ratio is high
+          description: Failed requests exceeded 5% at more than 0.1 requests per second for 10 minutes.
+          runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimerequestfailureshigh
+
+      - alert: TrussiumRuntimeRequestCancellationsHigh
+        expr: |
+          (
+            sum by (job, instance) (
+              rate(trussium_http_requests_total{outcome="cancelled"}[5m])
+            )
+            /
+            clamp_min(
+              sum by (job, instance) (rate(trussium_http_requests_total[5m])),
+              1e-9
+            )
+          ) > 0.10
+          and on (job, instance)
+          sum by (job, instance) (rate(trussium_http_requests_total[5m])) > 0.1
+        for: 15m
+        labels:
+          severity: warning
+          component: runtime
+        annotations:
+          summary: Trussium request cancellation ratio is high
+          description: Cancelled requests exceeded 10% at more than 0.1 requests per second for 15 minutes.
+          runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimerequestcancellationshigh
+
+      - alert: TrussiumRuntimeRequestLatencyHigh
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (job, instance, le) (
+              rate(trussium_http_request_duration_seconds_bucket[5m])
+            )
+          ) > 5
+          and on (job, instance)
+          sum by (job, instance) (rate(trussium_http_requests_total[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          component: runtime
+        annotations:
+          summary: Trussium p95 request latency is high
+          description: P95 request duration exceeded 5 seconds at more than 0.1 requests per second for 10 minutes.
+          runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimerequestlatencyhigh
+
+      - alert: TrussiumRuntimeProcessRestarted
+        expr: changes(process_start_time_seconds[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: runtime
+        annotations:
+          summary: Trussium runtime process restarted
+          description: The observed process start time changed within the last 15 minutes.
+          runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimeprocessrestarted
