@@ -10,12 +10,21 @@ from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import (
     ProviderName,
     ProviderSettings,
+    ReadinessSettings,
     TimeoutSettings,
 )
 from trussium.observability import LoggingProviderChatCapability
 from trussium.providers.ollama import OllamaChatCapability
-from trussium.providers.openai import OpenAIChatCapability
-from trussium.runtime import TimeoutChatCapability
+from trussium.providers.openai import (
+    OpenAIChatCapability,
+    OpenAICompatibleProviderHealthCheck,
+)
+from trussium.runtime import (
+    DependencyFailureReason,
+    DependencyHealthCheck,
+    TimeoutChatCapability,
+    UnavailableDependencyHealthCheck,
+)
 
 OLLAMA_DEFAULT_BASE_URL: Final = "http://127.0.0.1:11434/v1"
 OLLAMA_DEFAULT_API_KEY: Final = "ollama"
@@ -65,6 +74,49 @@ def create_chat_capability_from_environment(
         ),
         provider=adapter.provider_name,
         tracer=tracer,
+    )
+
+
+def create_provider_health_check_from_environment(
+    *,
+    provider: ProviderSettings | None = None,
+    readiness: ReadinessSettings | None = None,
+) -> DependencyHealthCheck | None:
+    """Create an opt-in provider dependency health check.
+
+    Args:
+        provider: Optional provider configuration.
+        readiness: Optional dependency readiness configuration.
+
+    Returns:
+        A configured bounded provider check, or ``None`` when dependency checks
+        are disabled.
+    """
+    resolved_provider = provider or ProviderSettings()
+    resolved_readiness = readiness or ReadinessSettings()
+
+    if not resolved_readiness.dependency_checks_enabled:
+        return None
+
+    api_key = _resolve_api_key(resolved_provider)
+
+    if api_key is None:
+        return UnavailableDependencyHealthCheck(
+            provider=resolved_provider.name,
+            model=resolved_readiness.required_model,
+            reason=DependencyFailureReason.PROVIDER_NOT_CONFIGURED,
+        )
+
+    base_url = _resolve_base_url(resolved_provider)
+    client = (
+        AsyncOpenAI(api_key=api_key, base_url=base_url)
+        if base_url is not None
+        else AsyncOpenAI(api_key=api_key)
+    )
+    return OpenAICompatibleProviderHealthCheck(
+        client,
+        provider=resolved_provider.name,
+        model=resolved_readiness.required_model,
     )
 
 

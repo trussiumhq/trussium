@@ -16,6 +16,10 @@ bounded and machine-readable.
 | `runtime.configuration.loaded` | INFO | Safe runtime settings were accepted. |
 | `provider.configuration.ready` | INFO | A provider capability was constructed from configuration. |
 | `provider.configuration.unavailable` | WARNING | No provider capability was constructed; health endpoints remain available. |
+| `readiness.configuration.loaded` | INFO | Bounded dependency-readiness settings were loaded. |
+| `readiness.dependency.ok` | INFO | A refreshed required dependency became available. |
+| `readiness.dependency.unavailable` | WARNING | A refreshed required dependency became unavailable with a stable reason code. |
+| `readiness.dependency.shutdown.failed` | ERROR | The readiness metadata client could not close cleanly. |
 | `observability.configuration.loaded` | INFO | Metrics and tracing settings were accepted. |
 | `runtime.started` | INFO | The application lifespan is ready. |
 | `runtime.shutdown.started` | INFO | The server stopped accepting new work and began draining. |
@@ -29,9 +33,9 @@ bounded and machine-readable.
 | `runtime.shutdown.completed` | INFO or ERROR | Server shutdown completed, with an `outcome` and duration. |
 
 Provider configuration events report local configuration readiness. They do
-not probe provider connectivity, authenticate a credential, inspect a model,
-or change `/health/ready` semantics. Dependency-aware readiness checks remain a
-separate roadmap item.
+not prove dependency availability by themselves. When dependency checks are
+explicitly enabled, separate readiness events and `/health/ready` use bounded
+provider metadata checks. See [HEALTH.md](HEALTH.md).
 
 ## Example
 
@@ -39,8 +43,9 @@ With no provider credential and tracing disabled, startup includes records
 like these, one JSON object per line:
 
 ```json
-{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.29.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30}
+{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.30.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30}
 {"level":"WARNING","logger":"trussium.provider","message":"Provider configuration unavailable","event":"provider.configuration.unavailable","provider":"openai","provider_configured":false}
+{"level":"INFO","logger":"trussium.readiness","message":"Readiness configuration loaded","event":"readiness.configuration.loaded","dependency_checks_enabled":false,"dependency_timeout_seconds":1.0,"dependency_cache_seconds":10.0,"required_model_configured":false}
 {"level":"INFO","logger":"trussium.observability","message":"Observability configuration loaded","event":"observability.configuration.loaded","metrics_enabled":true,"tracing_enabled":false,"trace_sample_ratio":1.0}
 {"level":"INFO","logger":"trussium.runtime","message":"Runtime started","event":"runtime.started"}
 ```

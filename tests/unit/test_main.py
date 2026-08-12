@@ -28,6 +28,7 @@ def test_main_configures_bounded_graceful_shutdown(
         )
     )
     capability = cast(ChatCapability, object())
+    health_check = object()
     application = FastAPI()
     observed: dict[str, object] = {}
 
@@ -40,6 +41,10 @@ def test_main_configures_bounded_graceful_shutdown(
     def create_capability(**_: object) -> ChatCapability:
         observed["capability_arguments"] = _
         return capability
+
+    def create_health_check(**_: object) -> object:
+        observed["health_check_arguments"] = _
+        return health_check
 
     def create_app(**_: object) -> FastAPI:
         observed["application_arguments"] = _
@@ -64,6 +69,11 @@ def test_main_configures_bounded_graceful_shutdown(
         "create_chat_capability_from_environment",
         create_capability,
     )
+    monkeypatch.setattr(
+        __main__,
+        "create_provider_health_check_from_environment",
+        create_health_check,
+    )
     monkeypatch.setattr(__main__, "create_application", create_app)
     monkeypatch.setattr(__main__, "create_server", configure_server)
 
@@ -77,14 +87,23 @@ def test_main_configures_bounded_graceful_shutdown(
         dict[str, object],
         observed.pop("application_arguments"),
     )
+    health_check_arguments = cast(
+        dict[str, object],
+        observed.pop("health_check_arguments"),
+    )
     tracing = application_arguments["tracing"]
 
     assert isinstance(tracing, RuntimeTracing)
     assert capability_arguments["provider"] is settings.provider
     assert capability_arguments["timeouts"] is settings.timeouts
     assert capability_arguments["tracer"] is tracing.tracer
+    assert health_check_arguments == {
+        "provider": settings.provider,
+        "readiness": settings.readiness,
+    }
     assert application_arguments["settings"] is settings
     assert application_arguments["chat_capability"] is capability
+    assert application_arguments["dependency_health_check"] is health_check
 
     assert observed == {
         "app": application,

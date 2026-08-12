@@ -64,6 +64,8 @@ The ConfigMap contains safe production defaults:
 - Port 9000 and all-interface binding.
 - A 30-second graceful-shutdown drain deadline.
 - Provider-request and stream-idle deadlines.
+- Dependency-aware readiness disabled by default with one-second refresh and
+  ten-second cache settings available for explicit enablement.
 - Prometheus-compatible runtime metrics enabled at `/metrics`.
 - OpenTelemetry tracing disabled until a collector endpoint is configured.
 
@@ -97,6 +99,22 @@ continuing to serve health and metrics endpoints. Collect standard output as
 JSON; the [Structured Operational Logging Guide](OPERATIONAL_LOGGING.md)
 documents stable events and privacy boundaries.
 
+To gate pod readiness on provider metadata access, patch the non-secret
+ConfigMap after ensuring the provider Secret and network path are available:
+
+```yaml
+data:
+  TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED: "true"
+  TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS: "1"
+  TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS: "10"
+  TRUSSIUM_READINESS__REQUIRED_MODEL: "deployment-required-model"
+```
+
+The required model is optional. Keep the runtime deadline below the
+readiness-probe timeout. Enabling dependency checks while the optional Secret
+is absent intentionally returns HTTP 503; liveness remains HTTP 200. See the
+[Runtime Health and Dependency Readiness Guide](HEALTH.md) before rollout.
+
 To export traces, patch the non-secret ConfigMap values in a deployment-owned
 overlay. The endpoint must be reachable from the pod and normally targets an
 OpenTelemetry Collector Service:
@@ -128,19 +146,19 @@ the [Runtime Alerting and Runbook Guide](ALERTING.md).
 ## Deploy with Helm
 
 After creating the namespace, image-pull Secret, and any provider Secret above,
-authenticate to GHCR and install chart v0.3.3:
+authenticate to GHCR and install chart v0.3.4:
 
 ```bash
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.3 \
+  --version 0.3.4 \
   --namespace trussium-system \
   --wait
 ```
 
-Chart v0.3.3 defaults to runtime v0.29.0. Chart and runtime versions are
+Chart v0.3.4 defaults to runtime v0.30.0. Chart and runtime versions are
 independent; the chart's `appVersion` records its default compatible runtime.
 The chart enables the same two-to-ten-replica CPU HPA and runtime metrics
 contract by default, so a working Kubernetes Metrics API is required. It also
@@ -152,7 +170,7 @@ replicas when the Metrics API is intentionally unavailable:
 ```bash
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.3 \
+  --version 0.3.4 \
   --namespace trussium-system \
   --set autoscaling.enabled=false \
   --set replicaCount=2 \

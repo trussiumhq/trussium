@@ -69,6 +69,19 @@ startup, shutdown, drain deadlines, and trace-export failures. See the
 [Structured Operational Logging Guide](OPERATIONAL_LOGGING.md) for the stable
 event and privacy contract.
 
+Dependency-aware readiness is disabled by default. To validate it against a
+local OpenAI-compatible endpoint without sending inference:
+
+```bash
+export TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED=true
+export TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS=1
+export TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS=1
+export TRUSSIUM_READINESS__REQUIRED_MODEL=local-model
+```
+
+The real-process integration suite uses the SDK model-metadata path to validate
+healthy, missing-model, and recovery behavior. See [HEALTH.md](HEALTH.md).
+
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline
 with `TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS`. See the

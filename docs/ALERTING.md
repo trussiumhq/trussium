@@ -295,5 +295,6 @@ configuration, notification receivers, credentials, schedules, escalation,
 silences, access control, retention, and incident management.
 
 The runtime image, Python distributions, Kustomize resources, and official Helm
-chart install no alerts or observability backends. Readiness dependency checks
-remain a separate roadmap item.
+chart install no alerts or observability backends. Dependency-aware readiness
+is a separate opt-in traffic-gating contract documented in [HEALTH.md](HEALTH.md);
+it does not load alert rules or configure notifications.

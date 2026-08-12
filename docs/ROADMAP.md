@@ -29,7 +29,7 @@ The runtime now propagates immutable execution context across asynchronous and s
 
 Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. W3C `traceparent` and optional `tracestate` now continue the active provider CLIENT span across OpenAI and Ollama-compatible JSON and SSE requests without global HTTP instrumentation. Unsampled decisions propagate correctly, while baggage, arbitrary headers, request IDs, payloads, and credentials remain behind the runtime privacy boundary. Tracing remains disabled by default until an operator supplies a reachable collector endpoint. Stable structured operational events now report bounded configuration summaries, provider configuration readiness, application and server lifecycle transitions, graceful-drain outcomes, and trace-export failures. Invalid settings and background failures expose only counts, error classes, and stable codes rather than rejected values, endpoints, exception text, payloads, or credentials.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.3 targets runtime v0.29.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile now adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Thresholds, SLOs, routing, notification, and incident ownership remain deployment choices. With alerting guidance delivered, readiness dependency checks are the immediate cloud-native operations focus.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.3.4 targets runtime v0.30.0, enables runtime metrics and the production CPU autoscaler by default, exposes schema-validated tracing values with safe disabled defaults, exercises tracing configuration across autoscaled and fixed-replica Kind lifecycles, and publishes both a GitHub release asset and an OCI artifact. It installs neither a collector nor a tracing backend. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Opt-in dependency-aware readiness now distinguishes fast local liveness from provider and optional required-model availability through bounded metadata checks, stable failure reasons, runtime-owned deadlines, monotonic caching, and single-flight refreshes. The next runtime-foundation priority is a unified exception hierarchy.
 
 ---
 
@@ -204,6 +204,18 @@ Build the foundational runtime components required by capabilities, providers, A
 - Runtime, provider, and observability startup configuration summaries
 - Application startup and shutdown lifecycle events
 - Server drain, cancellation cleanup, and terminal shutdown events
+- Immutable typed dependency-readiness configuration
+- Provider-neutral asynchronous dependency health contract
+- OpenAI and Ollama-compatible provider metadata checks
+- Optional required-model metadata validation without inference
+- Stable bounded readiness failure reasons
+- Runtime-owned dependency-check deadline
+- Monotonic successful and failed result caching
+- Concurrent single-flight readiness refresh
+- Backward-compatible disabled readiness defaults
+- Dependency-aware HTTP 200 and 503 readiness responses
+- Dependency state-transition operational events
+- Health-check client shutdown lifecycle
 
 ### Remaining
 
@@ -480,7 +492,7 @@ This milestone is required before positioning Trussium as a production governanc
 
 ## Milestone 9 — Cloud-Native Operations
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
 Make Trussium deployable and operable across modern cloud-native environments.
 
@@ -580,10 +592,13 @@ Make Trussium deployable and operable across modern cloud-native environments.
 - Privacy and cardinality boundaries for alerts and notification payloads
 - Digest-pinned real-Prometheus syntax and synthetic semantic validation in continuous integration
 - Operator-owned Alertmanager, Grafana Alerting, receiver, schedule, and incident-management boundaries
-
-### Remaining
-
-- Readiness dependency checks
+- Opt-in provider and required-model dependency readiness checks
+- Backward-compatible local-only readiness and provider-independent liveness
+- Stable authentication, permission, throttling, timeout, reachability, model, and unexpected-failure reasons
+- Runtime-owned timeout, monotonic cache, and concurrent single-flight refresh semantics
+- Bounded readiness configuration and state-transition operational events
+- Real-process OpenAI SDK missing-model and recovery validation
+- Dependency readiness privacy, rollout, and troubleshooting documentation
 
 Health checks and structured HTTP lifecycle logs have already been delivered as part of the runtime foundation.
 
@@ -740,13 +755,13 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add readiness dependency checks
+1. Add a unified runtime exception hierarchy
 
-This priority will distinguish process readiness from configured provider and
-model dependency availability through bounded, provider-neutral health
-contracts. It will preserve fast liveness, avoid credential or payload
-exposure, and define failure, timeout, caching, and degradation semantics
-before changing `/health/ready` behavior.
+This priority will consolidate runtime, configuration, lifecycle, dependency,
+capability, and provider failures behind stable typed bases without changing
+safe public error envelopes. It should preserve cancellation semantics and
+bounded operational error codes while reducing ad hoc exception handling ahead
+of service registries, lifecycle hooks, and routing work.
 
 ---
 

@@ -1,6 +1,7 @@
 """End-to-end tests for Trussium's first chat vertical slice."""
 
 import json
+from time import sleep
 from typing import cast
 from uuid import UUID
 
@@ -120,7 +121,17 @@ def test_runtime_health_over_real_network(
     assert liveness.json() == {"status": "ok"}
     assert liveness.headers["x-request-id"] == "e2e-health-live-57"
     assert readiness.status_code == 200
-    assert readiness.json() == {"status": "ok"}
+    assert readiness.json() == {
+        "status": "ok",
+        "dependencies": [
+            {
+                "name": "provider",
+                "status": "ok",
+                "provider": "openai",
+                "model": "e2e-model",
+            }
+        ],
+    }
     assert str(UUID(readiness.headers["x-request-id"])) == readiness.headers["x-request-id"]
     assert metrics.status_code == 200
     assert metrics.headers["content-type"].startswith("text/plain")
@@ -128,9 +139,10 @@ def test_runtime_health_over_real_network(
     assert "trussium_http_requests_active 0.0" in metrics.text
 
     operational_events = [record["event"] for record in integration_runtime.operational_logs()]
-    assert operational_events[:4] == [
+    assert operational_events[:5] == [
         "runtime.configuration.loaded",
         "provider.configuration.ready",
+        "readiness.configuration.loaded",
         "observability.configuration.loaded",
         "runtime.started",
     ]
@@ -146,6 +158,52 @@ def test_runtime_health_over_real_network(
     assert provider_configuration["provider"] == "openai"
     assert provider_configuration["provider_configured"] is True
     serialized = json.dumps(integration_runtime.operational_logs())
+    assert "e2e-test-api-key" not in serialized
+    assert integration_runtime.fake_openai_url not in serialized
+
+
+def test_dependency_readiness_fails_and_recovers_over_real_sdk_path(
+    integration_runtime: IntegrationRuntime,
+) -> None:
+    """Production readiness should track required-model metadata availability."""
+    with httpx.Client(timeout=2) as client:
+        control = client.post(f"{integration_runtime.fake_openai_url}/control/model-health/missing")
+        control.raise_for_status()
+        sleep(0.12)
+
+        unavailable = client.get(f"{integration_runtime.base_url}/health/ready")
+
+        control = client.post(
+            f"{integration_runtime.fake_openai_url}/control/model-health/available"
+        )
+        control.raise_for_status()
+        sleep(0.12)
+
+        recovered = client.get(f"{integration_runtime.base_url}/health/ready")
+
+    assert unavailable.status_code == 503
+    assert unavailable.json() == {
+        "status": "unavailable",
+        "dependencies": [
+            {
+                "name": "provider",
+                "status": "unavailable",
+                "provider": "openai",
+                "model": "e2e-model",
+                "reason": "model_unavailable",
+            }
+        ],
+    }
+    assert recovered.status_code == 200
+    assert recovered.json()["status"] == "ok"
+
+    unavailable_log = integration_runtime.wait_for_operational_log(
+        event="readiness.dependency.unavailable"
+    )
+    recovered_log = integration_runtime.wait_for_operational_log(event="readiness.dependency.ok")
+    assert unavailable_log["error_code"] == "model_unavailable"
+    assert recovered_log["outcome"] == "ok"
+    serialized = json.dumps([unavailable_log, recovered_log])
     assert "e2e-test-api-key" not in serialized
     assert integration_runtime.fake_openai_url not in serialized
 
