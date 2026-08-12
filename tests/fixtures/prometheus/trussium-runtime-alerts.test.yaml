@@ -1,0 +1,120 @@
+rule_files:
+  - ../../../deploy/observability/prometheus/rules/trussium-runtime-alerts.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: missing telemetry becomes actionable after the hold period
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: TrussiumRuntimeTelemetryMissing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              component: runtime
+            exp_annotations:
+              summary: Trussium runtime telemetry is missing
+              description: No Trussium active-request metric has been visible for 15 minutes.
+              runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimetelemetrymissing
+
+  - name: low traffic does not activate ratio alerts
+    input_series:
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="completed",status_code="200"}
+        values: 0+1x30
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="failed",status_code="500"}
+        values: 0+1x30
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="cancelled",status_code="499"}
+        values: 0+1x30
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: TrussiumRuntimeRequestFailuresHigh
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: TrussiumRuntimeRequestCancellationsHigh
+        exp_alerts: []
+
+  - name: sustained failures activate the critical alert
+    input_series:
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="completed",status_code="200"}
+        values: 0+11x30
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="failed",status_code="500"}
+        values: 0+1x30
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: TrussiumRuntimeRequestFailuresHigh
+        exp_alerts:
+          - exp_labels:
+              job: trussium
+              instance: runtime-a
+              severity: critical
+              component: runtime
+            exp_annotations:
+              summary: Trussium request failure ratio is high
+              description: Failed requests exceeded 5% at more than 0.1 requests per second for 10 minutes.
+              runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimerequestfailureshigh
+
+  - name: sustained cancellations activate a separate warning
+    input_series:
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="completed",status_code="200"}
+        values: 0+10x35
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="cancelled",status_code="499"}
+        values: 0+2x35
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: TrussiumRuntimeRequestCancellationsHigh
+        exp_alerts:
+          - exp_labels:
+              job: trussium
+              instance: runtime-a
+              severity: warning
+              component: runtime
+            exp_annotations:
+              summary: Trussium request cancellation ratio is high
+              description: Cancelled requests exceeded 10% at more than 0.1 requests per second for 15 minutes.
+              runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimerequestcancellationshigh
+
+  - name: sustained p95 latency activates only at meaningful traffic
+    input_series:
+      - series: trussium_http_requests_total{job="trussium",instance="runtime-a",method="POST",outcome="completed",status_code="200"}
+        values: 0+12x30
+      - series: trussium_http_request_duration_seconds_bucket{job="trussium",instance="runtime-a",method="POST",outcome="completed",le="1"}
+        values: 0+0x30
+      - series: trussium_http_request_duration_seconds_bucket{job="trussium",instance="runtime-a",method="POST",outcome="completed",le="5"}
+        values: 0+1x30
+      - series: trussium_http_request_duration_seconds_bucket{job="trussium",instance="runtime-a",method="POST",outcome="completed",le="10"}
+        values: 0+12x30
+      - series: trussium_http_request_duration_seconds_bucket{job="trussium",instance="runtime-a",method="POST",outcome="completed",le="+Inf"}
+        values: 0+12x30
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: TrussiumRuntimeRequestLatencyHigh
+        exp_alerts:
+          - exp_labels:
+              job: trussium
+              instance: runtime-a
+              severity: warning
+              component: runtime
+            exp_annotations:
+              summary: Trussium p95 request latency is high
+              description: P95 request duration exceeded 5 seconds at more than 0.1 requests per second for 10 minutes.
+              runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimerequestlatencyhigh
+
+  - name: a changed process start time activates a restart warning
+    input_series:
+      - series: process_start_time_seconds{job="trussium",instance="runtime-a"}
+        values: 1000x10 2000x20
+      - series: trussium_http_requests_active{job="trussium",instance="runtime-a"}
+        values: 0x30
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: TrussiumRuntimeProcessRestarted
+        exp_alerts:
+          - exp_labels:
+              job: trussium
+              instance: runtime-a
+              severity: warning
+              component: runtime
+            exp_annotations:
+              summary: Trussium runtime process restarted
+              description: The observed process start time changed within the last 15 minutes.
+              runbook_url: https://github.com/trussiumhq/trussium/blob/main/docs/ALERTING.md#trussiumruntimeprocessrestarted

@@ -70,6 +70,15 @@ memory, and uptime. Select its Prometheus data source plus the deployment's
 labels, recording rules, scrape configuration, or alerts. See the
 [Runtime Dashboards Guide](DASHBOARDS.md) for import and provisioning.
 
+## Alerting profile
+
+The portable Prometheus starter rules use this exact bounded contract for
+missing telemetry, sustained failures, sustained cancellations, high p95
+duration, and process restarts. Ratio and latency conditions include a
+minimum-traffic guard. The reference thresholds are not universal SLOs and the
+runtime installs no rule engine or notification route. See the
+[Runtime Alerting and Runbook Guide](ALERTING.md).
+
 ## Streaming semantics
 
 Instrumentation wraps the pure ASGI request lifecycle. An SSE request remains

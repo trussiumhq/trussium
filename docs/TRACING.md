@@ -155,6 +155,9 @@ capability, and provider span hierarchy. Select a Tempo data source and set its
 `service` variable to the configured OpenTelemetry service name. The dashboard
 does not enable tracing, deploy Tempo or a collector, or change sampling. See
 the [Runtime Dashboards Guide](DASHBOARDS.md) for import and operator workflow.
+Traces are a diagnostic pivot rather than the source of the portable starter
+alerts. The [Runtime Alerting and Runbook Guide](ALERTING.md) explains how to
+use failed and slow traces after a bounded Prometheus condition fires.
 
 ## Current boundary
 

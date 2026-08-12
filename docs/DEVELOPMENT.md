@@ -259,6 +259,21 @@ Tempo data sources, verifies every stable dashboard UID through Grafana's API,
 and always removes the temporary container. See the
 [Runtime Dashboards Guide](DASHBOARDS.md) before changing queries or variables.
 
+## Alert-rule validation
+
+Prometheus starter rules are maintained under
+`deploy/observability/prometheus/rules/`. Validate static contracts and the
+digest-pinned real `promtool` scenarios before changing queries, thresholds,
+annotations, or runbook links:
+
+```bash
+uv run pytest tests/unit/observability/test_alerting.py
+scripts/alert-rules-smoke-test.sh
+```
+
+See the [Runtime Alerting and Runbook Guide](ALERTING.md) for threshold,
+routing, lifecycle, privacy, and operator-ownership requirements.
+
 ## Container validation
 
 Docker is required only for container work. Run Dockerfile build checks and the

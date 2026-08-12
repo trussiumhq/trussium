@@ -237,3 +237,6 @@ Runtime dashboard JSON is maintained as a deployment artifact in the source
 repository and is not copied into the minimal runtime image. Import it into an
 operator-owned Grafana as described in the
 [Runtime Dashboards Guide](DASHBOARDS.md).
+Prometheus starter rules are likewise source-repository deployment artifacts
+and are not copied into the runtime image. See the
+[Runtime Alerting and Runbook Guide](ALERTING.md).

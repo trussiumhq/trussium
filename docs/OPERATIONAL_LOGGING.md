@@ -39,7 +39,7 @@ With no provider credential and tracing disabled, startup includes records
 like these, one JSON object per line:
 
 ```json
-{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.28.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30}
+{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.29.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30}
 {"level":"WARNING","logger":"trussium.provider","message":"Provider configuration unavailable","event":"provider.configuration.unavailable","provider":"openai","provider_configured":false}
 {"level":"INFO","logger":"trussium.observability","message":"Observability configuration loaded","event":"observability.configuration.loaded","metrics_enabled":true,"tracing_enabled":false,"trace_sample_ratio":1.0}
 {"level":"INFO","logger":"trussium.runtime","message":"Runtime started","event":"runtime.started"}
@@ -89,4 +89,7 @@ the runtime. The versioned `Trussium Runtime Logs` dashboard provides Loki
 queries for configuration, lifecycle, execution, shutdown, and export events
 without turning correlation fields into index labels. See the
 [Runtime Dashboards Guide](DASHBOARDS.md) for collection expectations, import,
-and privacy boundaries. Alerting guidance remains a separate roadmap item.
+and privacy boundaries. The
+[Runtime Alerting and Runbook Guide](ALERTING.md) maps high-value operational
+events to investigation and escalation guidance without shipping a
+backend-specific Loki ruler configuration.

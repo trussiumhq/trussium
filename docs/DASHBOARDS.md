@@ -100,10 +100,10 @@ pressure, or failed and cancelled work. Pivot to structured logs for stable
 events and correlation identifiers. Use a correlated `trace_id`, or the Tempo
 failed and slow searches, to inspect the complete execution hierarchy.
 
-The dashboards intentionally define no alerts. Alert thresholds, evaluation
-windows, notification routing, and ownership depend on deployment service
-objectives and are documented separately in the next observability roadmap
-item.
+The dashboards intentionally define no alerts. Portable Prometheus starter
+rules and matching runbooks are maintained separately so threshold review,
+evaluation, routing, and notification ownership remain explicit. See the
+[Runtime Alerting and Runbook Guide](ALERTING.md).
 
 ## Privacy and cardinality
 
