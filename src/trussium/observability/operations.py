@@ -10,6 +10,7 @@ RUNTIME_CONFIGURATION_INVALID: Final = "runtime.configuration.invalid"
 RUNTIME_CONFIGURATION_LOADED: Final = "runtime.configuration.loaded"
 PROVIDER_CONFIGURATION_READY: Final = "provider.configuration.ready"
 PROVIDER_CONFIGURATION_UNAVAILABLE: Final = "provider.configuration.unavailable"
+READINESS_CONFIGURATION_LOADED: Final = "readiness.configuration.loaded"
 OBSERVABILITY_CONFIGURATION_LOADED: Final = "observability.configuration.loaded"
 RUNTIME_STARTED: Final = "runtime.started"
 RUNTIME_STOPPING: Final = "runtime.stopping"
@@ -31,6 +32,7 @@ def log_startup_configuration(
     """Emit safe configuration summaries for runtime startup."""
     runtime_logger = get_logger("runtime")
     provider_logger = get_logger("provider")
+    readiness_logger = get_logger("readiness")
     observability_logger = get_logger("observability")
     runtime_logger.info(
         "Runtime configuration loaded",
@@ -56,6 +58,17 @@ def log_startup_configuration(
             "event": provider_event,
             "provider": settings.provider.name.value,
             "provider_configured": provider_configured,
+        },
+    )
+
+    readiness_logger.info(
+        "Readiness configuration loaded",
+        extra={
+            "event": READINESS_CONFIGURATION_LOADED,
+            "dependency_checks_enabled": settings.readiness.dependency_checks_enabled,
+            "dependency_timeout_seconds": settings.readiness.dependency_timeout_seconds,
+            "dependency_cache_seconds": settings.readiness.dependency_cache_seconds,
+            "required_model_configured": settings.readiness.required_model is not None,
         },
     )
 

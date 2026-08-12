@@ -106,6 +106,8 @@ docker run --rm \
 The runtime emits `provider.configuration.unavailable` as a structured warning
 in this mode. This is a local configuration summary, not a failed health probe.
 See the [Structured Operational Logging Guide](OPERATIONAL_LOGGING.md).
+Dependency checks remain disabled by default, so the existing readiness
+response stays compatible when no provider is configured.
 
 Check container and application health:
 
@@ -114,6 +116,12 @@ docker inspect --format '{{.State.Health.Status}}' trussium
 curl http://127.0.0.1:9000/health/ready
 curl http://127.0.0.1:9000/metrics
 ```
+
+To make a configured provider and optional model gate container readiness, add
+the `TRUSSIUM_READINESS__*` settings documented in the
+[Runtime Health and Dependency Readiness Guide](HEALTH.md). Docker health
+continues to use `/health/live`; an external provider outage must not restart a
+healthy container.
 
 ## Running with OpenAI
 

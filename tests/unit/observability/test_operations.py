@@ -54,6 +54,7 @@ def test_startup_configuration_logs_safe_bounded_summaries() -> None:
     assert set(by_event) == {
         "runtime.configuration.loaded",
         "provider.configuration.ready",
+        "readiness.configuration.loaded",
         "observability.configuration.loaded",
     }
     runtime_payload = by_event["runtime.configuration.loaded"]
@@ -69,6 +70,12 @@ def test_startup_configuration_logs_safe_bounded_summaries() -> None:
     assert by_event["provider.configuration.ready"]["provider"] == "openai"
     assert by_event["provider.configuration.ready"]["logger"] == "trussium.provider"
     assert by_event["provider.configuration.ready"]["provider_configured"] is True
+    readiness_payload = by_event["readiness.configuration.loaded"]
+    assert readiness_payload["logger"] == "trussium.readiness"
+    assert readiness_payload["dependency_checks_enabled"] is False
+    assert readiness_payload["dependency_timeout_seconds"] == 1.0
+    assert readiness_payload["dependency_cache_seconds"] == 10.0
+    assert readiness_payload["required_model_configured"] is False
     assert by_event["observability.configuration.loaded"]["metrics_enabled"] is False
     assert by_event["observability.configuration.loaded"]["logger"] == "trussium.observability"
     assert by_event["observability.configuration.loaded"]["tracing_enabled"] is True

@@ -29,6 +29,7 @@ from trussium.observability import (
     get_logger,
     log_startup_configuration,
 )
+from trussium.runtime import DependencyHealthCheck, DependencyReadiness
 
 
 def create_application(
@@ -36,6 +37,7 @@ def create_application(
     *,
     chat_capability: ChatCapability | None = None,
     tracing: RuntimeTracing | None = None,
+    dependency_health_check: DependencyHealthCheck | None = None,
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -43,6 +45,7 @@ def create_application(
         settings: Optional runtime settings override.
         chat_capability: Optional configured chat capability.
         tracing: Optional shared application tracing runtime.
+        dependency_health_check: Optional configured provider dependency check.
 
     Returns:
         Configured FastAPI application.
@@ -56,6 +59,15 @@ def create_application(
         resolved_settings.observability,
     )
     runtime_logger = get_logger("runtime")
+    dependency_readiness = (
+        DependencyReadiness(
+            dependency_health_check,
+            timeout_seconds=resolved_settings.readiness.dependency_timeout_seconds,
+            cache_seconds=resolved_settings.readiness.dependency_cache_seconds,
+        )
+        if dependency_health_check is not None
+        else None
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -80,6 +92,22 @@ def create_application(
                     "event": RUNTIME_STOPPING,
                 },
             )
+
+            dependency_shutdown_error: Exception | None = None
+
+            if dependency_readiness is not None:
+                try:
+                    await dependency_readiness.close()
+                except Exception as error:
+                    dependency_shutdown_error = error
+                    runtime_logger.error(
+                        "Readiness dependency shutdown failed",
+                        extra={
+                            "event": "readiness.dependency.shutdown.failed",
+                            "error_code": "readiness_dependency_shutdown_failed",
+                            "error_type": type(error).__name__,
+                        },
+                    )
 
             try:
                 runtime_tracing.shutdown()
@@ -110,6 +138,18 @@ def create_application(
                     "outcome": "completed" if runtime_tracing.enabled else "disabled",
                 },
             )
+
+            if dependency_shutdown_error is not None:
+                runtime_logger.error(
+                    "Runtime stopped with an operational failure",
+                    extra={
+                        "event": RUNTIME_STOPPED,
+                        "duration_ms": round((perf_counter() - started_at) * 1000, 3),
+                        "outcome": "failed",
+                    },
+                )
+                raise dependency_shutdown_error
+
             runtime_logger.info(
                 "Runtime stopped",
                 extra={
@@ -127,6 +167,7 @@ def create_application(
 
     application.state.settings = resolved_settings
     application.state.runtime_tracing = runtime_tracing
+    application.state.dependency_readiness = dependency_readiness
     application.state.chat_capability = (
         LoggingChatCapability(
             chat_capability,

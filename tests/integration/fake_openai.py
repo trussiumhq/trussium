@@ -14,6 +14,7 @@ _last_request: dict[str, object] | None = None
 _recorded_provider_requests: list[dict[str, object]] = []
 _recorded_trace_exports: list[dict[str, object]] = []
 _reject_trace_exports = False
+_model_health_mode = "available"
 _control_events: dict[str, asyncio.Event] = {}
 _control_states: dict[str, dict[str, bool]] = {}
 
@@ -155,6 +156,62 @@ async def control_trace_exports(mode: str) -> dict[str, bool]:
 
     _reject_trace_exports = mode == "reject"
     return {"rejecting": _reject_trace_exports}
+
+
+@app.post("/control/model-health/{mode}")
+async def control_model_health(mode: str) -> dict[str, str]:
+    """Select a deterministic model-metadata readiness outcome."""
+    global _model_health_mode
+
+    if mode in {"available", "missing", "unavailable"}:
+        _model_health_mode = mode
+
+    return {"mode": _model_health_mode}
+
+
+def _model_payload(model: str) -> dict[str, object]:
+    """Build a minimal OpenAI SDK-compatible model payload."""
+    return {
+        "id": model,
+        "created": 0,
+        "object": "model",
+        "owned_by": "trussium-tests",
+    }
+
+
+@app.get("/v1/models")
+async def list_models() -> Response:
+    """Expose deterministic provider metadata readiness."""
+    if _model_health_mode == "unavailable":
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"error": {"message": "private provider failure"}},
+        )
+
+    return JSONResponse(
+        content={
+            "object": "list",
+            "data": [_model_payload("e2e-model")],
+        }
+    )
+
+
+@app.get("/v1/models/{model}")
+async def retrieve_model(model: str) -> Response:
+    """Expose deterministic required-model availability."""
+    if _model_health_mode == "unavailable":
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"error": {"message": "private provider failure"}},
+        )
+
+    if _model_health_mode == "missing" or model != "e2e-model":
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={"error": {"message": "private model failure"}},
+        )
+
+    return JSONResponse(content=_model_payload(model))
 
 
 @app.get("/control/{model}")

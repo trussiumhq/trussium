@@ -5,6 +5,7 @@ from pydantic import ValidationError
 from trussium.app import create_application
 from trussium.app.bootstrap import (
     create_chat_capability_from_environment,
+    create_provider_health_check_from_environment,
 )
 from trussium.config.settings import get_settings
 from trussium.observability import (
@@ -43,11 +44,16 @@ def main() -> None:
         timeouts=settings.timeouts,
         tracer=tracing.tracer,
     )
+    dependency_health_check = create_provider_health_check_from_environment(
+        provider=settings.provider,
+        readiness=settings.readiness,
+    )
 
     app = create_application(
         settings=settings,
         chat_capability=chat_capability,
         tracing=tracing,
+        dependency_health_check=dependency_health_check,
     )
 
     server = create_server(

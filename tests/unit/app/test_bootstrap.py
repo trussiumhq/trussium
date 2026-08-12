@@ -1,5 +1,7 @@
 """Tests for runtime dependency bootstrap."""
 
+import asyncio
+
 import pytest
 from pydantic import AnyHttpUrl, SecretStr
 
@@ -7,12 +9,17 @@ from trussium.app.bootstrap import (
     OLLAMA_DEFAULT_API_KEY,
     OLLAMA_DEFAULT_BASE_URL,
     create_chat_capability_from_environment,
+    create_provider_health_check_from_environment,
 )
-from trussium.config import ProviderName, ProviderSettings
+from trussium.config import ProviderName, ProviderSettings, ReadinessSettings
 from trussium.observability import LoggingProviderChatCapability
 from trussium.providers.ollama import OllamaChatCapability
-from trussium.providers.openai import OpenAIChatCapability
-from trussium.runtime import TimeoutChatCapability
+from trussium.providers.openai import OpenAIChatCapability, OpenAICompatibleProviderHealthCheck
+from trussium.runtime import (
+    DependencyFailureReason,
+    TimeoutChatCapability,
+    UnavailableDependencyHealthCheck,
+)
 
 
 def test_missing_openai_api_key_disables_chat_capability(
@@ -25,6 +32,75 @@ def test_missing_openai_api_key_disables_chat_capability(
     capability = create_chat_capability_from_environment()
 
     assert capability is None
+
+
+def test_dependency_checks_are_disabled_without_creating_provider_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Backward-compatible defaults should never create a network check."""
+    monkeypatch.setenv("OPENAI_API_KEY", "unused-key")
+
+    check = create_provider_health_check_from_environment()
+
+    assert check is None
+
+
+def test_enabled_check_reports_missing_provider_configuration(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explicit dependency gating should fail closed without a credential."""
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    readiness = ReadinessSettings(
+        dependency_checks_enabled=True,
+        required_model="required-model",
+    )
+
+    check = create_provider_health_check_from_environment(readiness=readiness)
+
+    assert isinstance(check, UnavailableDependencyHealthCheck)
+    result = asyncio.run(check.check())
+    assert result.reason is DependencyFailureReason.PROVIDER_NOT_CONFIGURED
+    assert result.model == "required-model"
+
+
+def test_enabled_openai_check_uses_typed_provider_configuration() -> None:
+    """Readiness should construct an independent metadata-only SDK client."""
+    provider = ProviderSettings(
+        name=ProviderName.OPENAI,
+        base_url=AnyHttpUrl("https://provider.example/v1"),
+        api_key=SecretStr("health-key"),
+    )
+    readiness = ReadinessSettings(
+        dependency_checks_enabled=True,
+        required_model="required-model",
+    )
+
+    check = create_provider_health_check_from_environment(
+        provider=provider,
+        readiness=readiness,
+    )
+
+    assert isinstance(check, OpenAICompatibleProviderHealthCheck)
+    assert check.provider == "openai"
+    assert check.model == "required-model"
+    assert check._client.api_key == "health-key"
+    assert str(check._client.base_url) == "https://provider.example/v1/"
+    asyncio.run(check.close())
+
+
+def test_enabled_ollama_check_uses_local_compatible_defaults() -> None:
+    """Ollama should share the metadata check without external credentials."""
+    check = create_provider_health_check_from_environment(
+        provider=ProviderSettings(name=ProviderName.OLLAMA),
+        readiness=ReadinessSettings(dependency_checks_enabled=True),
+    )
+
+    assert isinstance(check, OpenAICompatibleProviderHealthCheck)
+    assert check.provider == "ollama"
+    assert check.model is None
+    assert check._client.api_key == OLLAMA_DEFAULT_API_KEY
+    assert str(check._client.base_url) == f"{OLLAMA_DEFAULT_BASE_URL}/"
+    asyncio.run(check.close())
 
 
 def test_openai_api_key_enables_logged_openai_capability(

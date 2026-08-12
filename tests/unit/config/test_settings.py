@@ -17,6 +17,10 @@ def test_default_settings() -> None:
     assert settings.provider.api_key is None
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
+    assert settings.readiness.dependency_checks_enabled is False
+    assert settings.readiness.dependency_timeout_seconds == 1.0
+    assert settings.readiness.dependency_cache_seconds == 10.0
+    assert settings.readiness.required_model is None
     assert settings.observability.metrics_enabled is True
     assert settings.observability.tracing_enabled is False
     assert settings.observability.tracing_service_name == "trussium"
@@ -42,6 +46,46 @@ def test_timeout_settings_support_environment_overrides(
 
     assert settings.timeouts.provider_request_seconds == 12.5
     assert settings.timeouts.stream_idle_seconds == 4.25
+
+
+def test_readiness_settings_support_typed_environment_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Dependency readiness settings should be typed and immutable."""
+    monkeypatch.setenv("TRUSSIUM_READINESS__DEPENDENCY_CHECKS_ENABLED", "true")
+    monkeypatch.setenv("TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS", "0.75")
+    monkeypatch.setenv("TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS", "3.5")
+    monkeypatch.setenv("TRUSSIUM_READINESS__REQUIRED_MODEL", "  required-model  ")
+
+    settings = Settings()
+
+    assert settings.readiness.dependency_checks_enabled is True
+    assert settings.readiness.dependency_timeout_seconds == 0.75
+    assert settings.readiness.dependency_cache_seconds == 3.5
+    assert settings.readiness.required_model == "required-model"
+
+    with pytest.raises(ValidationError):
+        settings.readiness.required_model = "other-model"
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [
+        ("TRUSSIUM_READINESS__DEPENDENCY_TIMEOUT_SECONDS", "0"),
+        ("TRUSSIUM_READINESS__DEPENDENCY_CACHE_SECONDS", "-1"),
+        ("TRUSSIUM_READINESS__REQUIRED_MODEL", "   "),
+    ],
+)
+def test_readiness_settings_reject_invalid_values(
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    value: str,
+) -> None:
+    """Unsafe readiness values should fail before process startup."""
+    monkeypatch.setenv(name, value)
+
+    with pytest.raises(ValidationError):
+        Settings()
 
 
 def test_runtime_settings_support_graceful_shutdown_override(

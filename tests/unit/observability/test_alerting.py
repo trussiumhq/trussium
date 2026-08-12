@@ -150,7 +150,8 @@ def test_runbook_covers_every_alert_and_operational_pivot() -> None:
     assert "not a universal\nservice-level objective or paging policy" in guide
     assert "Loki and Tempo are diagnostic aids, not dependencies" in guide
     assert "request, execution, trace, model, or\nprovider identifiers" in guide
-    assert "Readiness dependency checks\nremain a separate roadmap item" in guide
+    assert "Dependency-aware readiness\nis a separate opt-in traffic-gating contract" in guide
+    assert "[HEALTH.md](HEALTH.md)" in guide
 
 
 def test_alert_artifacts_stay_out_of_runtime_packages_and_deployments() -> None:

@@ -93,6 +93,40 @@ class TimeoutSettings(BaseModel):
     )
 
 
+class ReadinessSettings(BaseModel):
+    """Dependency-aware readiness configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dependency_checks_enabled: bool = Field(
+        default=False,
+        description="Gate readiness on the configured provider dependency.",
+    )
+
+    dependency_timeout_seconds: float = Field(
+        default=1.0,
+        gt=0.0,
+        description="Maximum duration of one provider readiness refresh.",
+    )
+
+    dependency_cache_seconds: float = Field(
+        default=10.0,
+        gt=0.0,
+        description="Duration to reuse a provider readiness result.",
+    )
+
+    required_model: (
+        Annotated[
+            str,
+            StringConstraints(strip_whitespace=True, min_length=1),
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description="Optional provider model that must be available for readiness.",
+    )
+
+
 class ObservabilitySettings(BaseModel):
     """Runtime observability configuration."""
 
@@ -154,6 +188,7 @@ class Settings(BaseSettings):
     runtime: RuntimeSettings = RuntimeSettings()
     provider: ProviderSettings = ProviderSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
+    readiness: ReadinessSettings = ReadinessSettings()
     observability: ObservabilitySettings = ObservabilitySettings()
 
 
