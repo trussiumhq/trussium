@@ -342,6 +342,11 @@ def test_chat_completion_returns_normalized_provider_error() -> None:
             "message": error_message,
         }
     }
+    assert response.content == (
+        b'{"detail":{"code":"openai_quota_exceeded","message":'
+        b'"The configured OpenAI project has no available API quota. '
+        b'Check its billing, credits, and usage limits."}}'
+    )
 
 
 def test_chat_completion_runtime_timeout_returns_504() -> None:

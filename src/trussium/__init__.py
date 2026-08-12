@@ -3,6 +3,16 @@
 from collections.abc import Callable
 from importlib import metadata
 
+from trussium.errors import (
+    CapabilityError,
+    ConfigurationError,
+    DependencyError,
+    LifecycleError,
+    ProviderError,
+    RuntimeExecutionError,
+    TrussiumError,
+)
+
 _UNKNOWN_VERSION = "0.0.0+unknown"
 
 
@@ -16,4 +26,13 @@ def _get_version(version_reader: Callable[[str], str] = metadata.version) -> str
 
 __version__ = _get_version()
 
-__all__ = ["__version__"]
+__all__ = [
+    "CapabilityError",
+    "ConfigurationError",
+    "DependencyError",
+    "LifecycleError",
+    "ProviderError",
+    "RuntimeExecutionError",
+    "TrussiumError",
+    "__version__",
+]

@@ -130,6 +130,12 @@ bounded OpenAI or Ollama-compatible metadata access and an optional required
 model. Liveness remains local and provider-independent. See the
 [Runtime Health and Dependency Readiness Guide](docs/HEALTH.md).
 
+Trussium-owned failures share a public typed exception hierarchy with stable
+machine-readable codes and client-safe messages. Existing capability and
+provider errors remain compatible, while cancellation, validation, framework,
+and unnormalized SDK exceptions keep their native semantics. See the
+[Runtime Exception Hierarchy Guide](docs/ERRORS.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -171,14 +177,15 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.4 \
+  --version 0.4.0 \
   --namespace trussium-system
 ```
 
-Chart v0.3.4 defaults to runtime v0.30.0 and enables the production CPU
-autoscaler and runtime metrics contract. It also exposes schema-validated
-OpenTelemetry tracing values while keeping trace export disabled until an
-operator supplies a reachable collector endpoint. The chart requires a working
+Chart v0.4.0 defaults to runtime v0.31.0, enables the production CPU
+autoscaler and runtime metrics contract, and exposes schema-validated
+dependency-readiness settings with safe disabled defaults. It also exposes
+schema-validated OpenTelemetry tracing values while keeping trace export
+disabled until an operator supplies a reachable collector endpoint. The chart requires a working
 Kubernetes Metrics API by default; fixed replicas remain available by disabling
 autoscaling. It deploys the runtime only and installs neither a collector nor
 the future Trussium Operator.

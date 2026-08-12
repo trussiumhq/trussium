@@ -2,6 +2,8 @@
 
 from enum import StrEnum
 
+from trussium.errors import CapabilityError
+
 
 class CapabilityErrorCategory(StrEnum):
     """Classify capability failures independently of transport protocols."""
@@ -16,7 +18,7 @@ class CapabilityErrorCategory(StrEnum):
     UPSTREAM_FAILURE = "upstream_failure"
 
 
-class CapabilityExecutionError(RuntimeError):
+class CapabilityExecutionError(CapabilityError):
     """Represent a normalized capability execution failure.
 
     Attributes:
@@ -39,8 +41,5 @@ class CapabilityExecutionError(RuntimeError):
             message: Client-safe error description.
             category: Protocol-neutral error classification.
         """
-        super().__init__(message)
-
-        self.code = code
-        self.message = message
+        super().__init__(message, code=code)
         self.category = category

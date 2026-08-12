@@ -78,6 +78,7 @@ def test_smoke_script_validates_runtime_security_and_shutdown() -> None:
     assert '"event":"runtime.configuration.loaded"' in script
     assert '"event":"runtime.shutdown.completed"' in script
     assert "uv must not be present" in script
+    assert "issubclass(ProviderError, TrussiumError)" in script
 
 
 def test_container_workflow_validates_and_publishes_release_images() -> None:
