@@ -125,6 +125,13 @@ spans are flushed and its worker is shut down during the application lifespan
 shutdown. Set the orchestrator termination grace period long enough for normal
 request draining and exporter shutdown.
 
+An exporter failure emits `observability.trace_export.failed` with only a
+bounded span count, stable error code, and—when an exception was raised—its
+class name. Trussium does not copy exporter exception text, collector URLs,
+response bodies, or span data into that event. See the
+[Structured Operational Logging Guide](OPERATIONAL_LOGGING.md) for the complete
+process event and privacy contract.
+
 ## Collector deployment
 
 Trussium does not install or configure an OpenTelemetry Collector. In Docker,

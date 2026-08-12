@@ -22,6 +22,22 @@ cancelled after the deadline emits the corresponding `cancelled` events once,
 with `cancellation_reason` set to `task_cancelled` and the original request and
 execution identifiers.
 
+The process-level sequence is independently observable through:
+
+```text
+runtime.shutdown.started
+  → runtime.shutdown.drain_timeout       (only when the drain deadline expires)
+  → runtime.shutdown.cleanup_timeout     (only when cancelled cleanup also expires)
+  → runtime.stopping
+  → observability.tracing.shutdown.completed
+  → runtime.stopped
+  → runtime.shutdown.completed
+```
+
+The terminal server event includes a bounded `outcome` of `completed`, `forced`,
+or `failed` and a duration. Counts and deadlines may be present; task objects,
+task names, exception messages, request payloads, and credentials are not.
+
 ## Configuration
 
 `TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS` sets the positive whole-number
@@ -68,6 +84,7 @@ controllable OpenAI-compatible provider. It proves:
 - HTTP, capability, and provider terminal lifecycle events remain correlated
   and non-duplicated.
 - Process exit is bounded and application shutdown completes.
+- Normal and forced process-level shutdown events are ordered and emitted once.
 
 Run it locally with:
 

@@ -89,6 +89,28 @@ class IntegrationRuntime:
 
         return records
 
+    def operational_logs(
+        self,
+        *,
+        event: str | None = None,
+    ) -> list[dict[str, object]]:
+        """Return runtime-owned structured operational records."""
+        records: list[dict[str, object]] = []
+
+        for line in self.runtime_process.output().splitlines():
+            try:
+                payload = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            if not isinstance(payload, dict) or "event" not in payload:
+                continue
+
+            if event is None or payload.get("event") == event:
+                records.append(payload)
+
+        return records
+
     def wait_for_terminal_log(
         self,
         *,
@@ -108,6 +130,28 @@ class IntegrationRuntime:
 
         raise AssertionError(
             f"Timed out waiting for {event!r} for {request_id!r}.\n"
+            f"Runtime output:\n{self.runtime_process.output()}"
+        )
+
+    def wait_for_operational_log(
+        self,
+        *,
+        event: str,
+        timeout_seconds: float = 5.0,
+    ) -> dict[str, object]:
+        """Wait until one process-level structured event is captured."""
+        deadline = monotonic() + timeout_seconds
+
+        while monotonic() < deadline:
+            records = self.operational_logs(event=event)
+
+            if records:
+                return records[-1]
+
+            sleep(0.02)
+
+        raise AssertionError(
+            f"Timed out waiting for operational event {event!r}.\n"
             f"Runtime output:\n{self.runtime_process.output()}"
         )
 

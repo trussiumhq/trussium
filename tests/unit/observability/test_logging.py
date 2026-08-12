@@ -47,6 +47,10 @@ def test_structured_formatter_returns_valid_json() -> None:
     record.duration_ms = 12.5
     record.streaming = True
     record.cancellation_reason = "client_disconnect"
+    record.runtime_version = "0.28.0"
+    record.environment = "production"
+    record.provider_configured = True
+    record.outcome = "completed"
 
     formatted = formatter.format(record)
     payload = json.loads(formatted)
@@ -65,6 +69,10 @@ def test_structured_formatter_returns_valid_json() -> None:
     assert payload["duration_ms"] == 12.5
     assert payload["streaming"] is True
     assert payload["cancellation_reason"] == "client_disconnect"
+    assert payload["runtime_version"] == "0.28.0"
+    assert payload["environment"] == "production"
+    assert payload["provider_configured"] is True
+    assert payload["outcome"] == "completed"
     assert isinstance(payload["timestamp"], str)
 
 

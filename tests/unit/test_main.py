@@ -1,12 +1,15 @@
+import io
+import json
 from typing import cast
 
 import pytest
 from fastapi import FastAPI
+from pydantic import ValidationError
 
 from trussium import __main__
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import RuntimeSettings, Settings
-from trussium.observability import RuntimeTracing
+from trussium.observability import RuntimeTracing, configure_logging
 
 
 def test_main_module_exists() -> None:
@@ -88,3 +91,39 @@ def test_main_configures_bounded_graceful_shutdown(
         "settings": settings.runtime,
         "ran": True,
     }
+
+
+def test_main_logs_invalid_configuration_without_input_values(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Early settings failures should be structured without leaking rejected input."""
+    output = io.StringIO()
+
+    with pytest.raises(ValidationError) as validation:
+        Settings.model_validate(
+            {
+                "runtime": {
+                    "port": "secret-invalid-port",
+                }
+            }
+        )
+
+    def configure_test_logging(**_: object) -> None:
+        configure_logging(stream=output)
+
+    def raise_validation_error() -> Settings:
+        raise validation.value
+
+    monkeypatch.setattr(__main__, "configure_logging", configure_test_logging)
+    monkeypatch.setattr(__main__, "get_settings", raise_validation_error)
+
+    with pytest.raises(SystemExit) as exit_status:
+        __main__.main()
+
+    assert exit_status.value.code == 2
+    payload = json.loads(output.getvalue())
+    assert payload["event"] == "runtime.configuration.invalid"
+    assert payload["error_code"] == "invalid_configuration"
+    assert payload["error_count"] == 1
+    assert payload["error_type"] == "ValidationError"
+    assert "secret-invalid-port" not in output.getvalue()

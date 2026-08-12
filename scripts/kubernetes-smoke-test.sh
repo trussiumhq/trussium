@@ -13,6 +13,7 @@ rendered="$(mktemp)"
 headers="$(mktemp)"
 body="$(mktemp)"
 port_forward_log="$(mktemp)"
+runtime_log="$(mktemp)"
 created_cluster=false
 port_forward_pid=""
 
@@ -26,7 +27,7 @@ cleanup() {
         kind delete cluster --name "$cluster" >/dev/null 2>&1 || true
     fi
 
-    rm -f "$rendered" "$headers" "$body" "$port_forward_log"
+    rm -f "$rendered" "$headers" "$body" "$port_forward_log" "$runtime_log"
 }
 
 trap cleanup EXIT INT TERM
@@ -166,5 +167,11 @@ curl --fail --silent --show-error \
 
 grep -q '^trussium_http_requests_active 0\.0$' "$body"
 grep -q '^process_start_time_seconds ' "$body"
+
+kubectl --context "$context" -n "$namespace" logs \
+    -l app.kubernetes.io/name=trussium --tail=100 >"$runtime_log"
+grep -q '"event":"runtime.configuration.loaded"' "$runtime_log"
+grep -q '"event":"provider.configuration.unavailable"' "$runtime_log"
+grep -q '"event":"runtime.started"' "$runtime_log"
 
 echo "Kubernetes smoke test passed for $image on Kind cluster $cluster"

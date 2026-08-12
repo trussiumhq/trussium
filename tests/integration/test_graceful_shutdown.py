@@ -144,6 +144,41 @@ def _assert_graceful_process_exit(runtime: IntegrationRuntime) -> None:
     assert "Finished server process" in runtime.runtime_process.output()
 
 
+def _assert_operational_shutdown(
+    runtime: IntegrationRuntime,
+    *,
+    expected_outcome: str,
+) -> None:
+    """Assert ordered, non-duplicated runtime shutdown events."""
+    shutdown_events = [
+        record["event"]
+        for record in runtime.operational_logs()
+        if str(record["event"]).startswith("runtime.shutdown.")
+        or record["event"]
+        in {
+            "runtime.stopping",
+            "observability.tracing.shutdown.completed",
+            "runtime.stopped",
+        }
+    ]
+    expected_events = [
+        "runtime.shutdown.started",
+        "runtime.stopping",
+        "observability.tracing.shutdown.completed",
+        "runtime.stopped",
+        "runtime.shutdown.completed",
+    ]
+
+    if expected_outcome == "forced":
+        expected_events.insert(1, "runtime.shutdown.drain_timeout")
+
+    assert shutdown_events == expected_events
+    completed = runtime.operational_logs(event="runtime.shutdown.completed")
+    assert len(completed) == 1
+    assert completed[0]["outcome"] == expected_outcome
+    assert isinstance(completed[0]["duration_ms"], float)
+
+
 def test_active_json_request_drains_before_shutdown_deadline(
     tmp_path: Path,
 ) -> None:
@@ -176,6 +211,7 @@ def test_active_json_request_drains_before_shutdown_deadline(
         assert response.headers["x-request-id"] == request_id
         assert response.json()["model"] == _JSON_MODEL
         _assert_graceful_process_exit(runtime)
+        _assert_operational_shutdown(runtime, expected_outcome="completed")
         provider_state = runtime.wait_for_provider_state(
             model=_JSON_MODEL,
             state="finalized",
@@ -229,6 +265,7 @@ def test_active_stream_drains_before_shutdown_deadline(
         assert "event: start" in result.body
         assert "event: end" in result.body
         _assert_graceful_process_exit(runtime)
+        _assert_operational_shutdown(runtime, expected_outcome="completed")
         provider_state = runtime.wait_for_provider_state(
             model=_STREAM_MODEL,
             state="finalized",
@@ -279,6 +316,7 @@ def test_over_deadline_stream_is_cancelled_and_finalized(
         assert "event: start" in result.body
         assert "event: end" not in result.body
         _assert_graceful_process_exit(runtime)
+        _assert_operational_shutdown(runtime, expected_outcome="forced")
         provider_state = runtime.wait_for_provider_state(
             model=_STREAM_MODEL,
             state="finalized",

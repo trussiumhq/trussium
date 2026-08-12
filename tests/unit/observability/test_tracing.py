@@ -1,13 +1,20 @@
 """Tests for application-scoped OpenTelemetry tracing."""
 
 import asyncio
-from collections.abc import AsyncIterator
+import io
+import json
+from collections.abc import AsyncIterator, Sequence
+from typing import cast
 from unittest.mock import MagicMock
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from opentelemetry.sdk.trace import SpanProcessor
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace import ReadableSpan, SpanProcessor
+from opentelemetry.sdk.trace.export import (
+    SimpleSpanProcessor,
+    SpanExporter,
+    SpanExportResult,
+)
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import SpanKind, StatusCode
 
@@ -29,13 +36,43 @@ from trussium.config.settings import ObservabilitySettings, Settings
 from trussium.observability import (
     LoggingChatCapability,
     LoggingProviderChatCapability,
+    OperationalSpanExporter,
     RuntimeTracing,
+    configure_logging,
 )
 from trussium.runtime.streaming import close_async_resource
 
 _TRACE_ID = "0af7651916cd43dd8448eb211c80319c"
 _PARENT_SPAN_ID = "b7ad6b7169203331"
 _TRACEPARENT = f"00-{_TRACE_ID}-{_PARENT_SPAN_ID}-01"
+
+
+class StubSpanExporter(SpanExporter):
+    """Return or raise a configured result while recording lifecycle calls."""
+
+    def __init__(
+        self,
+        result: SpanExportResult = SpanExportResult.SUCCESS,
+        *,
+        error: Exception | None = None,
+    ) -> None:
+        self.result = result
+        self.error = error
+        self.shutdown_calls = 0
+        self.flush_timeouts: list[int] = []
+
+    def export(self, spans: Sequence[ReadableSpan]) -> SpanExportResult:
+        _ = spans
+        if self.error is not None:
+            raise self.error
+        return self.result
+
+    def shutdown(self) -> None:
+        self.shutdown_calls += 1
+
+    def force_flush(self, timeout_millis: int = 30_000) -> bool:
+        self.flush_timeouts.append(timeout_millis)
+        return True
 
 
 class StubChatCapability:
@@ -160,6 +197,58 @@ def test_disabled_runtime_uses_noop_tracing() -> None:
 
     tracing.shutdown()
     tracing.shutdown()
+
+
+def test_operational_exporter_reports_failure_result() -> None:
+    """Exporter failure results should create one bounded operational event."""
+    output = io.StringIO()
+    configure_logging(stream=output)
+    exporter = StubSpanExporter(SpanExportResult.FAILURE)
+    operational_exporter = OperationalSpanExporter(exporter)
+    spans = (cast(ReadableSpan, object()),)
+
+    result = operational_exporter.export(spans)
+
+    assert result is SpanExportResult.FAILURE
+    payload = json.loads(output.getvalue())
+    assert payload["event"] == "observability.trace_export.failed"
+    assert payload["error_code"] == "trace_export_failed"
+    assert payload["span_count"] == 1
+    assert "exception" not in payload
+
+
+def test_operational_exporter_preserves_success_without_failure_event() -> None:
+    """Successful exports should remain silent and preserve the wrapped result."""
+    output = io.StringIO()
+    configure_logging(stream=output)
+    exporter = StubSpanExporter()
+
+    result = OperationalSpanExporter(exporter).export(())
+
+    assert result is SpanExportResult.SUCCESS
+    assert output.getvalue() == ""
+
+
+def test_operational_exporter_bounds_exception_details_and_delegates_lifecycle() -> None:
+    """Exporter exceptions should not leak messages and lifecycle calls should delegate."""
+    output = io.StringIO()
+    configure_logging(stream=output)
+    exporter = StubSpanExporter(error=RuntimeError("secret collector response"))
+    operational_exporter = OperationalSpanExporter(exporter)
+
+    result = operational_exporter.export(())
+    flushed = operational_exporter.force_flush(1234)
+    operational_exporter.shutdown()
+
+    assert result is SpanExportResult.FAILURE
+    assert flushed is True
+    assert exporter.flush_timeouts == [1234]
+    assert exporter.shutdown_calls == 1
+    payload = json.loads(output.getvalue())
+    assert payload["event"] == "observability.trace_export.failed"
+    assert payload["error_type"] == "RuntimeError"
+    assert payload["span_count"] == 0
+    assert "secret collector response" not in output.getvalue()
 
 
 def test_application_shutdown_closes_owned_span_processor_once() -> None:

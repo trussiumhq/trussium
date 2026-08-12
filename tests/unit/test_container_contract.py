@@ -75,6 +75,8 @@ def test_smoke_script_validates_runtime_security_and_shutdown() -> None:
     assert 'docker exec "$container" id -u' in script
     assert 'docker stop --time 10 "$container"' in script
     assert "graceful shutdown exit code" in script
+    assert '"event":"runtime.configuration.loaded"' in script
+    assert '"event":"runtime.shutdown.completed"' in script
     assert "uv must not be present" in script
 
 

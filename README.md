@@ -116,7 +116,9 @@ available at `http://127.0.0.1:9000/metrics`. App-scoped OpenTelemetry tracing
 and OTLP/HTTP export are available through explicit observability settings.
 Enabled traces continue across OpenAI and Ollama-compatible provider requests
 through privacy-bounded W3C Trace Context propagation. Tracing remains disabled
-by default.
+by default. Startup, configuration, shutdown, graceful-drain, and trace-export
+state is emitted as bounded structured operational JSON without credentials,
+payloads, endpoints, or exception messages.
 
 ### Container quick start
 
@@ -159,11 +161,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.3.0 \
+  --version 0.3.1 \
   --namespace trussium-system
 ```
 
-Chart v0.3.0 defaults to runtime v0.26.0 and enables the production CPU
+Chart v0.3.1 defaults to runtime v0.27.0 and enables the production CPU
 autoscaler and runtime metrics contract. It also exposes schema-validated
 OpenTelemetry tracing values while keeping trace export disabled until an
 operator supplies a reachable collector endpoint. The chart requires a working
@@ -182,6 +184,7 @@ Project documentation is available in the `docs/` directory.
 - [Roadmap](docs/ROADMAP.md)
 - [Runtime Metrics Guide](docs/METRICS.md)
 - [OpenTelemetry Tracing Guide](docs/TRACING.md)
+- [Structured Operational Logging Guide](docs/OPERATIONAL_LOGGING.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)

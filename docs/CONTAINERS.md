@@ -103,6 +103,10 @@ docker run --rm \
   ghcr.io/trussiumhq/trussium:<version>
 ```
 
+The runtime emits `provider.configuration.unavailable` as a structured warning
+in this mode. This is a local configuration summary, not a failed health probe.
+See the [Structured Operational Logging Guide](OPERATIONAL_LOGGING.md).
+
 Check container and application health:
 
 ```bash

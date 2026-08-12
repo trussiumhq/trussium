@@ -28,6 +28,22 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "provider",
     "model",
     "error_code",
+    "error_count",
+    "error_type",
+    "runtime_version",
+    "environment",
+    "port",
+    "debug",
+    "graceful_shutdown_seconds",
+    "metrics_enabled",
+    "tracing_enabled",
+    "trace_sample_ratio",
+    "provider_configured",
+    "active_tasks",
+    "unfinished_tasks",
+    "cleanup_timeout_seconds",
+    "span_count",
+    "outcome",
 )
 
 

@@ -127,6 +127,28 @@ def test_runtime_health_over_real_network(
     assert "python_info" in metrics.text
     assert "trussium_http_requests_active 0.0" in metrics.text
 
+    operational_events = [record["event"] for record in integration_runtime.operational_logs()]
+    assert operational_events[:4] == [
+        "runtime.configuration.loaded",
+        "provider.configuration.ready",
+        "observability.configuration.loaded",
+        "runtime.started",
+    ]
+    runtime_configuration = integration_runtime.operational_logs(
+        event="runtime.configuration.loaded"
+    )[0]
+    assert isinstance(runtime_configuration["port"], int)
+    assert runtime_configuration["port"] > 0
+    assert runtime_configuration["graceful_shutdown_seconds"] == 30
+    provider_configuration = integration_runtime.operational_logs(
+        event="provider.configuration.ready"
+    )[0]
+    assert provider_configuration["provider"] == "openai"
+    assert provider_configuration["provider_configured"] is True
+    serialized = json.dumps(integration_runtime.operational_logs())
+    assert "e2e-test-api-key" not in serialized
+    assert integration_runtime.fake_openai_url not in serialized
+
 
 def test_non_streaming_completion_crosses_full_provider_path(
     integration_runtime: IntegrationRuntime,
@@ -314,6 +336,38 @@ def test_streaming_completion_crosses_full_provider_path(
         timeout=5,
     ).json()["request"]
     _assert_outbound_trace_context(provider_record, records)
+
+
+def test_trace_export_failure_is_reported_without_collector_details(
+    integration_runtime: IntegrationRuntime,
+) -> None:
+    """A real exporter failure should produce the bounded operational event."""
+    control_url = f"{integration_runtime.fake_openai_url}/control/traces"
+    httpx.post(f"{control_url}/reject", timeout=5).raise_for_status()
+
+    try:
+        response = httpx.post(
+            f"{integration_runtime.base_url}/v1/chat/completions",
+            headers={"X-Request-ID": "e2e-trace-export-failure-83"},
+            json=_chat_request(model="e2e-trace-export-failure"),
+            timeout=5,
+        )
+        assert response.status_code == 200
+
+        failure = integration_runtime.wait_for_operational_log(
+            event="observability.trace_export.failed"
+        )
+    finally:
+        httpx.post(f"{control_url}/accept", timeout=5).raise_for_status()
+
+    assert failure["level"] == "ERROR"
+    assert failure["error_code"] == "trace_export_failed"
+    assert isinstance(failure["span_count"], int)
+    assert failure["span_count"] > 0
+    serialized = json.dumps(failure)
+    assert integration_runtime.fake_openai_url not in serialized
+    assert "e2e-test-api-key" not in serialized
+    assert "exception" not in failure
 
 
 def test_provider_rate_limit_is_normalized_end_to_end(
