@@ -8,8 +8,6 @@ from typing import Final, TextIO
 
 from opentelemetry import trace
 
-from trussium.runtime import get_execution_context
-
 _TRUSSIUM_LOGGER_NAME: Final = "trussium"
 
 _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
@@ -66,6 +64,8 @@ class RuntimeContextFilter(logging.Filter):
         Returns:
             Always ``True`` so the record is emitted.
         """
+        from trussium.runtime.context import get_execution_context
+
         context = get_execution_context()
         span_context = trace.get_current_span().get_span_context()
 

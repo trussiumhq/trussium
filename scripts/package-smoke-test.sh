@@ -112,6 +112,7 @@ required_modules = {
     "trussium/api/chat.py",
     "trussium/app/factory.py",
     "trussium/config/settings.py",
+    "trussium/errors.py",
     "trussium/middleware/request_tracing.py",
     "trussium/observability/tracing.py",
     "trussium/observability/operations.py",
@@ -237,6 +238,7 @@ import sys
 import trussium
 from trussium.app import create_application
 from trussium.config.settings import Settings
+from trussium.errors import ProviderError, TrussiumError
 from trussium.runtime import ExecutionContext
 
 
@@ -253,6 +255,8 @@ assert resources.files("trussium").joinpath("py.typed").is_file()
 assert callable(create_application)
 assert Settings is not None
 assert ExecutionContext is not None
+assert issubclass(ProviderError, TrussiumError)
+assert ProviderError("safe").code == "provider_error"
 PY
     )
 

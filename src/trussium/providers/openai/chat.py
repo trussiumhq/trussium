@@ -38,13 +38,14 @@ from trussium.capabilities.errors import (
     CapabilityErrorCategory,
     CapabilityExecutionError,
 )
+from trussium.errors import ProviderError
 from trussium.observability.propagation import outbound_trace_context_headers
 from trussium.runtime.streaming import close_async_resource
 
 OpenAIMessageRole = Literal["system", "user", "assistant"]
 
 
-class OpenAIProviderError(RuntimeError):
+class OpenAIProviderError(ProviderError):
     """Raised when an OpenAI response cannot be normalized safely."""
 
 

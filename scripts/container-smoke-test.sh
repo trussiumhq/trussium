@@ -63,6 +63,8 @@ fi
 
 docker run --rm --entrypoint python "$image" -c \
     "import importlib.util; assert importlib.util.find_spec('pytest') is None"
+docker run --rm --entrypoint python "$image" -c \
+    "from trussium import ProviderError, TrussiumError; assert issubclass(ProviderError, TrussiumError); assert ProviderError('safe').code == 'provider_error'"
 
 if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
     echo "uv must not be present in the runtime image" >&2

@@ -82,6 +82,10 @@ export TRUSSIUM_READINESS__REQUIRED_MODEL=local-model
 The real-process integration suite uses the SDK model-metadata path to validate
 healthy, missing-model, and recovery behavior. See [HEALTH.md](HEALTH.md).
 
+Runtime-owned failures use stable typed bases and bounded public attributes.
+When adding a failure path, preserve cancellation and third-party exception
+boundaries and follow the extension checklist in [ERRORS.md](ERRORS.md).
+
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline
 with `TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS`. See the
