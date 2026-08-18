@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.37.0 (2026-08-18)
+
+### Features
+
+- **capabilities**: Add metadata discovery ([#102](https://github.com/trussiumhq/trussium/pull/102),
+  [`0edd411`](https://github.com/trussiumhq/trussium/commit/0edd411556244b3eeedff264272237a55f719520))
+
+
 ## v0.36.0 (2026-08-18)
 
 ### Features
