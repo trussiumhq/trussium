@@ -99,6 +99,12 @@ data.
 `CapabilityErrorCategory`. Existing HTTP status mapping, JSON details, SSE
 events, provider codes, and safe messages are unchanged.
 
+`CapabilityExecutionPipeline` adds no exception type or translation. Missing
+registrations retain `CapabilityNotFoundError`; normalized execution errors,
+native cancellation, generator exit, and unexpected callback failures
+propagate unchanged. The chat transport retains its existing missing-capability
+and category-to-HTTP mappings.
+
 ## Catch boundaries
 
 Catch the narrowest type that supports the required recovery:

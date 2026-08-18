@@ -12,6 +12,7 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
+    CapabilityExecutionPipeline,
     CapabilityMetadata,
     CapabilityRegistry,
     CapabilityRegistrySealedError,
@@ -205,6 +206,23 @@ def test_application_default_registries_are_isolated() -> None:
     assert second_app.state.capability_registry.registrations == ()
     assert first_app.state.capability_registry.sealed is True
     assert second_app.state.capability_registry.sealed is True
+    assert isinstance(
+        first_app.state.capability_execution_pipeline,
+        CapabilityExecutionPipeline,
+    )
+    assert isinstance(
+        second_app.state.capability_execution_pipeline,
+        CapabilityExecutionPipeline,
+    )
+    assert first_app.state.capability_execution_pipeline is not (
+        second_app.state.capability_execution_pipeline
+    )
+    assert first_app.state.capability_execution_pipeline.registry is (
+        first_app.state.capability_registry
+    )
+    assert second_app.state.capability_execution_pipeline.registry is (
+        second_app.state.capability_registry
+    )
 
 
 def test_application_startup_failure_runs_runtime_resource_cleanup(
@@ -289,6 +307,7 @@ def test_application_wraps_configured_chat_capability_with_logging() -> None:
     assert app.state.capability_registry.names == (CHAT_CAPABILITY_NAME,)
     assert app.state.capability_registry.metadata == (CHAT_CAPABILITY_METADATA,)
     assert app.state.capability_registry.get(CHAT_CAPABILITY_NAME) is (app.state.chat_capability)
+    assert app.state.capability_execution_pipeline.registry is app.state.capability_registry
 
 
 def test_application_does_not_wrap_logging_capability_twice() -> None:
@@ -341,6 +360,7 @@ def test_application_composes_an_injected_capability_registry() -> None:
     resolved_chat = app.state.capability_registry.get(CHAT_CAPABILITY_NAME)
     assert isinstance(resolved_chat, LoggingChatCapability)
     assert app.state.chat_capability is resolved_chat
+    assert app.state.capability_execution_pipeline.registry is app.state.capability_registry
 
     with pytest.raises(CapabilityRegistrySealedError):
         registry.register("later", object())

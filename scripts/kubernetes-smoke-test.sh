@@ -124,6 +124,9 @@ assert_equal "$(kubectl --context "$context" -n "$namespace" get deployment trus
 assert_equal "$(kubectl --context "$context" -n "$namespace" get poddisruptionbudget trussium \
     -o jsonpath='{.spec.maxUnavailable}')" "1" "maximum unavailable pods"
 
+kubectl --context "$context" -n "$namespace" exec deployment/trussium -- \
+    python -c "import asyncio; from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityExecutionPipeline, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); registry.register(CHAT_CAPABILITY_NAME, capability); registry.seal(); pipeline = CapabilityExecutionPipeline(registry); assert asyncio.run(pipeline.execute(CHAT_CAPABILITY_NAME, lambda resolved: asyncio.sleep(0, result=resolved))) is capability"
+
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" -n "$namespace" port-forward service/trussium \
     "$port:9000" >"$port_forward_log" 2>&1 &

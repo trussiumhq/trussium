@@ -112,6 +112,7 @@ required_modules = {
     "trussium/api/capabilities.py",
     "trussium/api/chat.py",
     "trussium/app/factory.py",
+    "trussium/capabilities/execution.py",
     "trussium/capabilities/metadata.py",
     "trussium/capabilities/registry.py",
     "trussium/config/settings.py",
@@ -246,6 +247,7 @@ from trussium.app import create_application
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    CapabilityExecutionPipeline,
     CapabilityMetadata,
     CapabilityRegistry,
     CapabilityRegistrySealedError,
@@ -288,6 +290,13 @@ assert CapabilityMetadata is not None
 assert capability_registry.require(CHAT_CAPABILITY_NAME) is capability
 assert capability_registry.seal()[0].capability is capability
 assert capability_registry.sealed is True
+pipeline = CapabilityExecutionPipeline(capability_registry)
+assert asyncio.run(
+    pipeline.execute(
+        CHAT_CAPABILITY_NAME,
+        lambda resolved: asyncio.sleep(0, result=resolved),
+    )
+) is capability
 assert CapabilityRegistrySealedError is not None
 service_registry = RuntimeServiceRegistry()
 assert service_registry.seal() == ()

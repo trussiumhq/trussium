@@ -7,9 +7,34 @@ from fastapi import HTTPException, Request, status
 from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
+    CapabilityExecutionPipeline,
     CapabilityRegistry,
 )
 from trussium.capabilities.chat import ChatCapability
+
+
+def get_capability_execution_pipeline(
+    request: Request,
+) -> CapabilityExecutionPipeline:
+    """Return the application-owned capability execution pipeline.
+
+    Args:
+        request: Current FastAPI request.
+
+    Returns:
+        Configured application capability execution pipeline.
+
+    Raises:
+        RuntimeError: When application composition omitted the pipeline.
+    """
+    pipeline = cast(
+        CapabilityExecutionPipeline | None,
+        getattr(request.app.state, "capability_execution_pipeline", None),
+    )
+    if pipeline is None:
+        raise RuntimeError("Capability execution pipeline is not configured")
+
+    return pipeline
 
 
 def get_chat_capability(request: Request) -> ChatCapability:

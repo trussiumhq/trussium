@@ -162,6 +162,8 @@ chat capability decorator and execution contracts:
 No provider configuration is required for the registry. An empty application
 registry is valid; the chat endpoint retains
 `chat_capability_unavailable` until the canonical chat identity is registered.
+Execution through the sealed registry is documented in the
+[Capability Execution Pipeline Guide](CAPABILITY_EXECUTION_PIPELINE.md).
 
 ## Extension boundary
 
@@ -169,8 +171,9 @@ The core registry is deliberately explicit and application-scoped. It does not
 provide unregister, replacement, aliases, priorities, version negotiation, hot
 reload, package entry points, automatic discovery, plugins, provider
 registration, routing, retry, fallback, dependency graphs, general capability
-middleware, an execution pipeline, lifecycle hooks, availability, health, or
-recovery actions. Metadata and one ordered collection endpoint are delivered;
+middleware, lifecycle hooks, availability, health, or recovery actions. One
+generic execution pipeline and one ordered metadata collection endpoint are
+delivered;
 automatic registration, provider/model discovery, detail endpoints, filtering,
 pagination, mutation, caching, and remote control remain outside this contract.
 

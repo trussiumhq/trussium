@@ -140,8 +140,15 @@ behind capability interfaces. The REST API resolves `chat.completions` through
 that registry rather than a dedicated provider attribute. Bounded immutable
 metadata travels with registrations and powers the ordered read-only
 `GET /v1/capabilities` discovery view without exposing implementations,
-providers, models, health, or availability. Execution pipelines and dynamic
-plugins remain separate framework layers.
+providers, models, health, or availability.
+
+One application-owned execution pipeline sits on top of the sealed registry.
+It resolves canonical names once, binds immutable execution context across
+non-streaming and streaming work, preserves capability-specific results and
+failures, and finalizes upstream streams. The existing chat REST path uses this
+boundary without moving transport, logging, tracing, timeout, or provider
+semantics into the pipeline. General capability middleware and dynamic plugins
+remain separate framework layers.
 
 ---
 

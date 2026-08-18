@@ -4,6 +4,7 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 from typing import cast
+from unittest.mock import MagicMock
 
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -255,6 +256,50 @@ def test_registered_chat_capability_is_the_http_execution_source() -> None:
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["model"] == "registry-model"
     assert registry.sealed is True
+
+
+def test_non_streaming_chat_executes_through_application_pipeline() -> None:
+    """The JSON path should use the composed generic execution boundary."""
+    app = create_application(chat_capability=StubChatCapability())
+    pipeline = MagicMock(wraps=app.state.capability_execution_pipeline)
+    app.state.capability_execution_pipeline = pipeline
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "pipeline-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": False,
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    pipeline.execute.assert_called_once()
+    assert pipeline.execute.call_args.args[0] == CHAT_CAPABILITY_NAME
+    assert pipeline.execute.call_args.kwargs == {"model": "pipeline-model"}
+
+
+def test_streaming_chat_executes_through_application_pipeline() -> None:
+    """The SSE path should use the same composed generic execution boundary."""
+    app = create_application(chat_capability=StubChatCapability())
+    pipeline = MagicMock(wraps=app.state.capability_execution_pipeline)
+    app.state.capability_execution_pipeline = pipeline
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "pipeline-stream-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": True,
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    pipeline.stream.assert_called_once()
+    assert pipeline.stream.call_args.args[0] == CHAT_CAPABILITY_NAME
+    assert pipeline.stream.call_args.kwargs == {"model": "pipeline-stream-model"}
 
 
 def test_chat_completion_streams_normalized_sse_events() -> None:

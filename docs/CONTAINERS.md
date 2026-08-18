@@ -27,6 +27,9 @@ image setting, port, process, health check, or provider configuration contract.
 The same installed package exposes bounded metadata through
 `GET /v1/capabilities`; a provider-free container returns
 `{"capabilities":[]}`.
+The installed package also includes the public capability execution pipeline.
+Image validation composes it from a sealed registry and executes a generic
+asynchronous callback without adding an image setting or process dependency.
 
 ## Pulling a release
 
@@ -87,8 +90,8 @@ The script builds the image, verifies its metadata and runtime contents, starts
 it on a dynamically allocated host port with hardened security options, waits
 for Docker health, checks liveness, readiness, component health, empty
 capability discovery, process and request metrics, and request correlation,
-verifies the runtime UID/GID, and confirms clean `SIGTERM` shutdown. It always
-removes the temporary container.
+invokes the installed execution pipeline, verifies the runtime UID/GID, and
+confirms clean `SIGTERM` shutdown. It always removes the temporary container.
 
 Set `TRUSSIUM_CONTAINER_IMAGE` to choose the local test tag:
 

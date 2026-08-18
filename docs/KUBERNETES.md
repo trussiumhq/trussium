@@ -185,6 +185,10 @@ The runtime's application-scoped capability registry and read-only
 value, environment variable, port, probe, permission, or lifecycle change.
 Discovery uses the existing runtime Service and exposes no provider, model,
 implementation, health, availability, or configuration data.
+The application-owned capability execution pipeline uses the same in-process
+sealed registry and requires no Kubernetes resource, value, environment
+variable, port, probe, permission, or lifecycle change. The Kind smoke test
+invokes the installed pipeline inside the runtime pod.
 
 The remaining sections describe the maintained Kustomize path. Do not manage
 the same runtime release with both Helm and Kustomize.

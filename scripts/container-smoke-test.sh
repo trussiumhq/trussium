@@ -68,7 +68,7 @@ docker run --rm --entrypoint python "$image" -c \
 docker run --rm --entrypoint python "$image" -c \
     "from trussium.runtime import RuntimeComponentHealthReporter, RuntimeComponentStatus; assert RuntimeComponentHealthReporter is not None; assert RuntimeComponentStatus.OK == 'ok'"
 docker run --rm --entrypoint python "$image" -c \
-    "from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA"
+    "import asyncio; from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityExecutionPipeline, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA; pipeline = CapabilityExecutionPipeline(registry); assert asyncio.run(pipeline.execute(CHAT_CAPABILITY_NAME, lambda resolved: asyncio.sleep(0, result=resolved))) is capability"
 
 if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
     echo "uv must not be present in the runtime image" >&2
