@@ -23,6 +23,7 @@ registry.seal()
 pipeline = CapabilityExecutionPipeline(registry)
 
 assert pipeline.registry is registry
+assert pipeline.middleware == ()
 ```
 
 Rejecting an open registry prevents execution from observing registrations that
@@ -128,9 +129,23 @@ This binding is generic execution state, not a new logging or tracing layer.
 The existing chat decorators remain responsible for exactly one capability and
 provider event/span lifecycle.
 
+## Ordered middleware
+
+Pipelines optionally snapshot an ordered sequence of provider-neutral
+middleware. Each layer receives immutable resolved invocation metadata and a
+single-use continuation for non-streaming or streaming work. Middleware enters
+in declaration order, unwinds in reverse order, and may intentionally
+short-circuit downstream execution.
+
+All layers share the execution context described above. Streaming middleware
+and every downstream iterator are finalized by the pipeline on every terminal
+path. See the [Capability Middleware Guide](CAPABILITY_MIDDLEWARE.md) for the
+public contracts, examples, ordering, continuation, and ownership rules.
+
 ## Errors and cancellation
 
-The pipeline introduces no execution error type.
+The pipeline and optional middleware introduce no normalized execution error
+type.
 
 - Invalid names retain the capability-name `ValueError` contract.
 - Missing names retain `CapabilityNotFoundError` and its stable
@@ -138,6 +153,8 @@ The pipeline introduces no execution error type.
 - `CapabilityExecutionError` instances propagate unchanged.
 - `CancelledError`, `GeneratorExit`, and unexpected exceptions retain their
   native identities and semantics.
+- Calling one middleware continuation more than once raises `RuntimeError`
+  before downstream work can execute twice.
 - Capability-specific stream error events remain capability-owned values.
 
 The chat API continues to translate a missing `chat.completions` registration
@@ -151,8 +168,8 @@ The pipeline changes no registry metadata or `GET /v1/capabilities` response.
 Discovery remains execution-free and exposes no provider, model,
 implementation, health, availability, or configuration data.
 
-The pipeline also adds no general middleware, middleware ordering, lifecycle
-hooks, availability, health, routing, retries, fallback, caching, provider
-registry, plugin loading, authentication, authorization, endpoint, setting,
-metric, event, span, container option, Kubernetes resource, probe, Helm value,
-CRD, or operator behavior. Those require separate contracts.
+The optional middleware contract adds no automatic lifecycle hooks,
+availability, health, routing, retries, fallback, caching, provider registry,
+plugin loading, authentication, authorization, endpoint, setting, metric,
+event, span, container option, Kubernetes resource, probe, Helm value, CRD, or
+operator behavior. Those require separate contracts.

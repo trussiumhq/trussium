@@ -1,5 +1,6 @@
 import io
 import json
+from collections.abc import AsyncIterator
 from typing import cast
 from unittest.mock import MagicMock
 
@@ -12,10 +13,14 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
+    CapabilityExecuteNext,
     CapabilityExecutionPipeline,
+    CapabilityInvocation,
     CapabilityMetadata,
+    CapabilityMiddleware,
     CapabilityRegistry,
     CapabilityRegistrySealedError,
+    CapabilityStreamNext,
 )
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import RuntimeSettings, Settings
@@ -88,6 +93,28 @@ class StubDependencyHealthCheck:
     async def close(self) -> None:
         """Record dependency resource cleanup."""
         self.events.append("stop:dependency")
+
+
+class PassThroughCapabilityMiddleware:
+    """Continue both capability execution modes without changing values."""
+
+    async def execute(
+        self,
+        invocation: CapabilityInvocation,
+        call_next: CapabilityExecuteNext,
+    ) -> object:
+        """Continue non-streaming execution."""
+        _ = invocation
+        return await call_next()
+
+    def stream(
+        self,
+        invocation: CapabilityInvocation,
+        call_next: CapabilityStreamNext,
+    ) -> AsyncIterator[object]:
+        """Continue streaming execution."""
+        _ = invocation
+        return call_next()
 
 
 def test_create_application_returns_fastapi() -> None:
@@ -222,6 +249,24 @@ def test_application_default_registries_are_isolated() -> None:
     )
     assert second_app.state.capability_execution_pipeline.registry is (
         second_app.state.capability_registry
+    )
+    assert first_app.state.capability_execution_pipeline.middleware == ()
+    assert second_app.state.capability_execution_pipeline.middleware == ()
+
+
+def test_application_composes_an_isolated_capability_middleware_snapshot() -> None:
+    """Application pipelines should retain only their configured middleware."""
+    middleware = PassThroughCapabilityMiddleware()
+    configured: list[CapabilityMiddleware] = [middleware]
+
+    first_app = create_application(capability_middleware=configured)
+    configured.clear()
+    second_app = create_application()
+
+    assert first_app.state.capability_execution_pipeline.middleware == (middleware,)
+    assert second_app.state.capability_execution_pipeline.middleware == ()
+    assert first_app.state.capability_execution_pipeline is not (
+        second_app.state.capability_execution_pipeline
     )
 
 

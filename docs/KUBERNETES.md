@@ -188,7 +188,9 @@ implementation, health, availability, or configuration data.
 The application-owned capability execution pipeline uses the same in-process
 sealed registry and requires no Kubernetes resource, value, environment
 variable, port, probe, permission, or lifecycle change. The Kind smoke test
-invokes the installed pipeline inside the runtime pod.
+invokes the installed pipeline with public ordered middleware inside the
+runtime pod. Middleware composition is application-owned and adds no chart or
+Kustomize setting.
 
 The remaining sections describe the maintained Kustomize path. Do not manage
 the same runtime release with both Helm and Kustomize.

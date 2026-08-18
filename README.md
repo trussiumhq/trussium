@@ -170,6 +170,13 @@ closes upstream streams without changing the existing chat JSON, SSE,
 telemetry, timeout, or cancellation contracts. See the
 [Capability Execution Pipeline Guide](docs/CAPABILITY_EXECUTION_PIPELINE.md).
 
+Ordered provider-neutral capability middleware can now surround that execution
+boundary for both asynchronous results and complete streaming lifecycles.
+Middleware receives immutable resolved invocation metadata, can continue once
+or short-circuit, and inherits deterministic context and stream cleanup without
+changing default applications. See the
+[Capability Middleware Guide](docs/CAPABILITY_MIDDLEWARE.md).
+
 ### Container quick start
 
 Build and validate the production image:

@@ -111,8 +111,12 @@ boundary in
 [CAPABILITY_EXECUTION_PIPELINE.md](CAPABILITY_EXECUTION_PIPELINE.md). Preserve
 single resolution, immutable context, result and event identity, native errors
 and cancellation, full-iterator cleanup, and the existing single chat telemetry
-lifecycle. Keep general middleware outside the pipeline until its dedicated
-contract is defined.
+lifecycle. Add cross-cutting execution behavior through the ordered contract in
+[CAPABILITY_MIDDLEWARE.md](CAPABILITY_MIDDLEWARE.md). Preserve immutable
+invocation metadata, declaration-order entry, reverse unwind, single-use
+continuation, intentional short-circuiting, lazy streams, and pipeline-owned
+cleanup. Keep lifecycle, availability, health, routing, retry, provider, plugin,
+and policy behavior behind their dedicated future contracts.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

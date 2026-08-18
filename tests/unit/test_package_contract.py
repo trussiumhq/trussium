@@ -24,6 +24,7 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert '"trussium/api/capabilities.py"' in script
     assert '"trussium/capabilities/execution.py"' in script
     assert '"trussium/capabilities/metadata.py"' in script
+    assert '"trussium/capabilities/middleware.py"' in script
     assert '"trussium/capabilities/registry.py"' in script
     assert '"trussium/runtime/registry.py"' in script
     assert '"trussium/runtime/health.py"' in script
@@ -38,6 +39,11 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert "CapabilityRegistry" in script
     assert "CapabilityRegistrySealedError" in script
     assert "CapabilityExecutionPipeline" in script
+    assert "CapabilityInvocation" in script
+    assert "CapabilityExecuteNext" in script
+    assert "CapabilityStreamNext" in script
+    assert "middleware=(middleware,)" in script
+    assert "pipeline.middleware == (middleware,)" in script
     assert "pipeline.execute(" in script
     assert "capability_registry.require(CHAT_CAPABILITY_NAME) is capability" in script
     assert "issubclass(ProviderError, TrussiumError)" in script

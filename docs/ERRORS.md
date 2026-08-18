@@ -105,6 +105,12 @@ native cancellation, generator exit, and unexpected callback failures
 propagate unchanged. The chat transport retains its existing missing-capability
 and category-to-HTTP mappings.
 
+Capability middleware also adds no normalized error category. Middleware
+results and failures propagate unchanged. A layer that calls its continuation
+more than once receives a deterministic `RuntimeError` before duplicate
+downstream execution. Streaming cleanup attempts every created layer and does
+not replace an already active execution failure with a later cleanup failure.
+
 ## Catch boundaries
 
 Catch the narrowest type that supports the required recovery:
