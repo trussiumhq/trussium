@@ -30,6 +30,7 @@ def test_startup_configuration_logs_safe_bounded_summaries() -> None:
                 port=9042,
                 graceful_shutdown_seconds=17,
                 service_cleanup_seconds=3.5,
+                component_health_timeout_seconds=0.75,
             ),
             "provider": ProviderSettings.model_validate(
                 {
@@ -71,6 +72,7 @@ def test_startup_configuration_logs_safe_bounded_summaries() -> None:
     assert runtime_payload["debug"] is False
     assert runtime_payload["graceful_shutdown_seconds"] == 17
     assert runtime_payload["service_cleanup_seconds"] == 3.5
+    assert runtime_payload["component_health_timeout_seconds"] == 0.75
     assert "duration_ms" not in runtime_payload
     assert by_event["provider.configuration.ready"]["provider"] == "openai"
     assert by_event["provider.configuration.ready"]["logger"] == "trussium.provider"

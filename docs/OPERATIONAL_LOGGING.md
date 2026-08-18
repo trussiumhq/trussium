@@ -20,6 +20,10 @@ bounded and machine-readable.
 | `readiness.dependency.ok` | INFO | A refreshed required dependency became available. |
 | `readiness.dependency.unavailable` | WARNING | A refreshed required dependency became unavailable with a stable reason code. |
 | `readiness.dependency.shutdown.failed` | ERROR | The readiness metadata client could not close cleanly. |
+| `runtime.component.health.ok` | INFO | A registered component reported healthy. |
+| `runtime.component.health.degraded` | WARNING | A registered component reported a bounded degraded state. |
+| `runtime.component.health.unavailable` | WARNING | A registered component reported or was normalized to unavailable. |
+| `runtime.component.health.unknown` | INFO | A registered component reported unknown or has no reporting protocol. |
 | `observability.configuration.loaded` | INFO | Metrics and tracing settings were accepted. |
 | `runtime.started` | INFO | The application lifespan is ready. |
 | `runtime.service.startup.started` | INFO | A runtime-service startup hook began. |
@@ -57,7 +61,7 @@ With no provider credential and tracing disabled, startup includes records
 like these, one JSON object per line:
 
 ```json
-{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.32.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30,"service_cleanup_seconds":10.0}
+{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.34.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30,"service_cleanup_seconds":10.0,"component_health_timeout_seconds":1.0}
 {"level":"WARNING","logger":"trussium.provider","message":"Provider configuration unavailable","event":"provider.configuration.unavailable","provider":"openai","provider_configured":false}
 {"level":"INFO","logger":"trussium.readiness","message":"Readiness configuration loaded","event":"readiness.configuration.loaded","dependency_checks_enabled":false,"dependency_timeout_seconds":1.0,"dependency_cache_seconds":10.0,"required_model_configured":false}
 {"level":"INFO","logger":"trussium.observability","message":"Observability configuration loaded","event":"observability.configuration.loaded","metrics_enabled":true,"tracing_enabled":false,"trace_sample_ratio":1.0}
@@ -71,8 +75,8 @@ an API contract; event names, field meanings, and JSON value types are.
 
 Configuration summaries may include:
 
-- Runtime version, environment, port, debug mode, drain deadline, and
-  per-service cleanup deadline.
+- Runtime version, environment, port, debug mode, drain deadline,
+  per-service cleanup deadline, and component-health deadline.
 - Provider name and a boolean configuration-ready state.
 - Metrics and tracing enablement plus the trace sampling ratio.
 
@@ -83,6 +87,11 @@ span count and exception class name, but not exception text.
 Runtime-service lifecycle events may include a stable `runtime_service`,
 `lifecycle_phase`, duration, cleanup deadline, stable code, exception class,
 and bounded outcome. See [LIFECYCLE.md](LIFECYCLE.md) for ordering and failure
+semantics.
+
+Component-health transition events may include a stable `runtime_service`,
+bounded outcome and reason, duration, and error class. See
+[COMPONENT_HEALTH.md](COMPONENT_HEALTH.md) for aggregation and privacy
 semantics.
 
 Request-scoped logs continue to inherit request, execution, capability,

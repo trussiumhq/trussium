@@ -33,6 +33,7 @@ from trussium.observability import (
 from trussium.runtime import (
     DependencyHealthCheck,
     DependencyReadiness,
+    RuntimeComponentHealthReporter,
     RuntimeService,
     RuntimeServiceLifecycle,
     RuntimeServiceRegistry,
@@ -92,6 +93,10 @@ def create_application(
     runtime_service_lifecycle = RuntimeServiceLifecycle(
         registered_runtime_services,
         cleanup_timeout_seconds=resolved_settings.runtime.service_cleanup_seconds,
+    )
+    runtime_component_health_reporter = RuntimeComponentHealthReporter(
+        resolved_runtime_service_registry,
+        timeout_seconds=resolved_settings.runtime.component_health_timeout_seconds,
     )
 
     @asynccontextmanager
@@ -217,6 +222,7 @@ def create_application(
     application.state.dependency_readiness = dependency_readiness
     application.state.runtime_service_lifecycle = runtime_service_lifecycle
     application.state.runtime_service_registry = resolved_runtime_service_registry
+    application.state.runtime_component_health_reporter = runtime_component_health_reporter
     application.state.chat_capability = (
         LoggingChatCapability(
             chat_capability,

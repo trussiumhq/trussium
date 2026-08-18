@@ -146,5 +146,6 @@ when possible.
 
 Service registration and lookup remain a separate sealed registry layer.
 Neither layer provides dependency ordering, dependency injection, automatic
-discovery, plugins, or component health reporting. Those concerns require
-separate contracts built on the stable lifecycle and registry foundations.
+discovery, or plugins. Optional component health reporting is a separate
+read-only contract over the sealed registry and never invokes lifecycle hooks;
+see [Runtime Component Health Reporting](COMPONENT_HEALTH.md).

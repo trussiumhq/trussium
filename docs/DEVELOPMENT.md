@@ -92,7 +92,11 @@ rollback, native cancellation, and the per-hook cleanup deadline documented in
 [LIFECYCLE.md](LIFECYCLE.md). Compose services through the explicit ordered
 registry documented in [SERVICE_REGISTRY.md](SERVICE_REGISTRY.md), and preserve
 its lookup, duplicate-protection, immutable-snapshot, and sealing boundaries.
-Do not add registry or health semantics directly to lifecycle hooks.
+Implement optional service health using the bounded reporting contract in
+[COMPONENT_HEALTH.md](COMPONENT_HEALTH.md). Preserve its informational HTTP
+behavior, deadline, cancellation, ordering, transition logging, and privacy
+boundaries. Do not add registry or health semantics directly to lifecycle
+hooks.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

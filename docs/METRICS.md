@@ -20,6 +20,7 @@ The health and metrics endpoints are excluded from workload instruments:
 
 - `/health/live`
 - `/health/ready`
+- `/health/components`
 - `/metrics`
 
 This keeps probes and scrapes from distorting request demand. Labels are

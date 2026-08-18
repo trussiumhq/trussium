@@ -110,3 +110,8 @@ dependency declarations, topological sorting, dependency injection, automatic
 discovery, package entry points, plugins, health aggregation, capability
 registration, or provider registration. Those concerns require separate
 contracts and must not change registry ordering or sealing semantics.
+
+Registered services may independently implement the optional component-health
+protocol. The reporter reads the sealed ordered snapshot without adding
+registration mutation or lookup behavior; see
+[Runtime Component Health Reporting](COMPONENT_HEALTH.md).

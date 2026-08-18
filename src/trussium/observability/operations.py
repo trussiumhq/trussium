@@ -58,6 +58,7 @@ def log_startup_configuration(
             "debug": settings.runtime.debug,
             "graceful_shutdown_seconds": settings.runtime.graceful_shutdown_seconds,
             "service_cleanup_seconds": settings.runtime.service_cleanup_seconds,
+            "component_health_timeout_seconds": (settings.runtime.component_health_timeout_seconds),
         },
     )
 

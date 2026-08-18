@@ -115,6 +115,7 @@ def test_runtime_health_over_real_network(
             headers={"X-Request-ID": "e2e-health-live-57"},
         )
         readiness = client.get("/health/ready")
+        components = client.get("/health/components")
         metrics = client.get("/metrics")
 
     assert liveness.status_code == 200
@@ -133,6 +134,9 @@ def test_runtime_health_over_real_network(
         ],
     }
     assert str(UUID(readiness.headers["x-request-id"])) == readiness.headers["x-request-id"]
+    assert components.status_code == 200
+    assert components.json() == {"status": "ok", "components": []}
+    assert str(UUID(components.headers["x-request-id"])) == components.headers["x-request-id"]
     assert metrics.status_code == 200
     assert metrics.headers["content-type"].startswith("text/plain")
     assert "python_info" in metrics.text

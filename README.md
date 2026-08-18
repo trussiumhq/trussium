@@ -146,6 +146,11 @@ stable optional and required lookup, immutable discovery snapshots, duplicate
 protection, and lifecycle-backed ownership. See the
 [Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md).
 
+Registered services can optionally report bounded component health through an
+informational ordered aggregate that remains independent of liveness and
+readiness. See the
+[Runtime Component Health Reporting Guide](docs/COMPONENT_HEALTH.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -217,6 +222,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Health and Dependency Readiness Guide](docs/HEALTH.md)
 - [Runtime Service Lifecycle Guide](docs/LIFECYCLE.md)
 - [Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md)
+- [Runtime Component Health Reporting Guide](docs/COMPONENT_HEALTH.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)

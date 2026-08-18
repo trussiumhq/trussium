@@ -18,6 +18,7 @@ from trussium.observability import (
 from trussium.runtime import (
     DependencyHealth,
     DependencyStatus,
+    RuntimeComponentHealthReporter,
     RuntimeServiceLifecycle,
     RuntimeServiceLifecycleError,
     RuntimeServiceRegistry,
@@ -111,7 +112,12 @@ def test_application_lifespan_manages_ordered_runtime_services() -> None:
     events: list[str] = []
     first = StubRuntimeService("first", events)
     second = StubRuntimeService("second", events)
-    settings = Settings(runtime=RuntimeSettings(service_cleanup_seconds=2.5))
+    settings = Settings(
+        runtime=RuntimeSettings(
+            service_cleanup_seconds=2.5,
+            component_health_timeout_seconds=0.75,
+        )
+    )
 
     app = create_application(
         settings,
@@ -122,6 +128,14 @@ def test_application_lifespan_manages_ordered_runtime_services() -> None:
     assert isinstance(app.state.runtime_service_registry, RuntimeServiceRegistry)
     assert app.state.runtime_service_registry.sealed is True
     assert app.state.runtime_service_registry.services == (first, second)
+    assert isinstance(
+        app.state.runtime_component_health_reporter,
+        RuntimeComponentHealthReporter,
+    )
+    assert app.state.runtime_component_health_reporter.registry is (
+        app.state.runtime_service_registry
+    )
+    assert app.state.runtime_component_health_reporter.timeout_seconds == 0.75
     assert app.state.runtime_service_lifecycle.services == (first, second)
     assert app.state.runtime_service_lifecycle.cleanup_timeout_seconds == 2.5
 
