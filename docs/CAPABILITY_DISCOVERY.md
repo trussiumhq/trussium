@@ -165,7 +165,9 @@ per-capability detail endpoints, filtering, pagination, ETags, caching,
 mutation, remote control, authentication, authorization, automatic
 registration, provider or model discovery, capability availability or health,
 version negotiation, aliases, plugins, execution middleware, or an execution
-pipeline.
+pipeline within the discovery contract. The separately delivered
+[Capability Execution Pipeline](CAPABILITY_EXECUTION_PIPELINE.md) consumes the
+sealed registry without changing this metadata-only endpoint.
 
 Future features must preserve the bounded metadata validators, canonical
 identity, registration order, immutable snapshots, sealed application-owned

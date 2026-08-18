@@ -41,11 +41,29 @@ def encode_chat_stream_event(event: ChatStreamEvent) -> str:
     return f"event: {event.type}\ndata: {event.model_dump_json()}\n\n"
 
 
+async def stream_encoded_chat_events(
+    events: AsyncIterator[ChatStreamEvent],
+) -> AsyncIterator[str]:
+    """Stream normalized chat events encoded as SSE messages.
+
+    Args:
+        events: Normalized chat events from the execution pipeline.
+
+    Yields:
+        SSE-formatted normalized chat events.
+    """
+    try:
+        async for event in events:
+            yield encode_chat_stream_event(event)
+    finally:
+        await close_async_resource(events)
+
+
 async def stream_chat_events(
     capability: ChatCapability,
     request: ChatCompletionRequest,
 ) -> AsyncIterator[str]:
-    """Stream normalized chat events encoded as SSE messages.
+    """Preserve the direct capability-to-SSE compatibility helper.
 
     Args:
         capability: Configured provider-neutral chat capability.
@@ -54,10 +72,10 @@ async def stream_chat_events(
     Yields:
         SSE-formatted normalized chat events.
     """
-    events = capability.stream(request)
+    encoded_events = stream_encoded_chat_events(capability.stream(request))
 
     try:
-        async for event in events:
-            yield encode_chat_stream_event(event)
+        async for event in encoded_events:
+            yield event
     finally:
-        await close_async_resource(events)
+        await close_async_resource(encoded_events)

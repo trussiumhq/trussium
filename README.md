@@ -163,6 +163,13 @@ Discovery exposes no provider, model, implementation, health, availability, or
 configuration data. See the
 [Capability Metadata and Discovery Guide](docs/CAPABILITY_DISCOVERY.md).
 
+A sealed-registry-backed execution pipeline now provides one provider-neutral
+boundary for asynchronous and streaming capability work. It resolves canonical
+identities once, preserves execution context and native error semantics, and
+closes upstream streams without changing the existing chat JSON, SSE,
+telemetry, timeout, or cancellation contracts. See the
+[Capability Execution Pipeline Guide](docs/CAPABILITY_EXECUTION_PIPELINE.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -237,6 +244,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Component Health Reporting Guide](docs/COMPONENT_HEALTH.md)
 - [Core Capability Registry Guide](docs/CAPABILITY_REGISTRY.md)
 - [Capability Metadata and Discovery Guide](docs/CAPABILITY_DISCOVERY.md)
+- [Capability Execution Pipeline Guide](docs/CAPABILITY_EXECUTION_PIPELINE.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)

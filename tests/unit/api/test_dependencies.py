@@ -6,10 +6,14 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import FastAPI, HTTPException, Request, status
 
-from trussium.api.dependencies import get_chat_capability
+from trussium.api.dependencies import (
+    get_capability_execution_pipeline,
+    get_chat_capability,
+)
 from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
+    CapabilityExecutionPipeline,
     CapabilityRegistry,
 )
 from trussium.capabilities.chat import ChatCapability
@@ -48,6 +52,27 @@ def test_registry_is_the_authoritative_chat_lookup() -> None:
     resolved = get_chat_capability(create_request(application))
 
     assert resolved is registered
+
+
+def test_application_execution_pipeline_dependency_preserves_identity() -> None:
+    """API execution should use the exact application-owned pipeline."""
+    registry = CapabilityRegistry()
+    registry.seal()
+    pipeline = CapabilityExecutionPipeline(registry)
+    application = FastAPI()
+    application.state.capability_execution_pipeline = pipeline
+
+    resolved = get_capability_execution_pipeline(create_request(application))
+
+    assert resolved is pipeline
+
+
+def test_missing_application_execution_pipeline_fails_as_composition_error() -> None:
+    """An externally assembled API must explicitly provide its execution boundary."""
+    application = FastAPI()
+
+    with pytest.raises(RuntimeError, match="pipeline is not configured"):
+        get_capability_execution_pipeline(create_request(application))
 
 
 def test_legacy_application_state_remains_a_compatibility_fallback() -> None:

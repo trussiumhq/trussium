@@ -105,8 +105,14 @@ application-owned execution registry. Existing `chat_capability` callers must
 remain compatible. Attach only bounded provider-neutral public metadata and
 preserve the ordered endpoint contract documented in
 [CAPABILITY_DISCOVERY.md](CAPABILITY_DISCOVERY.md). Keep availability, health,
-general middleware, execution pipelines, provider registration, and plugin
-loading behind their future dedicated contracts.
+provider registration, and plugin loading behind their future dedicated
+contracts. Execute registered capabilities through the sealed provider-neutral
+boundary in
+[CAPABILITY_EXECUTION_PIPELINE.md](CAPABILITY_EXECUTION_PIPELINE.md). Preserve
+single resolution, immutable context, result and event identity, native errors
+and cancellation, full-iterator cleanup, and the existing single chat telemetry
+lifecycle. Keep general middleware outside the pipeline until its dedicated
+contract is defined.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

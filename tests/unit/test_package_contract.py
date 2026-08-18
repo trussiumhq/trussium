@@ -22,6 +22,7 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'resources.files("trussium").joinpath("py.typed").is_file()' in script
     assert '"trussium/errors.py"' in script
     assert '"trussium/api/capabilities.py"' in script
+    assert '"trussium/capabilities/execution.py"' in script
     assert '"trussium/capabilities/metadata.py"' in script
     assert '"trussium/capabilities/registry.py"' in script
     assert '"trussium/runtime/registry.py"' in script
@@ -36,6 +37,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert "CapabilityMetadata" in script
     assert "CapabilityRegistry" in script
     assert "CapabilityRegistrySealedError" in script
+    assert "CapabilityExecutionPipeline" in script
+    assert "pipeline.execute(" in script
     assert "capability_registry.require(CHAT_CAPABILITY_NAME) is capability" in script
     assert "issubclass(ProviderError, TrussiumError)" in script
     assert '"trussium/observability/tracing.py"' in script

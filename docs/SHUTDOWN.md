@@ -14,6 +14,8 @@ The default shutdown sequence is:
 3. When the grace period expires, Uvicorn cancels remaining request tasks.
 4. Trussium gives cancelled tasks up to one additional second to finalize
    capability, provider, SDK stream, and HTTP resources.
+   The capability execution pipeline keeps context active while closing its
+   upstream iterator and does not replace the existing HTTP drain deadline.
 5. Runtime services stop in reverse declaration order with an independent
    per-service cleanup deadline.
 6. Readiness resources close, tracing export shuts down, application shutdown

@@ -13,6 +13,7 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
+    CapabilityExecutionPipeline,
     CapabilityRegistry,
 )
 from trussium.capabilities.chat import ChatCapability
@@ -123,6 +124,9 @@ def create_application(
         )
 
     resolved_capability_registry.seal()
+    capability_execution_pipeline = CapabilityExecutionPipeline(
+        resolved_capability_registry,
+    )
     resolved_chat_capability = resolved_capability_registry.get(CHAT_CAPABILITY_NAME)
     runtime_logger = get_logger("runtime")
     dependency_readiness = (
@@ -268,6 +272,7 @@ def create_application(
     application.state.runtime_service_registry = resolved_runtime_service_registry
     application.state.runtime_component_health_reporter = runtime_component_health_reporter
     application.state.capability_registry = resolved_capability_registry
+    application.state.capability_execution_pipeline = capability_execution_pipeline
     application.state.chat_capability = resolved_chat_capability
 
     if resolved_settings.observability.metrics_enabled:

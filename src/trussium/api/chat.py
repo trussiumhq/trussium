@@ -6,18 +6,24 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
-from trussium.api.dependencies import get_chat_capability
+from trussium.api.dependencies import get_capability_execution_pipeline
 from trussium.api.errors import capability_error_status_code
 from trussium.api.sse import (
     ClosableStreamingResponse,
-    stream_chat_events,
+    stream_encoded_chat_events,
 )
 from trussium.capabilities.chat import (
+    CHAT_CAPABILITY_NAME,
     ChatCapability,
     ChatCompletionRequest,
     ChatCompletionResponse,
 )
 from trussium.capabilities.errors import CapabilityExecutionError
+from trussium.capabilities.execution import CapabilityExecutionPipeline
+from trussium.capabilities.registry import (
+    CapabilityContractMismatchError,
+    CapabilityNotFoundError,
+)
 
 router = APIRouter(
     prefix="/v1/chat",
@@ -65,16 +71,16 @@ router = APIRouter(
 )
 async def create_chat_completion(
     request: ChatCompletionRequest,
-    capability: Annotated[
-        ChatCapability,
-        Depends(get_chat_capability),
+    pipeline: Annotated[
+        CapabilityExecutionPipeline,
+        Depends(get_capability_execution_pipeline),
     ],
 ) -> Response:
     """Execute a normalized chat completion.
 
     Args:
         request: Normalized chat-completion request.
-        capability: Configured provider-neutral chat capability.
+        pipeline: Application-owned provider-neutral execution pipeline.
 
     Returns:
         A normalized JSON response or an SSE streaming response.
@@ -83,11 +89,17 @@ async def create_chat_completion(
         HTTPException: When non-streaming capability execution fails.
     """
     if request.stream:
+        try:
+            events = pipeline.stream(
+                CHAT_CAPABILITY_NAME,
+                lambda capability: _require_chat_capability(capability).stream(request),
+                model=request.model,
+            )
+        except CapabilityNotFoundError as error:
+            raise _chat_capability_unavailable() from error
+
         return ClosableStreamingResponse(
-            content=stream_chat_events(
-                capability=capability,
-                request=request,
-            ),
+            content=stream_encoded_chat_events(events),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -95,7 +107,13 @@ async def create_chat_completion(
         )
 
     try:
-        completion = await capability.complete(request)
+        completion = await pipeline.execute(
+            CHAT_CAPABILITY_NAME,
+            lambda capability: _require_chat_capability(capability).complete(request),
+            model=request.model,
+        )
+    except CapabilityNotFoundError as error:
+        raise _chat_capability_unavailable() from error
     except CapabilityExecutionError as error:
         raise HTTPException(
             status_code=capability_error_status_code(error.category),
@@ -108,4 +126,23 @@ async def create_chat_completion(
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content=completion.model_dump(mode="json"),
+    )
+
+
+def _require_chat_capability(capability: object) -> ChatCapability:
+    """Return a validated chat contract from the generic execution boundary."""
+    if not isinstance(capability, ChatCapability):
+        raise CapabilityContractMismatchError(CHAT_CAPABILITY_NAME)
+
+    return capability
+
+
+def _chat_capability_unavailable() -> HTTPException:
+    """Create the stable missing-chat HTTP failure."""
+    return HTTPException(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        detail={
+            "code": "chat_capability_unavailable",
+            "message": "No chat provider is configured.",
+        },
     )
