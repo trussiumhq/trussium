@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.36.0 (2026-08-18)
+
+### Features
+
+- **capabilities**: Add core capability registry
+  ([#100](https://github.com/trussiumhq/trussium/pull/100),
+  [`9f2b71d`](https://github.com/trussiumhq/trussium/commit/9f2b71def3d603ffc68579201827e53c28e28db9))
+
+
 ## v0.35.0 (2026-08-18)
 
 ### Features
