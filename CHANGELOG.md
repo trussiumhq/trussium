@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.39.0 (2026-08-18)
+
+### Features
+
+- **capabilities**: Add capability middleware
+  ([#106](https://github.com/trussiumhq/trussium/pull/106),
+  [`d7cbc4f`](https://github.com/trussiumhq/trussium/commit/d7cbc4f48525f245e4606b602ef13c14b47e7e71))
+
+
 ## v0.38.0 (2026-08-18)
 
 ### Features
