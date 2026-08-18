@@ -111,6 +111,7 @@ required_modules = {
     "trussium/__main__.py",
     "trussium/api/chat.py",
     "trussium/app/factory.py",
+    "trussium/capabilities/registry.py",
     "trussium/config/settings.py",
     "trussium/errors.py",
     "trussium/middleware/request_tracing.py",
@@ -240,6 +241,11 @@ import sys
 
 import trussium
 from trussium.app import create_application
+from trussium.capabilities import (
+    CHAT_CAPABILITY_NAME,
+    CapabilityRegistry,
+    CapabilityRegistrySealedError,
+)
 from trussium.config.settings import Settings
 from trussium.errors import ProviderError, TrussiumError
 from trussium.runtime import (
@@ -264,10 +270,18 @@ assert resources.files("trussium").joinpath("py.typed").is_file()
 assert callable(create_application)
 assert Settings is not None
 assert ExecutionContext is not None
-registry = RuntimeServiceRegistry()
-assert registry.seal() == ()
-assert registry.sealed is True
-report = asyncio.run(RuntimeComponentHealthReporter(registry).report())
+capability = object()
+capability_registry = CapabilityRegistry()
+assert capability_registry.register(CHAT_CAPABILITY_NAME, capability) is capability
+assert capability_registry.names == (CHAT_CAPABILITY_NAME,)
+assert capability_registry.require(CHAT_CAPABILITY_NAME) is capability
+assert capability_registry.seal()[0].capability is capability
+assert capability_registry.sealed is True
+assert CapabilityRegistrySealedError is not None
+service_registry = RuntimeServiceRegistry()
+assert service_registry.seal() == ()
+assert service_registry.sealed is True
+report = asyncio.run(RuntimeComponentHealthReporter(service_registry).report())
 assert report.status is RuntimeComponentStatus.OK
 assert report.components == ()
 assert RuntimeServiceRegistrySealedError is not None

@@ -1,7 +1,7 @@
 """Trussium observability utilities."""
 
+from trussium.capabilities.chat import CHAT_CAPABILITY_NAME
 from trussium.observability.capability import (
-    CHAT_CAPABILITY_NAME,
     UNEXPECTED_CAPABILITY_ERROR_CODE,
     LoggingChatCapability,
 )

@@ -10,6 +10,7 @@ from opentelemetry import trace
 from opentelemetry.trace import NoOpTracerProvider, SpanKind, Status, StatusCode, Tracer
 
 from trussium.capabilities.chat import (
+    CHAT_CAPABILITY_NAME,
     ChatCapability,
     ChatCompletionRequest,
     ChatCompletionResponse,
@@ -21,7 +22,6 @@ from trussium.observability.logging import get_logger
 from trussium.runtime import bind_execution_context
 from trussium.runtime.streaming import close_async_resource
 
-CHAT_CAPABILITY_NAME: Final = "chat.completions"
 UNEXPECTED_CAPABILITY_ERROR_CODE: Final = "capability_execution_failed"
 
 

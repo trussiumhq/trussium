@@ -151,6 +151,12 @@ informational ordered aggregate that remains independent of liveness and
 readiness. See the
 [Runtime Component Health Reporting Guide](docs/COMPONENT_HEALTH.md).
 
+Provider-neutral capabilities now use a sealed insertion-ordered registry for
+explicit registration, stable lookup, immutable discovery, duplicate
+protection, and application-owned execution composition. The existing chat
+factory shortcut remains compatible. See the
+[Core Capability Registry Guide](docs/CAPABILITY_REGISTRY.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -192,11 +198,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.2 \
+  --version 0.4.4 \
   --namespace trussium-system
 ```
 
-Chart v0.4.2 defaults to runtime v0.33.0, enables the production CPU
+Chart v0.4.4 defaults to runtime v0.35.0, enables the production CPU
 autoscaler and runtime metrics contract, and exposes schema-validated
 dependency-readiness settings with safe disabled defaults. It also exposes
 schema-validated OpenTelemetry tracing values while keeping trace export
@@ -223,6 +229,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Service Lifecycle Guide](docs/LIFECYCLE.md)
 - [Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md)
 - [Runtime Component Health Reporting Guide](docs/COMPONENT_HEALTH.md)
+- [Core Capability Registry Guide](docs/CAPABILITY_REGISTRY.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)

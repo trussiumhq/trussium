@@ -73,6 +73,8 @@ def test_smoke_script_validates_runtime_security_and_shutdown() -> None:
     assert '"http://127.0.0.1:${host_port}/health/components"' in script
     assert "component health body" in script
     assert "RuntimeComponentHealthReporter" in script
+    assert "CHAT_CAPABILITY_NAME" in script
+    assert "CapabilityRegistry" in script
     assert "trussium_http_requests_active" in script
     assert "process_start_time_seconds" in script
     assert 'docker exec "$container" id -u' in script

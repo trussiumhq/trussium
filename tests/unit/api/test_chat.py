@@ -9,6 +9,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from trussium.app import create_application
+from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry
 from trussium.capabilities.chat import (
     ChatCompletionChoice,
     ChatCompletionRequest,
@@ -232,6 +233,28 @@ def test_chat_completion_returns_normalized_response() -> None:
             "total_tokens": 9,
         },
     }
+
+
+def test_registered_chat_capability_is_the_http_execution_source() -> None:
+    """Chat execution should resolve the application-owned registry, not its alias."""
+    registry = CapabilityRegistry()
+    registry.register(CHAT_CAPABILITY_NAME, StubChatCapability())
+    app = create_application(capability_registry=registry)
+    app.state.chat_capability = None
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "registry-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": False,
+        },
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["model"] == "registry-model"
+    assert registry.sealed is True
 
 
 def test_chat_completion_streams_normalized_sse_events() -> None:

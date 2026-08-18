@@ -98,6 +98,14 @@ behavior, deadline, cancellation, ordering, transition logging, and privacy
 boundaries. Do not add registry or health semantics directly to lifecycle
 hooks.
 
+Register provider-neutral capabilities through the sealed ordered registry in
+[CAPABILITY_REGISTRY.md](CAPABILITY_REGISTRY.md). Preserve canonical names,
+stable lookup, immutable snapshots, duplicate protection, safe errors, and the
+application-owned execution registry. Existing `chat_capability` callers must
+remain compatible. Keep metadata, remote discovery, general middleware,
+execution pipelines, provider registration, and plugin loading behind their
+future dedicated contracts.
+
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline
 with `TRUSSIUM_RUNTIME__GRACEFUL_SHUTDOWN_SECONDS`. See the

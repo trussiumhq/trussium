@@ -4,6 +4,11 @@ from typing import cast
 
 from fastapi import HTTPException, Request, status
 
+from trussium.capabilities import (
+    CHAT_CAPABILITY_NAME,
+    CapabilityContractMismatchError,
+    CapabilityRegistry,
+)
 from trussium.capabilities.chat import ChatCapability
 
 
@@ -19,9 +24,14 @@ def get_chat_capability(request: Request) -> ChatCapability:
     Raises:
         HTTPException: When no chat provider is configured.
     """
-    capability = cast(
-        ChatCapability | None,
-        getattr(request.app.state, "chat_capability", None),
+    registry = cast(
+        CapabilityRegistry | None,
+        getattr(request.app.state, "capability_registry", None),
+    )
+    capability = (
+        registry.get(CHAT_CAPABILITY_NAME)
+        if registry is not None
+        else getattr(request.app.state, "chat_capability", None)
     )
 
     if capability is None:
@@ -32,5 +42,8 @@ def get_chat_capability(request: Request) -> ChatCapability:
                 "message": "No chat provider is configured.",
             },
         )
+
+    if not isinstance(capability, ChatCapability):
+        raise CapabilityContractMismatchError(CHAT_CAPABILITY_NAME)
 
     return capability

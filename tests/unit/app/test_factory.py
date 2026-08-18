@@ -8,6 +8,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from trussium.app import create_application
+from trussium.capabilities import (
+    CHAT_CAPABILITY_NAME,
+    CapabilityContractMismatchError,
+    CapabilityRegistry,
+    CapabilityRegistrySealedError,
+)
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import RuntimeSettings, Settings
 from trussium.observability import (
@@ -192,6 +198,11 @@ def test_application_default_registries_are_isolated() -> None:
     assert first_app.state.runtime_service_registry is not second_app.state.runtime_service_registry
     assert first_app.state.runtime_service_registry.services == ()
     assert second_app.state.runtime_service_registry.services == ()
+    assert first_app.state.capability_registry is not second_app.state.capability_registry
+    assert first_app.state.capability_registry.registrations == ()
+    assert second_app.state.capability_registry.registrations == ()
+    assert first_app.state.capability_registry.sealed is True
+    assert second_app.state.capability_registry.sealed is True
 
 
 def test_application_startup_failure_runs_runtime_resource_cleanup(
@@ -261,7 +272,7 @@ def test_runtime_services_preserve_dependency_then_tracing_cleanup_order() -> No
 def test_application_wraps_configured_chat_capability_with_logging() -> None:
     capability = cast(
         ChatCapability,
-        object(),
+        MagicMock(spec=ChatCapability),
     )
 
     app = create_application(
@@ -272,12 +283,15 @@ def test_application_wraps_configured_chat_capability_with_logging() -> None:
         app.state.chat_capability,
         LoggingChatCapability,
     )
+    assert app.state.capability_registry.sealed is True
+    assert app.state.capability_registry.names == (CHAT_CAPABILITY_NAME,)
+    assert app.state.capability_registry.get(CHAT_CAPABILITY_NAME) is (app.state.chat_capability)
 
 
 def test_application_does_not_wrap_logging_capability_twice() -> None:
     capability = cast(
         ChatCapability,
-        object(),
+        MagicMock(spec=ChatCapability),
     )
     logging_capability = LoggingChatCapability(capability)
 
@@ -286,6 +300,66 @@ def test_application_does_not_wrap_logging_capability_twice() -> None:
     )
 
     assert app.state.chat_capability is logging_capability
+    assert app.state.capability_registry.get(CHAT_CAPABILITY_NAME) is logging_capability
+
+
+def test_application_composes_an_injected_capability_registry() -> None:
+    """Registered capabilities should become one sealed application-owned snapshot."""
+    future_capability = object()
+    chat_capability = cast(ChatCapability, MagicMock(spec=ChatCapability))
+    registry = CapabilityRegistry()
+    registry.register("future.embeddings", future_capability)
+    registry.register(CHAT_CAPABILITY_NAME, chat_capability)
+
+    app = create_application(capability_registry=registry)
+
+    assert registry.sealed is True
+    assert app.state.capability_registry is not registry
+    assert app.state.capability_registry.sealed is True
+    assert app.state.capability_registry.names == (
+        "future.embeddings",
+        CHAT_CAPABILITY_NAME,
+    )
+    assert app.state.capability_registry.get("future.embeddings") is future_capability
+    resolved_chat = app.state.capability_registry.get(CHAT_CAPABILITY_NAME)
+    assert isinstance(resolved_chat, LoggingChatCapability)
+    assert app.state.chat_capability is resolved_chat
+
+    with pytest.raises(CapabilityRegistrySealedError):
+        registry.register("later", object())
+    with pytest.raises(CapabilityRegistrySealedError):
+        app.state.capability_registry.register("later", object())
+
+
+def test_application_rejects_ambiguous_capability_composition_before_sealing() -> None:
+    """Legacy and registry inputs should not silently compete for chat identity."""
+    registry = CapabilityRegistry()
+    chat_capability = cast(ChatCapability, MagicMock(spec=ChatCapability))
+
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        create_application(
+            chat_capability=chat_capability,
+            capability_registry=registry,
+        )
+
+    assert registry.sealed is False
+    assert registry.registrations == ()
+
+
+def test_application_rejects_registered_chat_contract_mismatch_safely() -> None:
+    """A known identity must implement its public provider-neutral protocol."""
+    private_capability = object()
+    registry = CapabilityRegistry()
+    registry.register(CHAT_CAPABILITY_NAME, private_capability)
+
+    with pytest.raises(CapabilityContractMismatchError) as captured:
+        create_application(capability_registry=registry)
+
+    error = captured.value
+    assert registry.sealed is True
+    assert error.capability_name == CHAT_CAPABILITY_NAME
+    assert error.code == "capability_contract_mismatch"
+    assert "object at" not in error.message
 
 
 def test_application_lifespan_emits_ordered_operational_events(
