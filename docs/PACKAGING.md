@@ -44,8 +44,8 @@ The smoke test:
 5. Checks installed dependency consistency and proves imports resolve from
    each isolated environment rather than the repository checkout.
 6. Starts both installed runtimes on dynamically allocated loopback ports.
-7. Exercises liveness, readiness, and caller-provided request correlation over
-   real HTTP connections.
+7. Exercises liveness, readiness, component health, empty capability discovery,
+   metrics, and caller-provided request correlation over real HTTP connections.
 8. Sends `SIGTERM`, requires bounded shutdown, and always cleans up temporary
    processes and environments.
 

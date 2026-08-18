@@ -9,8 +9,10 @@ from fastapi.testclient import TestClient
 
 from trussium.app import create_application
 from trussium.capabilities import (
+    CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
+    CapabilityMetadata,
     CapabilityRegistry,
     CapabilityRegistrySealedError,
 )
@@ -285,6 +287,7 @@ def test_application_wraps_configured_chat_capability_with_logging() -> None:
     )
     assert app.state.capability_registry.sealed is True
     assert app.state.capability_registry.names == (CHAT_CAPABILITY_NAME,)
+    assert app.state.capability_registry.metadata == (CHAT_CAPABILITY_METADATA,)
     assert app.state.capability_registry.get(CHAT_CAPABILITY_NAME) is (app.state.chat_capability)
 
 
@@ -306,9 +309,19 @@ def test_application_does_not_wrap_logging_capability_twice() -> None:
 def test_application_composes_an_injected_capability_registry() -> None:
     """Registered capabilities should become one sealed application-owned snapshot."""
     future_capability = object()
+    future_metadata = CapabilityMetadata(
+        name="future.embeddings",
+        version="v1",
+        description="Create normalized embeddings.",
+        supports_streaming=False,
+    )
     chat_capability = cast(ChatCapability, MagicMock(spec=ChatCapability))
     registry = CapabilityRegistry()
-    registry.register("future.embeddings", future_capability)
+    registry.register(
+        "future.embeddings",
+        future_capability,
+        metadata=future_metadata,
+    )
     registry.register(CHAT_CAPABILITY_NAME, chat_capability)
 
     app = create_application(capability_registry=registry)
@@ -321,6 +334,10 @@ def test_application_composes_an_injected_capability_registry() -> None:
         CHAT_CAPABILITY_NAME,
     )
     assert app.state.capability_registry.get("future.embeddings") is future_capability
+    assert app.state.capability_registry.metadata == (
+        future_metadata,
+        CHAT_CAPABILITY_METADATA,
+    )
     resolved_chat = app.state.capability_registry.get(CHAT_CAPABILITY_NAME)
     assert isinstance(resolved_chat, LoggingChatCapability)
     assert app.state.chat_capability is resolved_chat

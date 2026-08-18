@@ -7,7 +7,11 @@ from trussium.app.bootstrap import (
     create_chat_capability_from_environment,
     create_provider_health_check_from_environment,
 )
-from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry
+from trussium.capabilities import (
+    CHAT_CAPABILITY_METADATA,
+    CHAT_CAPABILITY_NAME,
+    CapabilityRegistry,
+)
 from trussium.config.settings import get_settings
 from trussium.observability import (
     RUNTIME_CONFIGURATION_INVALID,
@@ -51,7 +55,11 @@ def main() -> None:
     )
     capability_registry = CapabilityRegistry()
     if chat_capability is not None:
-        capability_registry.register(CHAT_CAPABILITY_NAME, chat_capability)
+        capability_registry.register(
+            CHAT_CAPABILITY_NAME,
+            chat_capability,
+            metadata=CHAT_CAPABILITY_METADATA,
+        )
 
     app = create_application(
         settings=settings,

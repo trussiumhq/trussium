@@ -1,37 +1,42 @@
 """Ordered provider-neutral capability registration and lookup."""
 
-import re
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from typing import Final, TypeVar
+from typing import TypeVar
 
+from trussium.capabilities.metadata import CapabilityMetadata, validate_capability_name
 from trussium.errors import ConfigurationError
-
-_CAPABILITY_NAME_PATTERN: Final = re.compile(r"[a-z][a-z0-9_.-]{0,63}")
 
 CapabilityT = TypeVar("CapabilityT")
 
 
-def validate_capability_name(name: str) -> str:
-    """Return a bounded capability name or raise ``ValueError``."""
-    if _CAPABILITY_NAME_PATTERN.fullmatch(name) is None:
-        raise ValueError("Capability name must match [a-z][a-z0-9_.-]{0,63}")
-
-    return name
-
-
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class CapabilityRegistration:
     """Immutable association between one capability identity and implementation."""
 
     name: str
     capability: object
+    metadata: CapabilityMetadata
 
-    def __post_init__(self) -> None:
-        """Validate the bounded identity and required implementation."""
-        validate_capability_name(self.name)
-        if self.capability is None:
+    def __init__(
+        self,
+        name: str,
+        capability: object,
+        metadata: CapabilityMetadata | None = None,
+    ) -> None:
+        """Validate identity and bind explicit or legacy-compatible metadata."""
+        capability_name = validate_capability_name(name)
+        if capability is None:
             raise ValueError("Registered capability must not be None")
+        resolved_metadata = metadata or CapabilityMetadata(name=capability_name)
+        if not isinstance(resolved_metadata, CapabilityMetadata):
+            raise ValueError("Registered capability metadata must be CapabilityMetadata")
+        if resolved_metadata.name != capability_name:
+            raise ValueError("Capability metadata name must match its registration name")
+
+        object.__setattr__(self, "name", capability_name)
+        object.__setattr__(self, "capability", capability)
+        object.__setattr__(self, "metadata", resolved_metadata)
 
 
 class CapabilityRegistryError(ConfigurationError):
@@ -94,7 +99,11 @@ class CapabilityRegistry:
         self._sealed = False
 
         for registration in registrations:
-            self.register(registration.name, registration.capability)
+            self.register(
+                registration.name,
+                registration.capability,
+                metadata=registration.metadata,
+            )
 
     @property
     def names(self) -> tuple[str, ...]:
@@ -112,16 +121,31 @@ class CapabilityRegistry:
         return tuple(self._registrations.values())
 
     @property
+    def metadata(self) -> tuple[CapabilityMetadata, ...]:
+        """Return an immutable ordered public metadata snapshot."""
+        return tuple(registration.metadata for registration in self._registrations.values())
+
+    @property
     def sealed(self) -> bool:
         """Return whether application composition has closed registration."""
         return self._sealed
 
-    def register(self, name: str, capability: CapabilityT) -> CapabilityT:
+    def register(
+        self,
+        name: str,
+        capability: CapabilityT,
+        *,
+        metadata: CapabilityMetadata | None = None,
+    ) -> CapabilityT:
         """Register one implementation without replacing an existing identity."""
         if self._sealed:
             raise CapabilityRegistrySealedError()
 
-        registration = CapabilityRegistration(name=name, capability=capability)
+        registration = CapabilityRegistration(
+            name=name,
+            capability=capability,
+            metadata=metadata,
+        )
         if registration.name in self._registrations:
             raise CapabilityAlreadyRegisteredError(registration.name)
 
@@ -141,6 +165,20 @@ class CapabilityRegistry:
             raise CapabilityNotFoundError(capability_name)
 
         return registration.capability
+
+    def get_metadata(self, name: str) -> CapabilityMetadata | None:
+        """Return public metadata for the named capability, or ``None`` when absent."""
+        registration = self._registrations.get(validate_capability_name(name))
+        return None if registration is None else registration.metadata
+
+    def require_metadata(self, name: str) -> CapabilityMetadata:
+        """Return named public metadata or raise a stable configuration failure."""
+        capability_name = validate_capability_name(name)
+        registration = self._registrations.get(capability_name)
+        if registration is None:
+            raise CapabilityNotFoundError(capability_name)
+
+        return registration.metadata
 
     def seal(self) -> tuple[CapabilityRegistration, ...]:
         """Close registration idempotently and return the ordered composition snapshot."""
@@ -163,6 +201,7 @@ class CapabilityRegistry:
 __all__ = [
     "CapabilityAlreadyRegisteredError",
     "CapabilityContractMismatchError",
+    "CapabilityMetadata",
     "CapabilityNotFoundError",
     "CapabilityRegistration",
     "CapabilityRegistry",

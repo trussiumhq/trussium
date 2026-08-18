@@ -164,6 +164,9 @@ assert_equal "$request_id" "kubernetes-smoke-69" "request correlation header"
 assert_equal "$(curl --fail --silent "http://127.0.0.1:$port/health/components")" \
     '{"status":"ok","components":[]}' "component health response"
 
+assert_equal "$(curl --fail --silent "http://127.0.0.1:$port/v1/capabilities")" \
+    '{"capabilities":[]}' "capability discovery response"
+
 curl --fail --silent --show-error \
     "http://127.0.0.1:$port/metrics" \
     --output "$body"

@@ -7,7 +7,11 @@ from fastapi import FastAPI
 from pydantic import ValidationError
 
 from trussium import __main__
-from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry
+from trussium.capabilities import (
+    CHAT_CAPABILITY_METADATA,
+    CHAT_CAPABILITY_NAME,
+    CapabilityRegistry,
+)
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import RuntimeSettings, Settings
 from trussium.observability import RuntimeTracing, configure_logging
@@ -107,6 +111,7 @@ def test_main_configures_bounded_graceful_shutdown(
     assert isinstance(capability_registry, CapabilityRegistry)
     assert capability_registry.sealed is False
     assert capability_registry.names == (CHAT_CAPABILITY_NAME,)
+    assert capability_registry.metadata == (CHAT_CAPABILITY_METADATA,)
     assert capability_registry.get(CHAT_CAPABILITY_NAME) is capability
     assert "chat_capability" not in application_arguments
     assert application_arguments["dependency_health_check"] is health_check

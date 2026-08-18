@@ -8,8 +8,15 @@ from trussium.capabilities.chat.models import (
     ChatCompletionResponse,
     ChatStreamEvent,
 )
+from trussium.capabilities.metadata import CapabilityMetadata
 
 CHAT_CAPABILITY_NAME: Final = "chat.completions"
+CHAT_CAPABILITY_METADATA: Final = CapabilityMetadata(
+    name=CHAT_CAPABILITY_NAME,
+    version="v1",
+    description="Create normalized provider-neutral chat completions.",
+    supports_streaming=True,
+)
 
 
 @runtime_checkable
@@ -45,4 +52,4 @@ class ChatCapability(Protocol):
         ...
 
 
-__all__ = ["CHAT_CAPABILITY_NAME", "ChatCapability"]
+__all__ = ["CHAT_CAPABILITY_METADATA", "CHAT_CAPABILITY_NAME", "ChatCapability"]

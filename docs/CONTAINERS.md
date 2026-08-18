@@ -24,6 +24,9 @@ The installed package includes the public core capability registry. The
 production entry point registers configured chat execution under the canonical
 `chat.completions` identity before application composition. This changes no
 image setting, port, process, health check, or provider configuration contract.
+The same installed package exposes bounded metadata through
+`GET /v1/capabilities`; a provider-free container returns
+`{"capabilities":[]}`.
 
 ## Pulling a release
 
@@ -82,9 +85,10 @@ scripts/container-smoke-test.sh
 
 The script builds the image, verifies its metadata and runtime contents, starts
 it on a dynamically allocated host port with hardened security options, waits
-for Docker health, checks liveness, readiness, process and request metrics, and
-request correlation, verifies the runtime UID/GID, and confirms clean
-`SIGTERM` shutdown. It always removes the temporary container.
+for Docker health, checks liveness, readiness, component health, empty
+capability discovery, process and request metrics, and request correlation,
+verifies the runtime UID/GID, and confirms clean `SIGTERM` shutdown. It always
+removes the temporary container.
 
 Set `TRUSSIUM_CONTAINER_IMAGE` to choose the local test tag:
 
