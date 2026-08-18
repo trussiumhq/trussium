@@ -28,6 +28,13 @@ from trussium.runtime.readiness import (
     DependencyStatus,
     UnavailableDependencyHealthCheck,
 )
+from trussium.runtime.registry import (
+    RuntimeServiceAlreadyRegisteredError,
+    RuntimeServiceNotFoundError,
+    RuntimeServiceRegistry,
+    RuntimeServiceRegistryError,
+    RuntimeServiceRegistrySealedError,
+)
 from trussium.runtime.timeouts import (
     PROVIDER_REQUEST_TIMEOUT_CODE,
     PROVIDER_REQUEST_TIMEOUT_MESSAGE,
@@ -48,11 +55,16 @@ __all__ = [
     "DependencyStatus",
     "ExecutionContext",
     "RuntimeService",
+    "RuntimeServiceAlreadyRegisteredError",
     "RuntimeServiceFailure",
     "RuntimeServiceLifecycle",
     "RuntimeServiceLifecycleError",
     "RuntimeServiceLifecyclePhase",
     "RuntimeServiceLifecycleState",
+    "RuntimeServiceNotFoundError",
+    "RuntimeServiceRegistry",
+    "RuntimeServiceRegistryError",
+    "RuntimeServiceRegistrySealedError",
     "RuntimeServiceStateError",
     "TimeoutChatCapability",
     "UnavailableDependencyHealthCheck",

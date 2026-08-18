@@ -11,6 +11,10 @@ framework, or provider SDK exceptions into public Trussium contracts.
 RuntimeError
 └── TrussiumError
     ├── ConfigurationError
+    │   └── RuntimeServiceRegistryError
+    │       ├── RuntimeServiceAlreadyRegisteredError
+    │       ├── RuntimeServiceNotFoundError
+    │       └── RuntimeServiceRegistrySealedError
     └── RuntimeExecutionError
         ├── LifecycleError
         │   ├── RuntimeServiceLifecycleError
@@ -49,6 +53,12 @@ Concrete runtime-service lifecycle types are exported from `trussium.runtime`:
 from trussium.runtime import RuntimeServiceLifecycleError, RuntimeServiceStateError
 ```
 
+Runtime-service registry types are also exported from `trussium.runtime`:
+
+```python
+from trussium.runtime import RuntimeServiceNotFoundError, RuntimeServiceRegistry
+```
+
 ## Public attributes
 
 Every `TrussiumError` has:
@@ -84,7 +94,8 @@ Catch the narrowest type that supports the required recovery:
 
 - `ConfigurationError` for normalized configuration failures owned by
   Trussium. Pydantic `ValidationError` remains Pydantic-owned at settings and
-  process-startup boundaries.
+  process-startup boundaries. Registry duplicate, required-lookup, and sealed
+  failures inherit this branch; invalid service names remain `ValueError`.
 - `LifecycleError` for normalized runtime startup, drain, or shutdown
   failures. Runtime-service hooks normalize startup and cleanup failures into
   bounded aggregate metadata after all eligible hooks run. Existing injected

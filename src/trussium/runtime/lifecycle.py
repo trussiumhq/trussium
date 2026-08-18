@@ -31,6 +31,14 @@ from trussium.observability.operations import (
 _SERVICE_NAME_PATTERN: Final = re.compile(r"[a-z][a-z0-9_.-]{0,63}")
 
 
+def validate_runtime_service_name(name: str) -> str:
+    """Return a runtime-service name after validating the public contract."""
+    if _SERVICE_NAME_PATTERN.fullmatch(name) is None:
+        raise ValueError("Runtime service names must match [a-z][a-z0-9_.-]{0,63}")
+
+    return name
+
+
 class RuntimeService(Protocol):
     """Asynchronous startup and shutdown contract for one runtime service."""
 
@@ -133,8 +141,7 @@ class RuntimeServiceLifecycle:
         service_names = tuple(service.name for service in resolved_services)
 
         for service_name in service_names:
-            if _SERVICE_NAME_PATTERN.fullmatch(service_name) is None:
-                raise ValueError("Runtime service names must match [a-z][a-z0-9_.-]{0,63}")
+            validate_runtime_service_name(service_name)
 
         if len(set(service_names)) != len(service_names):
             raise ValueError("Runtime service names must be unique")

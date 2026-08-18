@@ -21,6 +21,10 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'metadata.version("trussium") == expected_version' in script
     assert 'resources.files("trussium").joinpath("py.typed").is_file()' in script
     assert '"trussium/errors.py"' in script
+    assert '"trussium/runtime/registry.py"' in script
+    assert "RuntimeServiceRegistry" in script
+    assert "RuntimeServiceRegistrySealedError" in script
+    assert "registry.seal() == ()" in script
     assert "issubclass(ProviderError, TrussiumError)" in script
     assert '"trussium/observability/tracing.py"' in script
     assert '"opentelemetry-exporter-otlp-proto-http"' in script
