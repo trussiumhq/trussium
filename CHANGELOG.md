@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.38.0 (2026-08-18)
+
+### Features
+
+- **capabilities**: Add execution pipeline ([#104](https://github.com/trussiumhq/trussium/pull/104),
+  [`2eb67f0`](https://github.com/trussiumhq/trussium/commit/2eb67f016767e7d62ecefa9f25402cba1f8525a1))
+
+
 ## v0.37.0 (2026-08-18)
 
 ### Features
