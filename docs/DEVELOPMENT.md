@@ -115,8 +115,12 @@ lifecycle. Add cross-cutting execution behavior through the ordered contract in
 [CAPABILITY_MIDDLEWARE.md](CAPABILITY_MIDDLEWARE.md). Preserve immutable
 invocation metadata, declaration-order entry, reverse unwind, single-use
 continuation, intentional short-circuiting, lazy streams, and pipeline-owned
-cleanup. Keep lifecycle, availability, health, routing, retry, provider, plugin,
-and policy behavior behind their dedicated future contracts.
+cleanup. Compose optional application-owned capability hooks through
+[CAPABILITY_LIFECYCLE.md](CAPABILITY_LIFECYCLE.md). Preserve sealed-registry
+ownership, registry-order startup, reverse shutdown, partial rollback, bounded
+cleanup, native cancellation, stable failures, and ordinary-capability
+compatibility. Keep availability, health, routing, retry, provider, plugin, and
+policy behavior outside lifecycle hooks.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

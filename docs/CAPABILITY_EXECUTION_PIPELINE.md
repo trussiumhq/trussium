@@ -173,3 +173,6 @@ availability, health, routing, retries, fallback, caching, provider registry,
 plugin loading, authentication, authorization, endpoint, setting, metric,
 event, span, container option, Kubernetes resource, probe, Helm value, CRD, or
 operator behavior. Those require separate contracts.
+
+Application-owned lifecycle hooks use the separate
+[Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md).

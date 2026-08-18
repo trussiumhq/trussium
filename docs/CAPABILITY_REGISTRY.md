@@ -177,6 +177,8 @@ delivered;
 automatic registration, provider/model discovery, detail endpoints, filtering,
 pagination, mutation, caching, and remote control remain outside this contract.
 
-Those features require separate contracts. They must preserve registry
+Capability lifecycle is now delivered through the separate
+[Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md). The remaining
+features require separate contracts. They must preserve registry
 identity validation, insertion order, duplicate protection, immutable
 snapshots, sealing, safe errors, and the delivered chat compatibility boundary.

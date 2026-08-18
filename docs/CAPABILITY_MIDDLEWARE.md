@@ -160,3 +160,6 @@ Capability middleware does not define lifecycle hooks, availability, health,
 routing, retries, fallback, caching, provider registration, plugin loading,
 authentication, authorization, tenant policy, settings, endpoints, Helm values,
 Kubernetes resources, CRDs, or operator behavior.
+
+Application-owned lifecycle hooks use the separate
+[Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md).

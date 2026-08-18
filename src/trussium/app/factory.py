@@ -14,6 +14,7 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
     CapabilityExecutionPipeline,
+    CapabilityLifecycle,
     CapabilityMiddleware,
     CapabilityRegistry,
 )
@@ -106,6 +107,10 @@ def create_application(
         )
 
     configured_registrations = configured_capability_registry.seal()
+    capability_lifecycle = CapabilityLifecycle(
+        configured_capability_registry,
+        cleanup_timeout_seconds=resolved_settings.runtime.service_cleanup_seconds,
+    )
     resolved_capability_registry = CapabilityRegistry()
     for registration in configured_registrations:
         capability = registration.capability
@@ -155,6 +160,8 @@ def create_application(
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         started_at = perf_counter()
         startup_error: BaseException | None = None
+        capabilities_started = False
+        runtime_services_started = False
         runtime_started = False
         log_startup_configuration(
             resolved_settings,
@@ -168,6 +175,14 @@ def create_application(
                 startup_error = error
                 raise
 
+            runtime_services_started = True
+            try:
+                await capability_lifecycle.startup()
+            except BaseException as error:
+                startup_error = error
+                raise
+
+            capabilities_started = True
             runtime_started = True
             runtime_logger.info(
                 "Runtime started",
@@ -185,11 +200,18 @@ def create_application(
                     },
                 )
 
+            capability_shutdown_error: BaseException | None = None
             lifecycle_shutdown_error: BaseException | None = None
             dependency_shutdown_error: Exception | None = None
             tracing_shutdown_error: Exception | None = None
 
-            if runtime_started:
+            if capabilities_started:
+                try:
+                    await capability_lifecycle.shutdown()
+                except BaseException as error:
+                    capability_shutdown_error = error
+
+            if runtime_services_started:
                 try:
                     await runtime_service_lifecycle.shutdown()
                 except BaseException as error:
@@ -233,10 +255,14 @@ def create_application(
 
             terminal_error: BaseException | None = None
             if startup_error is None:
-                if isinstance(lifecycle_shutdown_error, CancelledError):
+                if isinstance(capability_shutdown_error, CancelledError):
+                    terminal_error = capability_shutdown_error
+                elif isinstance(lifecycle_shutdown_error, CancelledError):
                     terminal_error = lifecycle_shutdown_error
                 elif tracing_shutdown_error is not None:
                     terminal_error = tracing_shutdown_error
+                elif capability_shutdown_error is not None:
+                    terminal_error = capability_shutdown_error
                 elif lifecycle_shutdown_error is not None:
                     terminal_error = lifecycle_shutdown_error
                 elif dependency_shutdown_error is not None:
@@ -276,6 +302,7 @@ def create_application(
     application.state.runtime_service_registry = resolved_runtime_service_registry
     application.state.runtime_component_health_reporter = runtime_component_health_reporter
     application.state.capability_registry = resolved_capability_registry
+    application.state.capability_lifecycle = capability_lifecycle
     application.state.capability_execution_pipeline = capability_execution_pipeline
     application.state.chat_capability = resolved_chat_capability
 
