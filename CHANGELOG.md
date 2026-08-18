@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.34.0 (2026-08-18)
+
+### Features
+
+- **runtime**: Add service registry
+  ([`343071a`](https://github.com/trussiumhq/trussium/commit/343071a6a152ce25427413c40dcd159e5c2cf1fb))
+
+
 ## v0.33.0 (2026-08-18)
 
 ### Features
