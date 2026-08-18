@@ -21,6 +21,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'metadata.version("trussium") == expected_version' in script
     assert 'resources.files("trussium").joinpath("py.typed").is_file()' in script
     assert '"trussium/errors.py"' in script
+    assert '"trussium/api/capabilities.py"' in script
+    assert '"trussium/capabilities/metadata.py"' in script
     assert '"trussium/capabilities/registry.py"' in script
     assert '"trussium/runtime/registry.py"' in script
     assert '"trussium/runtime/health.py"' in script
@@ -30,6 +32,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert "RuntimeServiceRegistrySealedError" in script
     assert "service_registry.seal() == ()" in script
     assert "CHAT_CAPABILITY_NAME" in script
+    assert "CHAT_CAPABILITY_METADATA" in script
+    assert "CapabilityMetadata" in script
     assert "CapabilityRegistry" in script
     assert "CapabilityRegistrySealedError" in script
     assert "capability_registry.require(CHAT_CAPABILITY_NAME) is capability" in script
@@ -40,6 +44,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert 'for path in ("/health/live", "/health/ready")' in script
     assert 'f"http://127.0.0.1:{port}/health/components"' in script
     assert '{"status": "ok", "components": []}' in script
+    assert 'f"http://127.0.0.1:{port}/v1/capabilities"' in script
+    assert '{"capabilities": []}' in script
     assert 'f"http://127.0.0.1:{port}/metrics"' in script
     assert 'assert "trussium_http_requests_active 0.0" in metrics' in script
     assert 'request_id="package-smoke-65-$label"' in script

@@ -6,6 +6,10 @@ application composition. The registry replaces per-capability application
 lookup without changing the existing capability protocols or execution
 behavior.
 
+Registrations can also carry bounded immutable public metadata used for local
+and external discovery. See the
+[Capability Metadata and Discovery Guide](CAPABILITY_DISCOVERY.md).
+
 ## Register capabilities
 
 Use the canonical `chat.completions` identity for the existing
@@ -60,6 +64,10 @@ registry depend on every interface. Application composition validates known
 identities: an object registered as `chat.completions` must implement the
 runtime-checkable `ChatCapability` protocol.
 
+Each registration also contains `CapabilityMetadata`. Existing two-argument
+construction creates safe minimal name-only metadata; callers can supply an
+explicit third value for public version, description, and streaming support.
+
 ## Lookup and discovery
 
 Use `get()` when absence is expected and `require()` when it is a composition
@@ -75,14 +83,16 @@ The read-only discovery surfaces preserve insertion order:
 - `registry.names`: an immutable tuple of capability names.
 - `registry.capabilities`: an immutable tuple of implementations.
 - `registry.registrations`: an immutable tuple of registration values.
+- `registry.metadata`: an immutable tuple of public metadata values.
 - `tuple(registry)`: ordered registration iteration.
 - `len(registry)`: the registration count.
 - `"chat.completions" in registry`: name membership.
 
 Each property access creates a tuple snapshot. A snapshot returned before a
 later pre-seal registration does not change, and the mutable backing mapping is
-never exposed. This is local application discovery; no HTTP or remote discovery
-endpoint is added.
+never exposed. `get_metadata()` and `require_metadata()` provide named metadata
+lookup. External callers use the separate ordered `GET /v1/capabilities`
+transport view rather than receiving registry implementations.
 
 ## Sealing and application ownership
 
@@ -159,8 +169,10 @@ The core registry is deliberately explicit and application-scoped. It does not
 provide unregister, replacement, aliases, priorities, version negotiation, hot
 reload, package entry points, automatic discovery, plugins, provider
 registration, routing, retry, fallback, dependency graphs, general capability
-middleware, an execution pipeline, lifecycle hooks, metadata, availability,
-health, or recovery actions.
+middleware, an execution pipeline, lifecycle hooks, availability, health, or
+recovery actions. Metadata and one ordered collection endpoint are delivered;
+automatic registration, provider/model discovery, detail endpoints, filtering,
+pagination, mutation, caching, and remote control remain outside this contract.
 
 Those features require separate contracts. They must preserve registry
 identity validation, insertion order, duplicate protection, immutable

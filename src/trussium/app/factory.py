@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from trussium.api import api_router
 from trussium.api.metrics import router as metrics_router
 from trussium.capabilities import (
+    CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
     CapabilityRegistry,
@@ -94,12 +95,17 @@ def create_application(
         capability_registry if capability_registry is not None else CapabilityRegistry()
     )
     if chat_capability is not None:
-        configured_capability_registry.register(CHAT_CAPABILITY_NAME, chat_capability)
+        configured_capability_registry.register(
+            CHAT_CAPABILITY_NAME,
+            chat_capability,
+            metadata=CHAT_CAPABILITY_METADATA,
+        )
 
     configured_registrations = configured_capability_registry.seal()
     resolved_capability_registry = CapabilityRegistry()
     for registration in configured_registrations:
         capability = registration.capability
+        metadata = registration.metadata
         if registration.name == CHAT_CAPABILITY_NAME:
             if not isinstance(capability, ChatCapability):
                 raise CapabilityContractMismatchError(registration.name)
@@ -108,8 +114,13 @@ def create_application(
                     capability,
                     tracer=runtime_tracing.tracer,
                 )
+            metadata = CHAT_CAPABILITY_METADATA
 
-        resolved_capability_registry.register(registration.name, capability)
+        resolved_capability_registry.register(
+            registration.name,
+            capability,
+            metadata=metadata,
+        )
 
     resolved_capability_registry.seal()
     resolved_chat_capability = resolved_capability_registry.get(CHAT_CAPABILITY_NAME)

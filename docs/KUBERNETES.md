@@ -180,10 +180,11 @@ helm install trussium \
 The chart repository documents every value, existing Secret integration,
 customization, upgrades, rollbacks, removal, and release compatibility.
 
-The runtime's application-scoped capability registry requires no Kubernetes
-resource, value, environment variable, port, probe, permission, or lifecycle
-change. A future remote discovery surface will define its deployment contract
-separately.
+The runtime's application-scoped capability registry and read-only
+`GET /v1/capabilities` discovery endpoint require no Kubernetes resource,
+value, environment variable, port, probe, permission, or lifecycle change.
+Discovery uses the existing runtime Service and exposes no provider, model,
+implementation, health, availability, or configuration data.
 
 The remaining sections describe the maintained Kustomize path. Do not manage
 the same runtime release with both Helm and Kustomize.

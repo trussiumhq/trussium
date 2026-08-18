@@ -157,6 +157,12 @@ protection, and application-owned execution composition. The existing chat
 factory shortcut remains compatible. See the
 [Core Capability Registry Guide](docs/CAPABILITY_REGISTRY.md).
 
+Configured capability contracts now carry bounded immutable metadata and are
+externally discoverable in registration order through `GET /v1/capabilities`.
+Discovery exposes no provider, model, implementation, health, availability, or
+configuration data. See the
+[Capability Metadata and Discovery Guide](docs/CAPABILITY_DISCOVERY.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -198,11 +204,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.4 \
+  --version 0.4.5 \
   --namespace trussium-system
 ```
 
-Chart v0.4.4 defaults to runtime v0.35.0, enables the production CPU
+Chart v0.4.5 defaults to runtime v0.36.0, enables the production CPU
 autoscaler and runtime metrics contract, and exposes schema-validated
 dependency-readiness settings with safe disabled defaults. It also exposes
 schema-validated OpenTelemetry tracing values while keeping trace export
@@ -230,6 +236,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md)
 - [Runtime Component Health Reporting Guide](docs/COMPONENT_HEALTH.md)
 - [Core Capability Registry Guide](docs/CAPABILITY_REGISTRY.md)
+- [Capability Metadata and Discovery Guide](docs/CAPABILITY_DISCOVERY.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)

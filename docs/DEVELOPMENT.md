@@ -102,9 +102,11 @@ Register provider-neutral capabilities through the sealed ordered registry in
 [CAPABILITY_REGISTRY.md](CAPABILITY_REGISTRY.md). Preserve canonical names,
 stable lookup, immutable snapshots, duplicate protection, safe errors, and the
 application-owned execution registry. Existing `chat_capability` callers must
-remain compatible. Keep metadata, remote discovery, general middleware,
-execution pipelines, provider registration, and plugin loading behind their
-future dedicated contracts.
+remain compatible. Attach only bounded provider-neutral public metadata and
+preserve the ordered endpoint contract documented in
+[CAPABILITY_DISCOVERY.md](CAPABILITY_DISCOVERY.md). Keep availability, health,
+general middleware, execution pipelines, provider registration, and plugin
+loading behind their future dedicated contracts.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

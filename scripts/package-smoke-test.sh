@@ -109,8 +109,10 @@ distribution_info = f"trussium-{version}.dist-info"
 required_modules = {
     "trussium/__init__.py",
     "trussium/__main__.py",
+    "trussium/api/capabilities.py",
     "trussium/api/chat.py",
     "trussium/app/factory.py",
+    "trussium/capabilities/metadata.py",
     "trussium/capabilities/registry.py",
     "trussium/config/settings.py",
     "trussium/errors.py",
@@ -242,7 +244,9 @@ import sys
 import trussium
 from trussium.app import create_application
 from trussium.capabilities import (
+    CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    CapabilityMetadata,
     CapabilityRegistry,
     CapabilityRegistrySealedError,
 )
@@ -272,8 +276,15 @@ assert Settings is not None
 assert ExecutionContext is not None
 capability = object()
 capability_registry = CapabilityRegistry()
-assert capability_registry.register(CHAT_CAPABILITY_NAME, capability) is capability
+assert capability_registry.register(
+    CHAT_CAPABILITY_NAME,
+    capability,
+    metadata=CHAT_CAPABILITY_METADATA,
+) is capability
 assert capability_registry.names == (CHAT_CAPABILITY_NAME,)
+assert capability_registry.metadata == (CHAT_CAPABILITY_METADATA,)
+assert capability_registry.require_metadata(CHAT_CAPABILITY_NAME) is CHAT_CAPABILITY_METADATA
+assert CapabilityMetadata is not None
 assert capability_registry.require(CHAT_CAPABILITY_NAME) is capability
 assert capability_registry.seal()[0].capability is capability
 assert capability_registry.sealed is True
@@ -339,6 +350,15 @@ components_request = urllib.request.Request(
 with urllib.request.urlopen(components_request, timeout=1) as response:
     assert response.status == 200
     assert json.load(response) == {"status": "ok", "components": []}
+    assert response.headers["X-Request-ID"] == request_id
+
+capabilities_request = urllib.request.Request(
+    f"http://127.0.0.1:{port}/v1/capabilities",
+    headers={"X-Request-ID": request_id},
+)
+with urllib.request.urlopen(capabilities_request, timeout=1) as response:
+    assert response.status == 200
+    assert json.load(response) == {"capabilities": []}
     assert response.headers["X-Request-ID"] == request_id
 
 metrics_request = urllib.request.Request(

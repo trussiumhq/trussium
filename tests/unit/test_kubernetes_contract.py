@@ -245,6 +245,8 @@ def test_kubernetes_validation_is_executable_and_runs_in_ci() -> None:
     assert "ScalingActive" in smoke_path.read_text()
     assert "rollout status deployment/trussium" in smoke_path.read_text()
     assert "kubernetes-smoke-69" in smoke_path.read_text()
+    assert '"http://127.0.0.1:$port/v1/capabilities"' in smoke_path.read_text()
+    assert "capability discovery response" in smoke_path.read_text()
     assert '"event":"runtime.configuration.loaded"' in smoke_path.read_text()
     assert '"event":"provider.configuration.unavailable"' in smoke_path.read_text()
     assert "uses: helm/kind-action@v1" in workflow

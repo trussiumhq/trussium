@@ -68,7 +68,7 @@ docker run --rm --entrypoint python "$image" -c \
 docker run --rm --entrypoint python "$image" -c \
     "from trussium.runtime import RuntimeComponentHealthReporter, RuntimeComponentStatus; assert RuntimeComponentHealthReporter is not None; assert RuntimeComponentStatus.OK == 'ok'"
 docker run --rm --entrypoint python "$image" -c \
-    "from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability) is capability; assert registry.seal()[0].capability is capability"
+    "from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA"
 
 if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
     echo "uv must not be present in the runtime image" >&2
@@ -131,6 +131,13 @@ curl --fail --silent --show-error \
 
 assert_equal "$(cat "$response_body")" \
     '{"status":"ok","components":[]}' "component health body"
+
+curl --fail --silent --show-error \
+    "http://127.0.0.1:${host_port}/v1/capabilities" \
+    --output "$response_body"
+
+assert_equal "$(cat "$response_body")" \
+    '{"capabilities":[]}' "capability discovery body"
 
 curl --fail --silent --show-error \
     "http://127.0.0.1:${host_port}/metrics" \

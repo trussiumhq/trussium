@@ -6,6 +6,7 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityAlreadyRegisteredError,
     CapabilityContractMismatchError,
+    CapabilityMetadata,
     CapabilityNotFoundError,
     CapabilityRegistration,
     CapabilityRegistry,
@@ -45,6 +46,38 @@ def test_registration_and_discovery_preserve_insertion_order() -> None:
     assert registry.get("first") is first
     assert registry.get("missing") is None
     assert registry.require("second") is second
+    assert registry.metadata == (
+        CapabilityMetadata(name="first"),
+        CapabilityMetadata(name="second"),
+    )
+    assert registry.get_metadata("first") == CapabilityMetadata(name="first")
+    assert registry.get_metadata("missing") is None
+    assert registry.require_metadata("second") == CapabilityMetadata(name="second")
+
+
+def test_explicit_metadata_preserves_order_and_snapshot_immutability() -> None:
+    """Public discovery must retain caller metadata without exposing later mutation."""
+    first = object()
+    second = object()
+    first_metadata = CapabilityMetadata(
+        name="future.embeddings",
+        version="v2",
+        description="Create normalized embeddings.",
+        supports_streaming=False,
+    )
+    second_metadata = CapabilityMetadata(name="future.images", version="v1")
+    registry = CapabilityRegistry(
+        (CapabilityRegistration("future.embeddings", first, first_metadata),)
+    )
+    snapshot = registry.metadata
+
+    registry.register("future.images", second, metadata=second_metadata)
+
+    assert snapshot == (first_metadata,)
+    assert registry.metadata == (first_metadata, second_metadata)
+    assert registry.registrations[0].metadata is first_metadata
+    assert registry.get_metadata("future.images") is second_metadata
+    assert registry.require_metadata("future.embeddings") is first_metadata
 
 
 def test_discovery_snapshots_do_not_expose_later_mutation() -> None:
@@ -109,6 +142,9 @@ def test_required_lookup_has_stable_typed_failure() -> None:
     assert error.code == "capability_not_found"
     assert error.message == "Capability 'chat.completions' is not registered."
 
+    with pytest.raises(CapabilityNotFoundError):
+        registry.require_metadata("chat.completions")
+
 
 @pytest.mark.parametrize("name", ["", "UPPER", "has space", "a" * 65])
 def test_registration_and_lookup_share_name_validation(name: str) -> None:
@@ -133,6 +169,21 @@ def test_none_registration_is_rejected_without_registry_mutation() -> None:
         registry.register("chat.completions", None)
 
     assert registry.registrations == ()
+
+
+def test_metadata_name_mismatch_is_rejected_without_registry_mutation() -> None:
+    """Public metadata must never describe a different registered implementation."""
+    registry = CapabilityRegistry()
+
+    with pytest.raises(ValueError, match="metadata name must match"):
+        registry.register(
+            "future.embeddings",
+            object(),
+            metadata=CapabilityMetadata(name="future.images"),
+        )
+
+    assert registry.registrations == ()
+    assert registry.metadata == ()
 
 
 def test_seal_is_idempotent_and_prevents_further_registration() -> None:
