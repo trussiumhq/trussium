@@ -136,6 +136,11 @@ provider errors remain compatible, while cancellation, validation, framework,
 and unnormalized SDK exceptions keep their native semantics. See the
 [Runtime Exception Hierarchy Guide](docs/ERRORS.md).
 
+Application-scoped runtime services can use a typed asynchronous lifecycle
+contract with ordered startup, reverse shutdown, partial-startup rollback, and
+bounded cleanup. See the
+[Runtime Service Lifecycle Guide](docs/LIFECYCLE.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -177,11 +182,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.0 \
+  --version 0.4.1 \
   --namespace trussium-system
 ```
 
-Chart v0.4.0 defaults to runtime v0.31.0, enables the production CPU
+Chart v0.4.1 defaults to runtime v0.32.0, enables the production CPU
 autoscaler and runtime metrics contract, and exposes schema-validated
 dependency-readiness settings with safe disabled defaults. It also exposes
 schema-validated OpenTelemetry tracing values while keeping trace export
@@ -205,6 +210,8 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Dashboards Guide](docs/DASHBOARDS.md)
 - [Runtime Alerting and Runbook Guide](docs/ALERTING.md)
 - [Runtime Health and Dependency Readiness Guide](docs/HEALTH.md)
+- [Runtime Service Lifecycle Guide](docs/LIFECYCLE.md)
+- [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)

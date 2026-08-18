@@ -9,12 +9,73 @@ from fastapi.testclient import TestClient
 
 from trussium.app import create_application
 from trussium.capabilities.chat import ChatCapability
-from trussium.config.settings import Settings
+from trussium.config.settings import RuntimeSettings, Settings
 from trussium.observability import (
     LoggingChatCapability,
     RuntimeTracing,
     configure_logging,
 )
+from trussium.runtime import (
+    DependencyHealth,
+    DependencyStatus,
+    RuntimeServiceLifecycle,
+    RuntimeServiceLifecycleError,
+)
+
+
+class StubRuntimeService:
+    """Application-scoped service used to verify lifespan integration."""
+
+    def __init__(
+        self,
+        name: str,
+        events: list[str],
+        *,
+        startup_error: Exception | None = None,
+        shutdown_error: Exception | None = None,
+    ) -> None:
+        """Initialize controllable hook behavior."""
+        self.name = name
+        self.events = events
+        self.startup_error = startup_error
+        self.shutdown_error = shutdown_error
+
+    async def startup(self) -> None:
+        """Record application startup."""
+        self.events.append(f"start:{self.name}")
+        if self.startup_error is not None:
+            raise self.startup_error
+
+    async def shutdown(self) -> None:
+        """Record application shutdown."""
+        self.events.append(f"stop:{self.name}")
+        if self.shutdown_error is not None:
+            raise self.shutdown_error
+
+
+class StubDependencyHealthCheck:
+    """Dependency check that records app-owned resource cleanup."""
+
+    name = "provider"
+    provider = "openai"
+    model = None
+
+    def __init__(self, events: list[str]) -> None:
+        """Initialize cleanup event recording."""
+        self.events = events
+
+    async def check(self) -> DependencyHealth:
+        """Return a healthy result when evaluated."""
+        return DependencyHealth(
+            name=self.name,
+            status=DependencyStatus.OK,
+            provider=self.provider,
+            model=self.model,
+        )
+
+    async def close(self) -> None:
+        """Record dependency resource cleanup."""
+        self.events.append("stop:dependency")
 
 
 def test_create_application_returns_fastapi() -> None:
@@ -41,6 +102,94 @@ def test_application_title() -> None:
     app = create_application()
 
     assert app.title == "Trussium"
+
+
+def test_application_lifespan_manages_ordered_runtime_services() -> None:
+    """The app factory should expose and execute its immutable lifecycle plan."""
+    events: list[str] = []
+    first = StubRuntimeService("first", events)
+    second = StubRuntimeService("second", events)
+    settings = Settings(runtime=RuntimeSettings(service_cleanup_seconds=2.5))
+
+    app = create_application(
+        settings,
+        runtime_services=(first, second),
+    )
+
+    assert isinstance(app.state.runtime_service_lifecycle, RuntimeServiceLifecycle)
+    assert app.state.runtime_service_lifecycle.services == (first, second)
+    assert app.state.runtime_service_lifecycle.cleanup_timeout_seconds == 2.5
+
+    with TestClient(app) as client:
+        assert app.state.runtime_service_lifecycle.state.value == "started"
+        assert client.get("/health/live").status_code == 200
+
+    assert app.state.runtime_service_lifecycle.state.value == "stopped"
+    assert events == ["start:first", "start:second", "stop:second", "stop:first"]
+
+
+def test_application_startup_failure_runs_runtime_resource_cleanup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A failed service startup should still close app-scoped tracing safely."""
+    output = io.StringIO()
+
+    def configure_test_logging(**_: object) -> None:
+        configure_logging(stream=output)
+
+    events: list[str] = []
+    service = StubRuntimeService(
+        "failed",
+        events,
+        startup_error=RuntimeError("private startup detail"),
+    )
+    tracing = MagicMock(spec=RuntimeTracing)
+    tracing.enabled = False
+    monkeypatch.setattr(
+        "trussium.app.factory.configure_logging",
+        configure_test_logging,
+    )
+    app = create_application(
+        Settings(),
+        tracing=cast(RuntimeTracing, tracing),
+        runtime_services=(service,),
+    )
+
+    with pytest.raises(RuntimeServiceLifecycleError), TestClient(app):
+        pass
+
+    tracing.shutdown.assert_called_once_with()
+    payloads = [json.loads(line) for line in output.getvalue().splitlines()]
+    assert "runtime.started" not in [payload.get("event") for payload in payloads]
+    stopped = next(payload for payload in payloads if payload.get("event") == "runtime.stopped")
+    assert stopped["outcome"] == "failed"
+    assert "private startup detail" not in output.getvalue()
+
+
+def test_runtime_services_preserve_dependency_then_tracing_cleanup_order() -> None:
+    """New hooks should run before the established app resource shutdown order."""
+    events: list[str] = []
+    service = StubRuntimeService("service", events)
+    dependency_check = StubDependencyHealthCheck(events)
+    tracing = MagicMock(spec=RuntimeTracing)
+    tracing.enabled = False
+    tracing.shutdown.side_effect = lambda: events.append("stop:tracing")
+    app = create_application(
+        Settings(),
+        tracing=cast(RuntimeTracing, tracing),
+        dependency_health_check=dependency_check,
+        runtime_services=(service,),
+    )
+
+    with TestClient(app):
+        pass
+
+    assert events == [
+        "start:service",
+        "stop:service",
+        "stop:dependency",
+        "stop:tracing",
+    ]
 
 
 def test_application_wraps_configured_chat_capability_with_logging() -> None:

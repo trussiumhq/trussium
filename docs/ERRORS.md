@@ -13,6 +13,8 @@ RuntimeError
     ├── ConfigurationError
     └── RuntimeExecutionError
         ├── LifecycleError
+        │   ├── RuntimeServiceLifecycleError
+        │   └── RuntimeServiceStateError
         ├── DependencyError
         └── CapabilityError
             ├── CapabilityExecutionError
@@ -39,6 +41,12 @@ Concrete compatibility types retain their established modules:
 ```python
 from trussium.capabilities.errors import CapabilityExecutionError
 from trussium.providers.openai import OpenAIProviderError
+```
+
+Concrete runtime-service lifecycle types are exported from `trussium.runtime`:
+
+```python
+from trussium.runtime import RuntimeServiceLifecycleError, RuntimeServiceStateError
 ```
 
 ## Public attributes
@@ -78,8 +86,9 @@ Catch the narrowest type that supports the required recovery:
   Trussium. Pydantic `ValidationError` remains Pydantic-owned at settings and
   process-startup boundaries.
 - `LifecycleError` for normalized runtime startup, drain, or shutdown
-  failures. Exceptions raised by injected third-party cleanup objects are
-  preserved unless a concrete runtime service intentionally normalizes them.
+  failures. Runtime-service hooks normalize startup and cleanup failures into
+  bounded aggregate metadata after all eligible hooks run. Existing injected
+  readiness and tracing cleanup exceptions retain their established behavior.
 - `DependencyError` for normalized external dependency operations. Bounded
   readiness results remain value objects and do not become exceptions.
 - `CapabilityExecutionError` when category-aware request handling is needed.
@@ -100,8 +109,8 @@ The following retain their native identities and semantics:
 - Pydantic validation failures.
 - OpenAI and other provider SDK exceptions before an adapter normalizes them.
 - Built-in `TimeoutError` before a runtime deadline boundary normalizes it.
-- Unexpected programming errors and exceptions raised by injected test or
-  lifecycle objects.
+- Unexpected programming errors outside the explicit runtime-service
+  lifecycle boundary.
 
 In particular, cancellation must continue to propagate so async tasks and
 stream generators terminate correctly.

@@ -15,6 +15,20 @@ OBSERVABILITY_CONFIGURATION_LOADED: Final = "observability.configuration.loaded"
 RUNTIME_STARTED: Final = "runtime.started"
 RUNTIME_STOPPING: Final = "runtime.stopping"
 RUNTIME_STOPPED: Final = "runtime.stopped"
+RUNTIME_SERVICE_STARTUP_STARTED: Final = "runtime.service.startup.started"
+RUNTIME_SERVICE_STARTUP_COMPLETED: Final = "runtime.service.startup.completed"
+RUNTIME_SERVICE_STARTUP_FAILED: Final = "runtime.service.startup.failed"
+RUNTIME_SERVICE_STARTUP_CANCELLED: Final = "runtime.service.startup.cancelled"
+RUNTIME_SERVICE_ROLLBACK_STARTED: Final = "runtime.service.rollback.started"
+RUNTIME_SERVICE_ROLLBACK_COMPLETED: Final = "runtime.service.rollback.completed"
+RUNTIME_SERVICE_ROLLBACK_FAILED: Final = "runtime.service.rollback.failed"
+RUNTIME_SERVICE_ROLLBACK_TIMEOUT: Final = "runtime.service.rollback.timeout"
+RUNTIME_SERVICE_ROLLBACK_CANCELLED: Final = "runtime.service.rollback.cancelled"
+RUNTIME_SERVICE_SHUTDOWN_STARTED: Final = "runtime.service.shutdown.started"
+RUNTIME_SERVICE_SHUTDOWN_COMPLETED: Final = "runtime.service.shutdown.completed"
+RUNTIME_SERVICE_SHUTDOWN_FAILED: Final = "runtime.service.shutdown.failed"
+RUNTIME_SERVICE_SHUTDOWN_TIMEOUT: Final = "runtime.service.shutdown.timeout"
+RUNTIME_SERVICE_SHUTDOWN_CANCELLED: Final = "runtime.service.shutdown.cancelled"
 TRACING_SHUTDOWN_COMPLETED: Final = "observability.tracing.shutdown.completed"
 TRACING_SHUTDOWN_FAILED: Final = "observability.tracing.shutdown.failed"
 TRACE_EXPORT_FAILED: Final = "observability.trace_export.failed"
@@ -43,6 +57,7 @@ def log_startup_configuration(
             "port": settings.runtime.port,
             "debug": settings.runtime.debug,
             "graceful_shutdown_seconds": settings.runtime.graceful_shutdown_seconds,
+            "service_cleanup_seconds": settings.runtime.service_cleanup_seconds,
         },
     )
 
