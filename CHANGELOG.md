@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.35.0 (2026-08-18)
+
+### Features
+
+- **runtime**: Add component health reporting
+  ([`271ac6d`](https://github.com/trussiumhq/trussium/commit/271ac6d916e1ef8daea74b1dc5978622bf4bf93b))
+
+
 ## v0.34.0 (2026-08-18)
 
 ### Features
