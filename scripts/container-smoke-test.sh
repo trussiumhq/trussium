@@ -67,6 +67,8 @@ docker run --rm --entrypoint python "$image" -c \
     "from trussium import ProviderError, TrussiumError; assert issubclass(ProviderError, TrussiumError); assert ProviderError('safe').code == 'provider_error'"
 docker run --rm --entrypoint python "$image" -c \
     "from trussium.runtime import RuntimeComponentHealthReporter, RuntimeComponentStatus; assert RuntimeComponentHealthReporter is not None; assert RuntimeComponentStatus.OK == 'ok'"
+docker run --rm --entrypoint python "$image" -c \
+    "from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability) is capability; assert registry.seal()[0].capability is capability"
 
 if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
     echo "uv must not be present in the runtime image" >&2

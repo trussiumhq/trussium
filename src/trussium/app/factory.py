@@ -9,6 +9,11 @@ from fastapi import FastAPI
 
 from trussium.api import api_router
 from trussium.api.metrics import router as metrics_router
+from trussium.capabilities import (
+    CHAT_CAPABILITY_NAME,
+    CapabilityContractMismatchError,
+    CapabilityRegistry,
+)
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
 from trussium.middleware import (
@@ -44,6 +49,7 @@ def create_application(
     settings: Settings | None = None,
     *,
     chat_capability: ChatCapability | None = None,
+    capability_registry: CapabilityRegistry | None = None,
     tracing: RuntimeTracing | None = None,
     dependency_health_check: DependencyHealthCheck | None = None,
     runtime_services: Sequence[RuntimeService] = (),
@@ -54,6 +60,7 @@ def create_application(
     Args:
         settings: Optional runtime settings override.
         chat_capability: Optional configured chat capability.
+        capability_registry: Optional provider-neutral capability registrations.
         tracing: Optional shared application tracing runtime.
         dependency_health_check: Optional configured provider dependency check.
         runtime_services: Ordered runtime services managed by application lifespan.
@@ -63,6 +70,9 @@ def create_application(
         Configured FastAPI application.
     """
     resolved_settings = settings or get_settings()
+
+    if capability_registry is not None and chat_capability is not None:
+        raise ValueError("chat_capability and capability_registry are mutually exclusive")
 
     if runtime_service_registry is not None and runtime_services:
         raise ValueError("runtime_services and runtime_service_registry are mutually exclusive")
@@ -80,6 +90,29 @@ def create_application(
     runtime_tracing = tracing or RuntimeTracing(
         resolved_settings.observability,
     )
+    configured_capability_registry = (
+        capability_registry if capability_registry is not None else CapabilityRegistry()
+    )
+    if chat_capability is not None:
+        configured_capability_registry.register(CHAT_CAPABILITY_NAME, chat_capability)
+
+    configured_registrations = configured_capability_registry.seal()
+    resolved_capability_registry = CapabilityRegistry()
+    for registration in configured_registrations:
+        capability = registration.capability
+        if registration.name == CHAT_CAPABILITY_NAME:
+            if not isinstance(capability, ChatCapability):
+                raise CapabilityContractMismatchError(registration.name)
+            if not isinstance(capability, LoggingChatCapability):
+                capability = LoggingChatCapability(
+                    capability,
+                    tracer=runtime_tracing.tracer,
+                )
+
+        resolved_capability_registry.register(registration.name, capability)
+
+    resolved_capability_registry.seal()
+    resolved_chat_capability = resolved_capability_registry.get(CHAT_CAPABILITY_NAME)
     runtime_logger = get_logger("runtime")
     dependency_readiness = (
         DependencyReadiness(
@@ -106,7 +139,7 @@ def create_application(
         runtime_started = False
         log_startup_configuration(
             resolved_settings,
-            provider_configured=chat_capability is not None,
+            provider_configured=resolved_chat_capability is not None,
         )
 
         try:
@@ -223,18 +256,8 @@ def create_application(
     application.state.runtime_service_lifecycle = runtime_service_lifecycle
     application.state.runtime_service_registry = resolved_runtime_service_registry
     application.state.runtime_component_health_reporter = runtime_component_health_reporter
-    application.state.chat_capability = (
-        LoggingChatCapability(
-            chat_capability,
-            tracer=runtime_tracing.tracer,
-        )
-        if chat_capability is not None
-        and not isinstance(
-            chat_capability,
-            LoggingChatCapability,
-        )
-        else chat_capability
-    )
+    application.state.capability_registry = resolved_capability_registry
+    application.state.chat_capability = resolved_chat_capability
 
     if resolved_settings.observability.metrics_enabled:
         runtime_metrics = RuntimeMetrics()

@@ -20,6 +20,11 @@ The production image:
 - Carries standard OCI source, revision, version, creation-time, and license
   metadata.
 
+The installed package includes the public core capability registry. The
+production entry point registers configured chat execution under the canonical
+`chat.completions` identity before application composition. This changes no
+image setting, port, process, health check, or provider configuration contract.
+
 ## Pulling a release
 
 Semantic-version releases are published to GitHub Container Registry:

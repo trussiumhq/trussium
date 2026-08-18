@@ -1,13 +1,15 @@
 """Chat capability provider interface."""
 
 from collections.abc import AsyncIterator
-from typing import Protocol, runtime_checkable
+from typing import Final, Protocol, runtime_checkable
 
 from trussium.capabilities.chat.models import (
     ChatCompletionRequest,
     ChatCompletionResponse,
     ChatStreamEvent,
 )
+
+CHAT_CAPABILITY_NAME: Final = "chat.completions"
 
 
 @runtime_checkable
@@ -41,3 +43,6 @@ class ChatCapability(Protocol):
             An asynchronous iterator of normalized streaming events.
         """
         ...
+
+
+__all__ = ["CHAT_CAPABILITY_NAME", "ChatCapability"]

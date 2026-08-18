@@ -108,8 +108,10 @@ Registration is intentionally explicit and application-scoped. The registry
 does not provide unregistration, replacement, hot reload, concurrent startup,
 dependency declarations, topological sorting, dependency injection, automatic
 discovery, package entry points, plugins, health aggregation, capability
-registration, or provider registration. Those concerns require separate
-contracts and must not change registry ordering or sealing semantics.
+registration, or provider registration. Capability registration now uses its
+own provider-neutral registry documented in
+[Core Capability Registry](CAPABILITY_REGISTRY.md). Those concerns must not
+change runtime-service registry ordering or sealing semantics.
 
 Registered services may independently implement the optional component-health
 protocol. The reporter reads the sealed ordered snapshot without adding

@@ -146,19 +146,19 @@ the [Runtime Alerting and Runbook Guide](ALERTING.md).
 ## Deploy with Helm
 
 After creating the namespace, image-pull Secret, and any provider Secret above,
-authenticate to GHCR and install chart v0.4.0:
+authenticate to GHCR and install chart v0.4.4:
 
 ```bash
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.0 \
+  --version 0.4.4 \
   --namespace trussium-system \
   --wait
 ```
 
-Chart v0.4.0 defaults to runtime v0.31.0. Chart and runtime versions are
+Chart v0.4.4 defaults to runtime v0.35.0. Chart and runtime versions are
 independent; the chart's `appVersion` records its default compatible runtime.
 The chart enables the same two-to-ten-replica CPU HPA and runtime metrics
 contract by default, so a working Kubernetes Metrics API is required. It also
@@ -170,7 +170,7 @@ replicas when the Metrics API is intentionally unavailable:
 ```bash
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.0 \
+  --version 0.4.4 \
   --namespace trussium-system \
   --set autoscaling.enabled=false \
   --set replicaCount=2 \
@@ -179,6 +179,11 @@ helm install trussium \
 
 The chart repository documents every value, existing Secret integration,
 customization, upgrades, rollbacks, removal, and release compatibility.
+
+The runtime's application-scoped capability registry requires no Kubernetes
+resource, value, environment variable, port, probe, permission, or lifecycle
+change. A future remote discovery surface will define its deployment contract
+separately.
 
 The remaining sections describe the maintained Kustomize path. Do not manage
 the same runtime release with both Helm and Kustomize.
