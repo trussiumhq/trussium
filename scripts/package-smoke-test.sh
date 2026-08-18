@@ -114,6 +114,7 @@ required_modules = {
     "trussium/app/factory.py",
     "trussium/capabilities/execution.py",
     "trussium/capabilities/metadata.py",
+    "trussium/capabilities/middleware.py",
     "trussium/capabilities/registry.py",
     "trussium/config/settings.py",
     "trussium/errors.py",
@@ -247,10 +248,13 @@ from trussium.app import create_application
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    CapabilityExecuteNext,
     CapabilityExecutionPipeline,
+    CapabilityInvocation,
     CapabilityMetadata,
     CapabilityRegistry,
     CapabilityRegistrySealedError,
+    CapabilityStreamNext,
 )
 from trussium.config.settings import Settings
 from trussium.errors import ProviderError, TrussiumError
@@ -290,13 +294,45 @@ assert CapabilityMetadata is not None
 assert capability_registry.require(CHAT_CAPABILITY_NAME) is capability
 assert capability_registry.seal()[0].capability is capability
 assert capability_registry.sealed is True
-pipeline = CapabilityExecutionPipeline(capability_registry)
+
+
+class SmokeMiddleware:
+    def __init__(self):
+        self.invocations = []
+
+    async def execute(
+        self,
+        invocation: CapabilityInvocation,
+        call_next: CapabilityExecuteNext,
+    ) -> object:
+        self.invocations.append(invocation)
+        return await call_next()
+
+    def stream(
+        self,
+        invocation: CapabilityInvocation,
+        call_next: CapabilityStreamNext,
+    ):
+        self.invocations.append(invocation)
+        return call_next()
+
+
+middleware = SmokeMiddleware()
+pipeline = CapabilityExecutionPipeline(
+    capability_registry,
+    middleware=(middleware,),
+)
 assert asyncio.run(
     pipeline.execute(
         CHAT_CAPABILITY_NAME,
         lambda resolved: asyncio.sleep(0, result=resolved),
     )
 ) is capability
+assert pipeline.middleware == (middleware,)
+assert len(middleware.invocations) == 1
+assert middleware.invocations[0].capability_name == CHAT_CAPABILITY_NAME
+assert middleware.invocations[0].capability is capability
+assert middleware.invocations[0].streaming is False
 assert CapabilityRegistrySealedError is not None
 service_registry = RuntimeServiceRegistry()
 assert service_registry.seal() == ()

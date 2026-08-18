@@ -14,6 +14,7 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityContractMismatchError,
     CapabilityExecutionPipeline,
+    CapabilityMiddleware,
     CapabilityRegistry,
 )
 from trussium.capabilities.chat import ChatCapability
@@ -52,6 +53,7 @@ def create_application(
     *,
     chat_capability: ChatCapability | None = None,
     capability_registry: CapabilityRegistry | None = None,
+    capability_middleware: Sequence[CapabilityMiddleware] = (),
     tracing: RuntimeTracing | None = None,
     dependency_health_check: DependencyHealthCheck | None = None,
     runtime_services: Sequence[RuntimeService] = (),
@@ -63,6 +65,7 @@ def create_application(
         settings: Optional runtime settings override.
         chat_capability: Optional configured chat capability.
         capability_registry: Optional provider-neutral capability registrations.
+        capability_middleware: Ordered provider-neutral capability middleware.
         tracing: Optional shared application tracing runtime.
         dependency_health_check: Optional configured provider dependency check.
         runtime_services: Ordered runtime services managed by application lifespan.
@@ -126,6 +129,7 @@ def create_application(
     resolved_capability_registry.seal()
     capability_execution_pipeline = CapabilityExecutionPipeline(
         resolved_capability_registry,
+        middleware=capability_middleware,
     )
     resolved_chat_capability = resolved_capability_registry.get(CHAT_CAPABILITY_NAME)
     runtime_logger = get_logger("runtime")

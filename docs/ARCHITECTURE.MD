@@ -147,7 +147,14 @@ It resolves canonical names once, binds immutable execution context across
 non-streaming and streaming work, preserves capability-specific results and
 failures, and finalizes upstream streams. The existing chat REST path uses this
 boundary without moving transport, logging, tracing, timeout, or provider
-semantics into the pipeline. General capability middleware and dynamic plugins
+semantics into the pipeline.
+
+An immutable ordered middleware snapshot surrounds that execution boundary.
+Each provider-neutral layer receives frozen resolved invocation metadata and a
+single-use continuation for asynchronous or streaming work. Declaration-order
+entry, reverse unwind, short-circuiting, context propagation, and pipeline-owned
+stream cleanup are shared across capability interfaces. Lifecycle management,
+availability, health, routing, provider registration, and dynamic plugins
 remain separate framework layers.
 
 ---

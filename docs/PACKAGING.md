@@ -44,8 +44,8 @@ The smoke test:
 5. Checks installed dependency consistency and proves imports resolve from
    each isolated environment rather than the repository checkout.
 6. Starts both installed runtimes on dynamically allocated loopback ports.
-7. Imports and invokes the sealed-registry capability execution pipeline from
-   each installed artifact.
+7. Imports and invokes the sealed-registry capability execution pipeline with
+   public ordered middleware from each installed artifact.
 8. Exercises liveness, readiness, component health, empty capability discovery,
    metrics, and caller-provided request correlation over real HTTP connections.
 9. Sends `SIGTERM`, requires bounded shutdown, and always cleans up temporary

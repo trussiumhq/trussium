@@ -79,6 +79,9 @@ def test_smoke_script_validates_runtime_security_and_shutdown() -> None:
     assert "CHAT_CAPABILITY_METADATA" in script
     assert "CapabilityRegistry" in script
     assert "CapabilityExecutionPipeline" in script
+    assert "CapabilityInvocation" in script
+    assert "middleware=(middleware,)" in script
+    assert "pipeline.middleware == (middleware,)" in script
     assert "pipeline.execute(" in script
     assert "trussium_http_requests_active" in script
     assert "process_start_time_seconds" in script

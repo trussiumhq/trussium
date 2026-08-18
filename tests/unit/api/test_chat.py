@@ -10,7 +10,13 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from trussium.app import create_application
-from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityRegistry
+from trussium.capabilities import (
+    CHAT_CAPABILITY_NAME,
+    CapabilityExecuteNext,
+    CapabilityInvocation,
+    CapabilityRegistry,
+    CapabilityStreamNext,
+)
 from trussium.capabilities.chat import (
     ChatCompletionChoice,
     ChatCompletionRequest,
@@ -99,6 +105,37 @@ class StubChatCapability:
                 total_tokens=8,
             ),
         )
+
+
+class RecordingCapabilityMiddleware:
+    """Record chat invocations while preserving downstream behavior."""
+
+    def __init__(self) -> None:
+        """Initialize an empty invocation history."""
+        self.invocations: list[CapabilityInvocation] = []
+
+    async def execute(
+        self,
+        invocation: CapabilityInvocation,
+        call_next: CapabilityExecuteNext,
+    ) -> object:
+        """Record and continue one JSON execution."""
+        self.invocations.append(invocation)
+        return await call_next()
+
+    def stream(
+        self,
+        invocation: CapabilityInvocation,
+        call_next: CapabilityStreamNext,
+    ) -> AsyncIterator[object]:
+        """Record and continue one SSE execution."""
+
+        async def events() -> AsyncIterator[object]:
+            self.invocations.append(invocation)
+            async for event in call_next():
+                yield event
+
+        return events()
 
 
 class FailingChatCapability:
@@ -300,6 +337,50 @@ def test_streaming_chat_executes_through_application_pipeline() -> None:
     pipeline.stream.assert_called_once()
     assert pipeline.stream.call_args.args[0] == CHAT_CAPABILITY_NAME
     assert pipeline.stream.call_args.kwargs == {"model": "pipeline-stream-model"}
+
+
+def test_configured_middleware_intercepts_chat_json_and_sse_only() -> None:
+    """Both execution modes should share middleware while discovery stays passive."""
+    middleware = RecordingCapabilityMiddleware()
+    app = create_application(
+        chat_capability=StubChatCapability(),
+        capability_middleware=(middleware,),
+    )
+    client = TestClient(app)
+
+    discovery_response = client.get("/v1/capabilities")
+    json_response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "middleware-json-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": False,
+        },
+    )
+    stream_response = client.post(
+        "/v1/chat/completions",
+        json={
+            "model": "middleware-stream-model",
+            "messages": [{"role": "user", "content": "Hello."}],
+            "stream": True,
+        },
+    )
+
+    assert discovery_response.status_code == status.HTTP_200_OK
+    assert json_response.status_code == status.HTTP_200_OK
+    assert json_response.json()["model"] == "middleware-json-model"
+    assert stream_response.status_code == status.HTTP_200_OK
+    assert "event: start" in stream_response.text
+    assert "event: end" in stream_response.text
+    assert [invocation.capability_name for invocation in middleware.invocations] == [
+        CHAT_CAPABILITY_NAME,
+        CHAT_CAPABILITY_NAME,
+    ]
+    assert [invocation.model for invocation in middleware.invocations] == [
+        "middleware-json-model",
+        "middleware-stream-model",
+    ]
+    assert [invocation.streaming for invocation in middleware.invocations] == [False, True]
 
 
 def test_chat_completion_streams_normalized_sse_events() -> None:
