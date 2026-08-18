@@ -119,6 +119,7 @@ required_modules = {
     "trussium/providers/ollama/chat.py",
     "trussium/providers/openai/chat.py",
     "trussium/runtime/context.py",
+    "trussium/runtime/health.py",
     "trussium/runtime/registry.py",
     "trussium/py.typed",
 }
@@ -234,6 +235,7 @@ validate_imports() {
         "$python" - "$expected_version" "$repository_root" <<'PY'
 from importlib import metadata, resources
 from pathlib import Path
+import asyncio
 import sys
 
 import trussium
@@ -242,6 +244,8 @@ from trussium.config.settings import Settings
 from trussium.errors import ProviderError, TrussiumError
 from trussium.runtime import (
     ExecutionContext,
+    RuntimeComponentHealthReporter,
+    RuntimeComponentStatus,
     RuntimeServiceRegistry,
     RuntimeServiceRegistrySealedError,
 )
@@ -263,6 +267,9 @@ assert ExecutionContext is not None
 registry = RuntimeServiceRegistry()
 assert registry.seal() == ()
 assert registry.sealed is True
+report = asyncio.run(RuntimeComponentHealthReporter(registry).report())
+assert report.status is RuntimeComponentStatus.OK
+assert report.components == ()
 assert RuntimeServiceRegistrySealedError is not None
 assert issubclass(ProviderError, TrussiumError)
 assert ProviderError("safe").code == "provider_error"
@@ -310,6 +317,15 @@ for path in ("/health/live", "/health/ready"):
         assert response.status == 200
         assert json.load(response) == {"status": "ok"}
         assert response.headers["X-Request-ID"] == request_id
+
+components_request = urllib.request.Request(
+    f"http://127.0.0.1:{port}/health/components",
+    headers={"X-Request-ID": request_id},
+)
+with urllib.request.urlopen(components_request, timeout=1) as response:
+    assert response.status == 200
+    assert json.load(response) == {"status": "ok", "components": []}
+    assert response.headers["X-Request-ID"] == request_id
 
 metrics_request = urllib.request.Request(
     f"http://127.0.0.1:{port}/metrics",

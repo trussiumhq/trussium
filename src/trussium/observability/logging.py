@@ -34,6 +34,7 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "debug",
     "graceful_shutdown_seconds",
     "service_cleanup_seconds",
+    "component_health_timeout_seconds",
     "runtime_service",
     "lifecycle_phase",
     "dependency_checks_enabled",

@@ -20,7 +20,7 @@ The server span covers the complete HTTP response, including the final body of
 an SSE stream. Capability and provider spans likewise remain active until their
 ordinary or streaming execution completes, fails, or is cancelled.
 
-`/health/live`, `/health/ready`, and `/metrics` are excluded. Probes and
+`/health/live`, `/health/ready`, `/health/components`, and `/metrics` are excluded. Probes and
 scrapes therefore do not create trace traffic.
 
 ## Configuration

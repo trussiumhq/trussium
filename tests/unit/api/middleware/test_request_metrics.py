@@ -131,7 +131,7 @@ def test_metrics_and_health_paths_are_excluded() -> None:
 
     middleware = RequestMetricsMiddleware(cast(ASGIApp, application), metrics=metrics)
 
-    for path in ("/metrics", "/health/live", "/health/ready"):
+    for path in ("/metrics", "/health/live", "/health/ready", "/health/components"):
         asyncio.run(middleware(http_scope(path), receive, send))
 
     rendered = metrics.render().decode()

@@ -11,6 +11,16 @@ from trussium.runtime.context import (
     set_execution_context,
     set_request_id,
 )
+from trussium.runtime.health import (
+    COMPONENT_HEALTH_CHECK_FAILED,
+    COMPONENT_HEALTH_NOT_REPORTED,
+    COMPONENT_HEALTH_TIMEOUT,
+    RuntimeComponentHealth,
+    RuntimeComponentHealthCheck,
+    RuntimeComponentHealthReport,
+    RuntimeComponentHealthReporter,
+    RuntimeComponentStatus,
+)
 from trussium.runtime.lifecycle import (
     RuntimeService,
     RuntimeServiceFailure,
@@ -44,6 +54,9 @@ from trussium.runtime.timeouts import (
 )
 
 __all__ = [
+    "COMPONENT_HEALTH_CHECK_FAILED",
+    "COMPONENT_HEALTH_NOT_REPORTED",
+    "COMPONENT_HEALTH_TIMEOUT",
     "PROVIDER_REQUEST_TIMEOUT_CODE",
     "PROVIDER_REQUEST_TIMEOUT_MESSAGE",
     "PROVIDER_STREAM_TIMEOUT_CODE",
@@ -54,6 +67,11 @@ __all__ = [
     "DependencyReadiness",
     "DependencyStatus",
     "ExecutionContext",
+    "RuntimeComponentHealth",
+    "RuntimeComponentHealthCheck",
+    "RuntimeComponentHealthReport",
+    "RuntimeComponentHealthReporter",
+    "RuntimeComponentStatus",
     "RuntimeService",
     "RuntimeServiceAlreadyRegisteredError",
     "RuntimeServiceFailure",

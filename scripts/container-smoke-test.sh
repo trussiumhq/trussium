@@ -65,6 +65,8 @@ docker run --rm --entrypoint python "$image" -c \
     "import importlib.util; assert importlib.util.find_spec('pytest') is None"
 docker run --rm --entrypoint python "$image" -c \
     "from trussium import ProviderError, TrussiumError; assert issubclass(ProviderError, TrussiumError); assert ProviderError('safe').code == 'provider_error'"
+docker run --rm --entrypoint python "$image" -c \
+    "from trussium.runtime import RuntimeComponentHealthReporter, RuntimeComponentStatus; assert RuntimeComponentHealthReporter is not None; assert RuntimeComponentStatus.OK == 'ok'"
 
 if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
     echo "uv must not be present in the runtime image" >&2
@@ -120,6 +122,13 @@ assert_equal "$(cat "$response_body")" '{"status":"ok"}' "readiness body"
 
 request_id="$(awk 'tolower($1) == "x-request-id:" {gsub("\r", "", $2); print $2}' "$response_headers")"
 assert_equal "$request_id" "container-smoke-61" "request correlation header"
+
+curl --fail --silent --show-error \
+    "http://127.0.0.1:${host_port}/health/components" \
+    --output "$response_body"
+
+assert_equal "$(cat "$response_body")" \
+    '{"status":"ok","components":[]}' "component health body"
 
 curl --fail --silent --show-error \
     "http://127.0.0.1:${host_port}/metrics" \

@@ -161,6 +161,9 @@ assert_equal "$(cat "$body")" '{"status":"ok"}' "readiness response"
 request_id="$(awk 'tolower($1) == "x-request-id:" {gsub("\r", "", $2); print $2}' "$headers")"
 assert_equal "$request_id" "kubernetes-smoke-69" "request correlation header"
 
+assert_equal "$(curl --fail --silent "http://127.0.0.1:$port/health/components")" \
+    '{"status":"ok","components":[]}' "component health response"
+
 curl --fail --silent --show-error \
     "http://127.0.0.1:$port/metrics" \
     --output "$body"

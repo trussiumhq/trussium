@@ -395,6 +395,7 @@ def test_health_and_metrics_endpoints_are_excluded() -> None:
     with TestClient(_application(tracing)) as client:
         assert client.get("/health/live").status_code == 200
         assert client.get("/health/ready").status_code == 200
+        assert client.get("/health/components").status_code == 200
         assert client.get("/metrics").status_code == 200
 
     assert exporter.get_finished_spans() == ()

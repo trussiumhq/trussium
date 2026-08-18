@@ -13,6 +13,7 @@ _EXCLUDED_PATHS: Final[frozenset[str]] = frozenset(
     {
         "/health/live",
         "/health/ready",
+        "/health/components",
         "/metrics",
     }
 )

@@ -33,6 +33,7 @@ def test_operational_endpoints_do_not_change_workload_metrics() -> None:
 
     assert client.get("/health/live").status_code == status.HTTP_200_OK
     assert client.get("/health/ready").status_code == status.HTTP_200_OK
+    assert client.get("/health/components").status_code == status.HTTP_200_OK
     metrics = client.get("/metrics").text
 
     assert "trussium_http_requests_total{" not in metrics

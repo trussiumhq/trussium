@@ -88,6 +88,12 @@ class RuntimeSettings(BaseModel):
         description="Maximum duration of one runtime-service cleanup hook.",
     )
 
+    component_health_timeout_seconds: FiniteFloat = Field(
+        default=1.0,
+        gt=0.0,
+        description="Maximum duration of one runtime-component health check.",
+    )
+
 
 class TimeoutSettings(BaseModel):
     """Provider execution timeout configuration."""

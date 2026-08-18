@@ -1,6 +1,7 @@
 # Runtime Health and Dependency Readiness
 
-Trussium separates process health from external dependency availability:
+Trussium separates process health, external dependency availability, and
+informational component reporting:
 
 - `GET /health/live` proves that the runtime process and HTTP event loop are
   serving requests. It never calls a provider and should be used for container
@@ -8,10 +9,19 @@ Trussium separates process health from external dependency availability:
 - `GET /health/ready` proves that the runtime can receive traffic. By default
   it preserves the original local-only response. Operators may explicitly
   enable provider and optional model dependency gating.
+- `GET /health/components` reports bounded states for services in the sealed
+  runtime registry. It always returns HTTP 200 and never gates traffic.
 
 Do not use an external provider outage to fail liveness. Restarting a healthy
 runtime cannot restore a provider network, credential, permission, quota, or
 model dependency and may amplify an incident.
+
+Registered component reporting is also separate from dependency readiness. A
+component may be degraded or unavailable while the deployment deliberately
+remains ready. See the
+[Runtime Component Health Reporting Guide](COMPONENT_HEALTH.md) for the
+optional service protocol, aggregation, timeout, response, observability, and
+privacy contracts.
 
 ## Default behavior
 

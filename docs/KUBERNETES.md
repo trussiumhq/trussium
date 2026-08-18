@@ -224,6 +224,7 @@ In another terminal:
 ```bash
 curl http://127.0.0.1:9000/health/live
 curl http://127.0.0.1:9000/health/ready
+curl http://127.0.0.1:9000/health/components
 curl http://127.0.0.1:9000/metrics
 ```
 
