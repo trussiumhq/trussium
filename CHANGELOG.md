@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.40.0 (2026-08-18)
+
+### Features
+
+- **capabilities**: Add lifecycle management
+  ([#108](https://github.com/trussiumhq/trussium/pull/108),
+  [`c334862`](https://github.com/trussiumhq/trussium/commit/c3348625c100a8b706dfd55b0b28d9673599d7e9))
+
+
 ## v0.39.0 (2026-08-18)
 
 ### Features
