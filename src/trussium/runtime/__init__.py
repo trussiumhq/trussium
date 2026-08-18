@@ -11,6 +11,15 @@ from trussium.runtime.context import (
     set_execution_context,
     set_request_id,
 )
+from trussium.runtime.lifecycle import (
+    RuntimeService,
+    RuntimeServiceFailure,
+    RuntimeServiceLifecycle,
+    RuntimeServiceLifecycleError,
+    RuntimeServiceLifecyclePhase,
+    RuntimeServiceLifecycleState,
+    RuntimeServiceStateError,
+)
 from trussium.runtime.readiness import (
     DependencyFailureReason,
     DependencyHealth,
@@ -38,6 +47,13 @@ __all__ = [
     "DependencyReadiness",
     "DependencyStatus",
     "ExecutionContext",
+    "RuntimeService",
+    "RuntimeServiceFailure",
+    "RuntimeServiceLifecycle",
+    "RuntimeServiceLifecycleError",
+    "RuntimeServiceLifecyclePhase",
+    "RuntimeServiceLifecycleState",
+    "RuntimeServiceStateError",
     "TimeoutChatCapability",
     "UnavailableDependencyHealthCheck",
     "bind_execution_context",

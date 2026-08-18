@@ -12,6 +12,7 @@ def test_default_settings() -> None:
     assert settings.runtime.port == 9000
     assert settings.runtime.debug is False
     assert settings.runtime.graceful_shutdown_seconds == 30
+    assert settings.runtime.service_cleanup_seconds == 10.0
     assert settings.provider.name is ProviderName.OPENAI
     assert settings.provider.base_url is None
     assert settings.provider.api_key is None
@@ -103,6 +104,35 @@ def test_runtime_settings_support_graceful_shutdown_override(
 
     with pytest.raises(ValidationError):
         settings.runtime.graceful_shutdown_seconds = 4
+
+
+def test_runtime_service_cleanup_settings_are_typed_and_immutable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Runtime-service cleanup should have a positive environment deadline."""
+    monkeypatch.setenv(
+        "TRUSSIUM_RUNTIME__SERVICE_CLEANUP_SECONDS",
+        "2.5",
+    )
+
+    settings = Settings()
+
+    assert settings.runtime.service_cleanup_seconds == 2.5
+
+    with pytest.raises(ValidationError):
+        settings.runtime.service_cleanup_seconds = 1.0
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "nan", "inf"])
+def test_runtime_service_cleanup_rejects_invalid_values(
+    monkeypatch: pytest.MonkeyPatch,
+    value: str,
+) -> None:
+    """Invalid cleanup deadlines should fail before runtime startup."""
+    monkeypatch.setenv("TRUSSIUM_RUNTIME__SERVICE_CLEANUP_SECONDS", value)
+
+    with pytest.raises(ValidationError):
+        Settings()
 
 
 def test_observability_settings_support_metrics_override(

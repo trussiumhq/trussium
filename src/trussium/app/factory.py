@@ -1,6 +1,7 @@
 """Application factory."""
 
-from collections.abc import AsyncIterator
+from asyncio import CancelledError
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from time import perf_counter
 
@@ -29,7 +30,12 @@ from trussium.observability import (
     get_logger,
     log_startup_configuration,
 )
-from trussium.runtime import DependencyHealthCheck, DependencyReadiness
+from trussium.runtime import (
+    DependencyHealthCheck,
+    DependencyReadiness,
+    RuntimeService,
+    RuntimeServiceLifecycle,
+)
 
 
 def create_application(
@@ -38,6 +44,7 @@ def create_application(
     chat_capability: ChatCapability | None = None,
     tracing: RuntimeTracing | None = None,
     dependency_health_check: DependencyHealthCheck | None = None,
+    runtime_services: Sequence[RuntimeService] = (),
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -46,6 +53,7 @@ def create_application(
         chat_capability: Optional configured chat capability.
         tracing: Optional shared application tracing runtime.
         dependency_health_check: Optional configured provider dependency check.
+        runtime_services: Ordered runtime services managed by application lifespan.
 
     Returns:
         Configured FastAPI application.
@@ -68,32 +76,54 @@ def create_application(
         if dependency_health_check is not None
         else None
     )
+    runtime_service_lifecycle = RuntimeServiceLifecycle(
+        runtime_services,
+        cleanup_timeout_seconds=resolved_settings.runtime.service_cleanup_seconds,
+    )
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         started_at = perf_counter()
+        startup_error: BaseException | None = None
+        runtime_started = False
         log_startup_configuration(
             resolved_settings,
             provider_configured=chat_capability is not None,
         )
-        runtime_logger.info(
-            "Runtime started",
-            extra={
-                "event": RUNTIME_STARTED,
-            },
-        )
 
         try:
-            yield
-        finally:
+            try:
+                await runtime_service_lifecycle.startup()
+            except BaseException as error:
+                startup_error = error
+                raise
+
+            runtime_started = True
             runtime_logger.info(
-                "Runtime stopping",
+                "Runtime started",
                 extra={
-                    "event": RUNTIME_STOPPING,
+                    "event": RUNTIME_STARTED,
                 },
             )
+            yield
+        finally:
+            if runtime_started:
+                runtime_logger.info(
+                    "Runtime stopping",
+                    extra={
+                        "event": RUNTIME_STOPPING,
+                    },
+                )
 
+            lifecycle_shutdown_error: BaseException | None = None
             dependency_shutdown_error: Exception | None = None
+            tracing_shutdown_error: Exception | None = None
+
+            if runtime_started:
+                try:
+                    await runtime_service_lifecycle.shutdown()
+                except BaseException as error:
+                    lifecycle_shutdown_error = error
 
             if dependency_readiness is not None:
                 try:
@@ -112,6 +142,7 @@ def create_application(
             try:
                 runtime_tracing.shutdown()
             except Exception as error:
+                tracing_shutdown_error = error
                 runtime_logger.error(
                     "Tracing shutdown failed",
                     extra={
@@ -120,6 +151,28 @@ def create_application(
                         "error_type": type(error).__name__,
                     },
                 )
+            else:
+                runtime_logger.info(
+                    "Tracing shutdown completed",
+                    extra={
+                        "event": TRACING_SHUTDOWN_COMPLETED,
+                        "tracing_enabled": runtime_tracing.enabled,
+                        "outcome": "completed" if runtime_tracing.enabled else "disabled",
+                    },
+                )
+
+            terminal_error: BaseException | None = None
+            if startup_error is None:
+                if isinstance(lifecycle_shutdown_error, CancelledError):
+                    terminal_error = lifecycle_shutdown_error
+                elif tracing_shutdown_error is not None:
+                    terminal_error = tracing_shutdown_error
+                elif lifecycle_shutdown_error is not None:
+                    terminal_error = lifecycle_shutdown_error
+                elif dependency_shutdown_error is not None:
+                    terminal_error = dependency_shutdown_error
+
+            if startup_error is not None or terminal_error is not None:
                 runtime_logger.error(
                     "Runtime stopped with an operational failure",
                     extra={
@@ -128,36 +181,17 @@ def create_application(
                         "outcome": "failed",
                     },
                 )
-                raise
-
-            runtime_logger.info(
-                "Tracing shutdown completed",
-                extra={
-                    "event": TRACING_SHUTDOWN_COMPLETED,
-                    "tracing_enabled": runtime_tracing.enabled,
-                    "outcome": "completed" if runtime_tracing.enabled else "disabled",
-                },
-            )
-
-            if dependency_shutdown_error is not None:
-                runtime_logger.error(
-                    "Runtime stopped with an operational failure",
+                if terminal_error is not None:
+                    raise terminal_error
+            else:
+                runtime_logger.info(
+                    "Runtime stopped",
                     extra={
                         "event": RUNTIME_STOPPED,
                         "duration_ms": round((perf_counter() - started_at) * 1000, 3),
-                        "outcome": "failed",
+                        "outcome": "completed",
                     },
                 )
-                raise dependency_shutdown_error
-
-            runtime_logger.info(
-                "Runtime stopped",
-                extra={
-                    "event": RUNTIME_STOPPED,
-                    "duration_ms": round((perf_counter() - started_at) * 1000, 3),
-                    "outcome": "completed",
-                },
-            )
 
     application = FastAPI(
         title="Trussium",
@@ -168,6 +202,7 @@ def create_application(
     application.state.settings = resolved_settings
     application.state.runtime_tracing = runtime_tracing
     application.state.dependency_readiness = dependency_readiness
+    application.state.runtime_service_lifecycle = runtime_service_lifecycle
     application.state.chat_capability = (
         LoggingChatCapability(
             chat_capability,

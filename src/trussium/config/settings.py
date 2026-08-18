@@ -4,7 +4,15 @@ from enum import StrEnum
 from functools import lru_cache
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, SecretStr, StringConstraints
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    ConfigDict,
+    Field,
+    FiniteFloat,
+    SecretStr,
+    StringConstraints,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -72,6 +80,12 @@ class RuntimeSettings(BaseModel):
         description=(
             "Maximum time to drain active requests before they are cancelled during shutdown."
         ),
+    )
+
+    service_cleanup_seconds: FiniteFloat = Field(
+        default=10.0,
+        gt=0.0,
+        description="Maximum duration of one runtime-service cleanup hook.",
     )
 
 

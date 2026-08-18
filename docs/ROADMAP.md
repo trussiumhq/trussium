@@ -29,7 +29,7 @@ The runtime now propagates immutable execution context across asynchronous and s
 
 Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. W3C `traceparent` and optional `tracestate` now continue the active provider CLIENT span across OpenAI and Ollama-compatible JSON and SSE requests without global HTTP instrumentation. Unsampled decisions propagate correctly, while baggage, arbitrary headers, request IDs, payloads, and credentials remain behind the runtime privacy boundary. Tracing remains disabled by default until an operator supplies a reachable collector endpoint. Stable structured operational events now report bounded configuration summaries, provider configuration readiness, application and server lifecycle transitions, graceful-drain outcomes, and trace-export failures. Invalid settings and background failures expose only counts, error classes, and stable codes rather than rejected values, endpoints, exception text, payloads, or credentials.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Chart v0.4.0 targets runtime v0.31.0, enables runtime metrics and the production CPU autoscaler by default, and exposes schema-validated tracing and dependency-readiness values with safe disabled defaults. It exercises both configurations across autoscaled and fixed-replica Kind lifecycles and publishes GitHub and OCI artifacts without installing providers or observability backends. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Opt-in dependency-aware readiness distinguishes fast local liveness from provider and optional required-model availability through bounded metadata checks, stable failure reasons, runtime-owned deadlines, monotonic caching, and single-flight refreshes. Trussium-owned failures now share a public typed hierarchy with stable codes and bounded messages while native cancellation, validation, framework, and SDK boundaries remain intact. The next runtime-foundation priority is lifecycle hooks for runtime services.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Its release target is updated alongside compatible runtime releases, enables runtime metrics and the production CPU autoscaler by default, and exposes schema-validated tracing and dependency-readiness values with safe disabled defaults. It exercises both configurations across autoscaled and fixed-replica Kind lifecycles and publishes GitHub and OCI artifacts without installing providers or observability backends. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Opt-in dependency-aware readiness distinguishes fast local liveness from provider and optional required-model availability through bounded metadata checks, stable failure reasons, runtime-owned deadlines, monotonic caching, and single-flight refreshes. Trussium-owned failures share a public typed hierarchy with stable codes and bounded messages while native cancellation, validation, framework, and SDK boundaries remain intact. Application-scoped runtime services now use deterministic asynchronous startup, reverse shutdown, partial-startup rollback, bounded per-hook cleanup, and privacy-safe structured failure events. The next runtime-foundation priority is the core runtime service registry.
 
 ---
 
@@ -225,10 +225,25 @@ Build the foundational runtime components required by capabilities, providers, A
 - Top-level public exception exports
 - Native cancellation, validation, framework, and SDK exception boundaries
 - Exception hierarchy privacy and extension guidance
+- Public asynchronous runtime-service lifecycle protocol
+- Immutable ordered runtime-service lifecycle plan
+- Declaration-order service startup
+- Reverse-order service shutdown
+- Partial-startup rollback of successfully started services
+- Positive finite per-service cleanup configuration
+- Environment-configurable runtime-service cleanup deadline
+- Cleanup continuation across independent failures and timeouts
+- Stable aggregate runtime-service lifecycle failures
+- Deterministic lifecycle state-transition enforcement
+- Native lifecycle cancellation preservation
+- Structured service startup, rollback, shutdown, timeout, and cancellation events
+- Bounded service identity, phase, outcome, code, and error-class fields
+- Backward-compatible FastAPI lifespan integration
+- Preserved readiness-client and tracing-exporter shutdown order
+- Runtime-service lifecycle extension and privacy guidance
 
 ### Remaining
 
-- Lifecycle hooks for runtime services
 - Core runtime service registry
 - Runtime component health reporting
 
@@ -763,12 +778,12 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add lifecycle hooks for runtime services
+1. Add the core runtime service registry
 
-This priority will define deterministic startup and shutdown hooks for runtime
-services, including ordering, partial-startup rollback, bounded cleanup, and
-safe failure reporting. It will build on the typed exception hierarchy before
-the core runtime service registry and component health reporting are added.
+This priority will add explicit service registration, stable lookup, duplicate
+protection, and lifecycle-backed ownership without introducing plugin loading
+or component health reporting. It will build on the delivered typed lifecycle
+contract before runtime component health reporting is added.
 
 ---
 
