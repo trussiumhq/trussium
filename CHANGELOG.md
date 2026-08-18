@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.33.0 (2026-08-18)
+
+### Features
+
+- **runtime**: Add service lifecycle hooks
+  ([`d17e4d0`](https://github.com/trussiumhq/trussium/commit/d17e4d0fb31b8939351419869c0866f562e3c125))
+
+
 ## v0.32.0 (2026-08-12)
 
 ### Features
