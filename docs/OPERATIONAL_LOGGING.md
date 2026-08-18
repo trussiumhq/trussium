@@ -44,6 +44,20 @@ bounded and machine-readable.
 | `runtime.service.shutdown.failed` | ERROR | One service shutdown hook failed. |
 | `runtime.service.shutdown.timeout` | ERROR | One service shutdown hook exceeded its cleanup deadline. |
 | `runtime.service.shutdown.cancelled` | WARNING | One service shutdown hook retained native cancellation. |
+| `capability.startup.started` | INFO | A registered capability startup hook began. |
+| `capability.startup.completed` | INFO | A capability startup hook completed. |
+| `capability.startup.failed` | ERROR | A capability startup hook failed. |
+| `capability.startup.cancelled` | WARNING | Capability startup retained native cancellation. |
+| `capability.rollback.started` | INFO | Partial-startup rollback began for one capability. |
+| `capability.rollback.completed` | INFO | One capability rollback hook completed. |
+| `capability.rollback.failed` | ERROR | One capability rollback hook failed. |
+| `capability.rollback.timeout` | ERROR | One capability rollback hook exceeded its cleanup deadline. |
+| `capability.rollback.cancelled` | WARNING | One capability rollback hook retained native cancellation. |
+| `capability.shutdown.started` | INFO | One reverse-order capability shutdown hook began. |
+| `capability.shutdown.completed` | INFO | One capability shutdown hook completed. |
+| `capability.shutdown.failed` | ERROR | One capability shutdown hook failed. |
+| `capability.shutdown.timeout` | ERROR | One capability shutdown hook exceeded its cleanup deadline. |
+| `capability.shutdown.cancelled` | WARNING | One capability shutdown hook retained native cancellation. |
 | `observability.trace_export.failed` | ERROR | The OTLP exporter returned or raised a failure. |
 | `observability.tracing.shutdown.completed` | INFO | App-scoped tracing shutdown completed or tracing was disabled. |
 | `observability.tracing.shutdown.failed` | ERROR | App-scoped tracing shutdown raised an exception. |
@@ -88,6 +102,11 @@ Runtime-service lifecycle events may include a stable `runtime_service`,
 `lifecycle_phase`, duration, cleanup deadline, stable code, exception class,
 and bounded outcome. See [LIFECYCLE.md](LIFECYCLE.md) for ordering and failure
 semantics.
+
+Capability lifecycle events may include canonical `capability`,
+`lifecycle_phase`, duration, cleanup deadline, stable code, error class, and
+bounded outcome. See [CAPABILITY_LIFECYCLE.md](CAPABILITY_LIFECYCLE.md) for
+ownership, ordering, failure, and privacy semantics.
 
 Component-health transition events may include a stable `runtime_service`,
 bounded outcome and reason, duration, and error class. See

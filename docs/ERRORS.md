@@ -23,7 +23,9 @@ RuntimeError
     └── RuntimeExecutionError
         ├── LifecycleError
         │   ├── RuntimeServiceLifecycleError
-        │   └── RuntimeServiceStateError
+        │   ├── RuntimeServiceStateError
+        │   ├── CapabilityLifecycleError
+        │   └── CapabilityLifecycleStateError
         ├── DependencyError
         └── CapabilityError
             ├── CapabilityExecutionError
@@ -68,6 +70,12 @@ Capability-registry types are exported from `trussium.capabilities`:
 
 ```python
 from trussium.capabilities import CapabilityNotFoundError, CapabilityRegistry
+```
+
+Capability-lifecycle failures are exported from `trussium.capabilities`:
+
+```python
+from trussium.capabilities import CapabilityLifecycleError
 ```
 
 ## Public attributes
@@ -122,9 +130,10 @@ Catch the narrowest type that supports the required recovery:
   capability contract mismatches do too. Invalid registry names and `None`
   capability implementations remain `ValueError`.
 - `LifecycleError` for normalized runtime startup, drain, or shutdown
-  failures. Runtime-service hooks normalize startup and cleanup failures into
-  bounded aggregate metadata after all eligible hooks run. Existing injected
-  readiness and tracing cleanup exceptions retain their established behavior.
+  failures. Runtime-service and capability hooks normalize startup and cleanup
+  failures into bounded aggregate metadata after all eligible hooks run.
+  Existing injected readiness and tracing cleanup exceptions retain their
+  established behavior.
 - `DependencyError` for normalized external dependency operations. Bounded
   readiness results remain value objects and do not become exceptions.
 - `CapabilityExecutionError` when category-aware request handling is needed.

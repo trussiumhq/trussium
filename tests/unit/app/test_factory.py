@@ -16,6 +16,8 @@ from trussium.capabilities import (
     CapabilityExecuteNext,
     CapabilityExecutionPipeline,
     CapabilityInvocation,
+    CapabilityLifecycle,
+    CapabilityLifecycleError,
     CapabilityMetadata,
     CapabilityMiddleware,
     CapabilityRegistry,
@@ -65,6 +67,36 @@ class StubRuntimeService:
 
     async def shutdown(self) -> None:
         """Record application shutdown."""
+        self.events.append(f"stop:{self.name}")
+        if self.shutdown_error is not None:
+            raise self.shutdown_error
+
+
+class StubLifecycleCapability:
+    """Registered capability that records application lifecycle ownership."""
+
+    def __init__(
+        self,
+        name: str,
+        events: list[str],
+        *,
+        startup_error: Exception | None = None,
+        shutdown_error: Exception | None = None,
+    ) -> None:
+        """Initialize controllable hook behavior."""
+        self.name = name
+        self.events = events
+        self.startup_error = startup_error
+        self.shutdown_error = shutdown_error
+
+    async def startup(self) -> None:
+        """Record capability startup."""
+        self.events.append(f"start:{self.name}")
+        if self.startup_error is not None:
+            raise self.startup_error
+
+    async def shutdown(self) -> None:
+        """Record capability shutdown."""
         self.events.append(f"stop:{self.name}")
         if self.shutdown_error is not None:
             raise self.shutdown_error
@@ -201,6 +233,124 @@ def test_application_uses_injected_runtime_service_registry() -> None:
         pass
 
     assert events == ["start:service", "stop:service"]
+
+
+def test_application_manages_capabilities_between_services_and_resources() -> None:
+    """Capabilities should occupy a deterministic application ownership layer."""
+    events: list[str] = []
+    service = StubRuntimeService("service", events)
+    first = StubLifecycleCapability("first", events)
+    second = StubLifecycleCapability("second", events)
+    ordinary = object()
+    registry = CapabilityRegistry()
+    registry.register("first", first)
+    registry.register("ordinary", ordinary)
+    registry.register("second", second)
+    dependency_check = StubDependencyHealthCheck(events)
+    tracing = MagicMock(spec=RuntimeTracing)
+    tracing.enabled = False
+    tracing.shutdown.side_effect = lambda: events.append("stop:tracing")
+    settings = Settings(runtime=RuntimeSettings(service_cleanup_seconds=2.5))
+
+    app = create_application(
+        settings,
+        capability_registry=registry,
+        runtime_services=(service,),
+        dependency_health_check=dependency_check,
+        tracing=cast(RuntimeTracing, tracing),
+    )
+
+    assert isinstance(app.state.capability_lifecycle, CapabilityLifecycle)
+    assert app.state.capability_lifecycle.names == ("first", "second")
+    assert app.state.capability_lifecycle.cleanup_timeout_seconds == 2.5
+    assert tuple(
+        registration.capability for registration in app.state.capability_lifecycle.registrations
+    ) == (first, second)
+
+    with TestClient(app):
+        assert app.state.capability_lifecycle.state.value == "started"
+
+    assert app.state.capability_lifecycle.state.value == "stopped"
+    assert events == [
+        "start:service",
+        "start:first",
+        "start:second",
+        "stop:second",
+        "stop:first",
+        "stop:service",
+        "stop:dependency",
+        "stop:tracing",
+    ]
+
+
+def test_capability_startup_failure_still_stops_started_runtime_services() -> None:
+    """A failed capability startup must not leak earlier application resources."""
+    events: list[str] = []
+    service = StubRuntimeService("service", events)
+    first = StubLifecycleCapability("first", events)
+    failed = StubLifecycleCapability(
+        "failed",
+        events,
+        startup_error=RuntimeError("private capability startup detail"),
+    )
+    registry = CapabilityRegistry()
+    registry.register("first", first)
+    registry.register("failed", failed)
+
+    app = create_application(
+        capability_registry=registry,
+        runtime_services=(service,),
+    )
+
+    with pytest.raises(CapabilityLifecycleError), TestClient(app):
+        pass
+
+    assert events == [
+        "start:service",
+        "start:first",
+        "start:failed",
+        "stop:first",
+        "stop:service",
+    ]
+    assert app.state.capability_lifecycle.state.value == "failed"
+    assert app.state.runtime_service_lifecycle.state.value == "stopped"
+
+
+def test_capability_shutdown_failure_does_not_skip_remaining_cleanup() -> None:
+    """A capability hook failure should surface after all resource cleanup."""
+    events: list[str] = []
+    service = StubRuntimeService("service", events)
+    failed = StubLifecycleCapability(
+        "failed",
+        events,
+        shutdown_error=RuntimeError("private capability shutdown detail"),
+    )
+    registry = CapabilityRegistry()
+    registry.register("failed", failed)
+    dependency_check = StubDependencyHealthCheck(events)
+    tracing = MagicMock(spec=RuntimeTracing)
+    tracing.enabled = False
+    tracing.shutdown.side_effect = lambda: events.append("stop:tracing")
+    app = create_application(
+        capability_registry=registry,
+        runtime_services=(service,),
+        dependency_health_check=dependency_check,
+        tracing=cast(RuntimeTracing, tracing),
+    )
+
+    with pytest.raises(CapabilityLifecycleError), TestClient(app):
+        pass
+
+    assert events == [
+        "start:service",
+        "start:failed",
+        "stop:failed",
+        "stop:service",
+        "stop:dependency",
+        "stop:tracing",
+    ]
+    assert app.state.capability_lifecycle.state.value == "failed"
+    assert app.state.runtime_service_lifecycle.state.value == "stopped"
 
 
 def test_application_rejects_registry_and_raw_services_before_sealing() -> None:
