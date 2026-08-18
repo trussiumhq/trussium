@@ -20,6 +20,8 @@ from trussium.runtime import (
     DependencyStatus,
     RuntimeServiceLifecycle,
     RuntimeServiceLifecycleError,
+    RuntimeServiceRegistry,
+    RuntimeServiceRegistrySealedError,
 )
 
 
@@ -117,6 +119,9 @@ def test_application_lifespan_manages_ordered_runtime_services() -> None:
     )
 
     assert isinstance(app.state.runtime_service_lifecycle, RuntimeServiceLifecycle)
+    assert isinstance(app.state.runtime_service_registry, RuntimeServiceRegistry)
+    assert app.state.runtime_service_registry.sealed is True
+    assert app.state.runtime_service_registry.services == (first, second)
     assert app.state.runtime_service_lifecycle.services == (first, second)
     assert app.state.runtime_service_lifecycle.cleanup_timeout_seconds == 2.5
 
@@ -126,6 +131,53 @@ def test_application_lifespan_manages_ordered_runtime_services() -> None:
 
     assert app.state.runtime_service_lifecycle.state.value == "stopped"
     assert events == ["start:first", "start:second", "stop:second", "stop:first"]
+
+
+def test_application_uses_injected_runtime_service_registry() -> None:
+    """An injected registry should be sealed and own the lifecycle snapshot."""
+    events: list[str] = []
+    service = StubRuntimeService("service", events)
+    registry = RuntimeServiceRegistry((service,))
+
+    app = create_application(runtime_service_registry=registry)
+
+    assert app.state.runtime_service_registry is registry
+    assert registry.sealed is True
+    assert app.state.runtime_service_lifecycle.services == (service,)
+    with pytest.raises(RuntimeServiceRegistrySealedError):
+        registry.register(StubRuntimeService("later", events))
+
+    with TestClient(app):
+        pass
+
+    assert events == ["start:service", "stop:service"]
+
+
+def test_application_rejects_registry_and_raw_services_before_sealing() -> None:
+    """Ambiguous composition must not mutate a caller-owned registry."""
+    events: list[str] = []
+    configured = StubRuntimeService("configured", events)
+    supplied = StubRuntimeService("supplied", events)
+    registry = RuntimeServiceRegistry((configured,))
+
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        create_application(
+            runtime_services=(supplied,),
+            runtime_service_registry=registry,
+        )
+
+    assert registry.sealed is False
+    assert registry.services == (configured,)
+
+
+def test_application_default_registries_are_isolated() -> None:
+    """Separate application composition roots must not share registry state."""
+    first_app = create_application()
+    second_app = create_application()
+
+    assert first_app.state.runtime_service_registry is not second_app.state.runtime_service_registry
+    assert first_app.state.runtime_service_registry.services == ()
+    assert second_app.state.runtime_service_registry.services == ()
 
 
 def test_application_startup_failure_runs_runtime_resource_cleanup(

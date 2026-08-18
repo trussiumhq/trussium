@@ -119,6 +119,7 @@ required_modules = {
     "trussium/providers/ollama/chat.py",
     "trussium/providers/openai/chat.py",
     "trussium/runtime/context.py",
+    "trussium/runtime/registry.py",
     "trussium/py.typed",
 }
 expected_dependencies = {
@@ -239,7 +240,11 @@ import trussium
 from trussium.app import create_application
 from trussium.config.settings import Settings
 from trussium.errors import ProviderError, TrussiumError
-from trussium.runtime import ExecutionContext
+from trussium.runtime import (
+    ExecutionContext,
+    RuntimeServiceRegistry,
+    RuntimeServiceRegistrySealedError,
+)
 
 
 expected_version, repository_root = sys.argv[1:]
@@ -255,6 +260,10 @@ assert resources.files("trussium").joinpath("py.typed").is_file()
 assert callable(create_application)
 assert Settings is not None
 assert ExecutionContext is not None
+registry = RuntimeServiceRegistry()
+assert registry.seal() == ()
+assert registry.sealed is True
+assert RuntimeServiceRegistrySealedError is not None
 assert issubclass(ProviderError, TrussiumError)
 assert ProviderError("safe").code == "provider_error"
 PY

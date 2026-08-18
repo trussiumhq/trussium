@@ -89,8 +89,10 @@ boundaries and follow the extension checklist in [ERRORS.md](ERRORS.md).
 Application-scoped services implement the public asynchronous lifecycle
 contract. Preserve declaration-order startup, reverse shutdown, partial
 rollback, native cancellation, and the per-hook cleanup deadline documented in
-[LIFECYCLE.md](LIFECYCLE.md). Do not add registry or health semantics directly
-to lifecycle hooks.
+[LIFECYCLE.md](LIFECYCLE.md). Compose services through the explicit ordered
+registry documented in [SERVICE_REGISTRY.md](SERVICE_REGISTRY.md), and preserve
+its lookup, duplicate-protection, immutable-snapshot, and sealing boundaries.
+Do not add registry or health semantics directly to lifecycle hooks.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

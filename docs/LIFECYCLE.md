@@ -3,7 +3,8 @@
 Trussium provides a small public lifecycle contract for application-scoped
 runtime services. It defines deterministic asynchronous startup, reverse-order
 shutdown, partial-startup rollback, bounded cleanup, and safe operational
-failure reporting without introducing the separate runtime service registry.
+failure reporting. The runtime service registry now provides the separate
+registration and lookup layer that composes this lifecycle contract.
 
 ## Service contract
 
@@ -32,9 +33,13 @@ Service names must match `[a-z][a-z0-9_.-]{0,63}` and must be unique within
 one lifecycle plan. Names are operational identifiers, so they must never
 contain credentials, endpoints, tenant data, request data, or other secrets.
 
-The application factory copies the supplied sequence into an immutable tuple
-and exposes its coordinator as `application.state.runtime_service_lifecycle`.
-Existing factory calls that do not supply services remain compatible.
+The application factory registers the supplied sequence, seals the resolved
+registry, and builds the lifecycle from its immutable ordered snapshot. It
+exposes the registry as `application.state.runtime_service_registry` and its
+coordinator as `application.state.runtime_service_lifecycle`. Existing factory
+calls that do not supply services remain compatible. Callers that need lookup
+or discovery can explicitly compose a `RuntimeServiceRegistry`; see the
+[Runtime Service Registry Guide](SERVICE_REGISTRY.md).
 
 ## Ordering
 
@@ -139,7 +144,7 @@ lifespan. Hooks should be cooperative, idempotent at the resource boundary,
 and should release partially initialized internal resources before raising
 when possible.
 
-This feature intentionally does not provide service registration, discovery,
-dependency ordering, dependency injection, or component health reporting.
-Those remain separate runtime-foundation milestones built on this lifecycle
-contract.
+Service registration and lookup remain a separate sealed registry layer.
+Neither layer provides dependency ordering, dependency injection, automatic
+discovery, plugins, or component health reporting. Those concerns require
+separate contracts built on the stable lifecycle and registry foundations.

@@ -35,6 +35,7 @@ from trussium.runtime import (
     DependencyReadiness,
     RuntimeService,
     RuntimeServiceLifecycle,
+    RuntimeServiceRegistry,
 )
 
 
@@ -45,6 +46,7 @@ def create_application(
     tracing: RuntimeTracing | None = None,
     dependency_health_check: DependencyHealthCheck | None = None,
     runtime_services: Sequence[RuntimeService] = (),
+    runtime_service_registry: RuntimeServiceRegistry | None = None,
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -54,11 +56,22 @@ def create_application(
         tracing: Optional shared application tracing runtime.
         dependency_health_check: Optional configured provider dependency check.
         runtime_services: Ordered runtime services managed by application lifespan.
+        runtime_service_registry: Optional preconfigured runtime-service registry.
 
     Returns:
         Configured FastAPI application.
     """
     resolved_settings = settings or get_settings()
+
+    if runtime_service_registry is not None and runtime_services:
+        raise ValueError("runtime_services and runtime_service_registry are mutually exclusive")
+
+    resolved_runtime_service_registry = (
+        runtime_service_registry
+        if runtime_service_registry is not None
+        else RuntimeServiceRegistry(runtime_services)
+    )
+    registered_runtime_services = resolved_runtime_service_registry.seal()
 
     configure_logging(
         debug=resolved_settings.runtime.debug,
@@ -77,7 +90,7 @@ def create_application(
         else None
     )
     runtime_service_lifecycle = RuntimeServiceLifecycle(
-        runtime_services,
+        registered_runtime_services,
         cleanup_timeout_seconds=resolved_settings.runtime.service_cleanup_seconds,
     )
 
@@ -203,6 +216,7 @@ def create_application(
     application.state.runtime_tracing = runtime_tracing
     application.state.dependency_readiness = dependency_readiness
     application.state.runtime_service_lifecycle = runtime_service_lifecycle
+    application.state.runtime_service_registry = resolved_runtime_service_registry
     application.state.chat_capability = (
         LoggingChatCapability(
             chat_capability,

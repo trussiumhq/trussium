@@ -141,6 +141,11 @@ contract with ordered startup, reverse shutdown, partial-startup rollback, and
 bounded cleanup. See the
 [Runtime Service Lifecycle Guide](docs/LIFECYCLE.md).
 
+A public application-scoped registry adds explicit ordered registration,
+stable optional and required lookup, immutable discovery snapshots, duplicate
+protection, and lifecycle-backed ownership. See the
+[Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -182,11 +187,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.1 \
+  --version 0.4.2 \
   --namespace trussium-system
 ```
 
-Chart v0.4.1 defaults to runtime v0.32.0, enables the production CPU
+Chart v0.4.2 defaults to runtime v0.33.0, enables the production CPU
 autoscaler and runtime metrics contract, and exposes schema-validated
 dependency-readiness settings with safe disabled defaults. It also exposes
 schema-validated OpenTelemetry tracing values while keeping trace export
@@ -211,6 +216,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Alerting and Runbook Guide](docs/ALERTING.md)
 - [Runtime Health and Dependency Readiness Guide](docs/HEALTH.md)
 - [Runtime Service Lifecycle Guide](docs/LIFECYCLE.md)
+- [Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
