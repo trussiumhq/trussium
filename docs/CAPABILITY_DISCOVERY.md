@@ -163,11 +163,16 @@ Metadata and discovery do not change:
 This release provides one ordered collection endpoint. It does not add
 per-capability detail endpoints, filtering, pagination, ETags, caching,
 mutation, remote control, authentication, authorization, automatic
-registration, provider or model discovery, capability availability or health,
+registration, provider or model discovery, or capability health,
 version negotiation, aliases, plugins, execution middleware, or an execution
 pipeline within the discovery contract. The separately delivered
 [Capability Execution Pipeline](CAPABILITY_EXECUTION_PIPELINE.md) consumes the
 sealed registry without changing this metadata-only endpoint.
+
+Availability is delivered through the separate
+[Capability Availability Reporting Guide](CAPABILITY_AVAILABILITY.md). It uses
+the same canonical identities but does not change discovery metadata or probe
+through `GET /v1/capabilities`.
 
 Future features must preserve the bounded metadata validators, canonical
 identity, registration order, immutable snapshots, sealed application-owned

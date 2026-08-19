@@ -185,6 +185,11 @@ The runtime's application-scoped capability registry and read-only
 value, environment variable, port, probe, permission, or lifecycle change.
 Discovery uses the existing runtime Service and exposes no provider, model,
 implementation, health, availability, or configuration data.
+The informational `GET /v1/capabilities/availability` endpoint also uses the
+existing Service. It adds no probe, resource, port, permission, or operator and
+does not affect pod readiness. Its per-check deadline can be configured with
+`TRUSSIUM_RUNTIME__CAPABILITY_AVAILABILITY_TIMEOUT_SECONDS`; the official Helm
+chart exposes the corresponding typed value.
 The application-owned capability execution pipeline uses the same in-process
 sealed registry and requires no Kubernetes resource, value, environment
 variable, port, probe, permission, or lifecycle change. The Kind smoke test

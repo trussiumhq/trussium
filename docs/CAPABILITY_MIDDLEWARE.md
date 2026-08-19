@@ -156,10 +156,13 @@ An empty middleware sequence is the default for direct pipeline and
 disconnects, graceful shutdown, request IDs, and provider adapters remain
 unchanged.
 
-Capability middleware does not define lifecycle hooks, availability, health,
+Capability middleware does not define lifecycle hooks, health,
 routing, retries, fallback, caching, provider registration, plugin loading,
 authentication, authorization, tenant policy, settings, endpoints, Helm values,
 Kubernetes resources, CRDs, or operator behavior.
 
 Application-owned lifecycle hooks use the separate
 [Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md).
+Informational availability uses the separate
+[Capability Availability Reporting Guide](CAPABILITY_AVAILABILITY.md) without
+adding middleware behavior.

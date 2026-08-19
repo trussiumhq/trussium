@@ -116,6 +116,7 @@ def test_runtime_health_over_real_network(
         )
         readiness = client.get("/health/ready")
         components = client.get("/health/components")
+        availability = client.get("/v1/capabilities/availability")
         metrics = client.get("/metrics")
 
     assert liveness.status_code == 200
@@ -137,6 +138,12 @@ def test_runtime_health_over_real_network(
     assert components.status_code == 200
     assert components.json() == {"status": "ok", "components": []}
     assert str(UUID(components.headers["x-request-id"])) == components.headers["x-request-id"]
+    assert availability.status_code == 200
+    assert availability.json() == {
+        "status": "available",
+        "capabilities": [{"name": "chat.completions", "status": "available"}],
+    }
+    assert str(UUID(availability.headers["x-request-id"])) == availability.headers["x-request-id"]
     assert metrics.status_code == 200
     assert metrics.headers["content-type"].startswith("text/plain")
     assert "python_info" in metrics.text

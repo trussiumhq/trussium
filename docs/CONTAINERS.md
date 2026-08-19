@@ -27,6 +27,9 @@ image setting, port, process, health check, or provider configuration contract.
 The same installed package exposes bounded metadata through
 `GET /v1/capabilities`; a provider-free container returns
 `{"capabilities":[]}`.
+The same container exposes `GET /v1/capabilities/availability`; a provider-free
+runtime returns `{"status":"available","capabilities":[]}`. This informational
+route adds no container health check, port, privilege, or execution gate.
 The installed package also includes the public capability execution pipeline.
 Image validation composes it from a sealed registry and executes a generic
 asynchronous callback through public ordered capability middleware without

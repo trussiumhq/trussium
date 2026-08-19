@@ -29,7 +29,7 @@ The runtime now propagates immutable execution context across asynchronous and s
 
 Production Kubernetes packaging now carries those contracts into a maintained Kustomize base and release-pinned production overlay. It provides hardened autoscaled pods, ConfigMap and optional Secret integration, private-GHCR authentication, health probes, resource boundaries, topology spreading, zero-unavailable rolling updates, disruption protection, graceful termination timing, release-version stamping, structural validation, and a real Kind-cluster smoke test. The runtime exposes app-scoped Prometheus-compatible Python, process, request-total, request-duration, and active-request metrics with bounded labels. Pure ASGI instrumentation measures complete JSON and streaming lifecycles, while the production `autoscaling/v2` HorizontalPodAutoscaler safely maintains two to ten replicas against live per-container CPU metrics. App-scoped OpenTelemetry SDK providers add inbound W3C context extraction, complete HTTP/capability/provider span hierarchies, parent-based sampling, OTLP HTTP/protobuf export, trace-correlated structured logs, bounded privacy-aware attributes, and clean exporter shutdown. W3C `traceparent` and optional `tracestate` now continue the active provider CLIENT span across OpenAI and Ollama-compatible JSON and SSE requests without global HTTP instrumentation. Unsampled decisions propagate correctly, while baggage, arbitrary headers, request IDs, payloads, and credentials remain behind the runtime privacy boundary. Tracing remains disabled by default until an operator supplies a reachable collector endpoint. Stable structured operational events now report bounded configuration summaries, provider configuration readiness, application and server lifecycle transitions, graceful-drain outcomes, and trace-export failures. Invalid settings and background failures expose only counts, error classes, and stable codes rather than rejected values, endpoints, exception text, payloads, or credentials.
 
-The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Its release target is updated alongside compatible runtime releases, enables runtime metrics and the production CPU autoscaler by default, and exposes schema-validated tracing and dependency-readiness values with safe disabled defaults. It exercises both configurations across autoscaled and fixed-replica Kind lifecycles and publishes GitHub and OCI artifacts without installing providers or observability backends. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Opt-in dependency-aware readiness distinguishes fast local liveness from provider and optional required-model availability through bounded metadata checks, stable failure reasons, runtime-owned deadlines, monotonic caching, and single-flight refreshes. Trussium-owned failures share a public typed hierarchy with stable codes and bounded messages while native cancellation, validation, framework, and SDK boundaries remain intact. Application-scoped runtime services now use deterministic asynchronous startup, reverse shutdown, partial-startup rollback, bounded per-hook cleanup, and privacy-safe structured failure events. A sealed insertion-ordered runtime service registry now adds explicit registration, stable lookup, immutable discovery, duplicate protection, and lifecycle-backed application ownership. Registered services can now opt into bounded component health reporting with deterministic sealed-registry aggregation, deadlines, safe failure normalization, transition events, and an informational endpoint that remains separate from liveness and readiness. Provider-neutral capabilities now use a sealed insertion-ordered registry with canonical identities, explicit registration, stable lookup, immutable discovery, duplicate protection, safe contract validation, application-owned execution composition, and compatibility for existing chat factory callers. Bounded immutable metadata now travels with capability registrations and powers ordered external discovery through `GET /v1/capabilities` without exposing providers, models, implementations, health, availability, or configuration. A sealed-registry-backed capability execution pipeline now resolves canonical identities once, preserves immutable context and native failures, returns values and events unchanged, and closes upstream streams across complete asynchronous lifecycles. Ordered provider-neutral capability middleware now supplies immutable invocation metadata, declaration-order entry, reverse unwind, single-use continuation, intentional short-circuiting, and deterministic cleanup across asynchronous and streaming execution. Registered capabilities can now opt into application ownership with ordered asynchronous startup, reverse shutdown, partial-startup rollback, bounded cleanup, deterministic state, and privacy-safe operational failures. The Runtime Foundation milestone is complete, and the next priority is capability availability reporting.
+The independently versioned [`trussium` Helm chart](https://github.com/trussiumhq/trussium-helm) packages the validated runtime contract for configurable installation, upgrades, and rollbacks. Its release target is updated alongside compatible runtime releases, enables runtime metrics and the production CPU autoscaler by default, and exposes schema-validated tracing and dependency-readiness values with safe disabled defaults. It exercises both configurations across autoscaled and fixed-replica Kind lifecycles and publishes GitHub and OCI artifacts without installing providers or observability backends. Three portable Grafana dashboards turn the stable Prometheus, structured-Loki, and Tempo contracts into independently importable operator views. A portable Prometheus starter profile adds bounded conditions for missing telemetry, sustained failures, cancellations, high p95 latency, and process restarts, with traffic guards, deterministic semantic tests, and complete runbooks. Opt-in dependency-aware readiness distinguishes fast local liveness from provider and optional required-model availability through bounded metadata checks, stable failure reasons, runtime-owned deadlines, monotonic caching, and single-flight refreshes. Trussium-owned failures share a public typed hierarchy with stable codes and bounded messages while native cancellation, validation, framework, and SDK boundaries remain intact. Application-scoped runtime services now use deterministic asynchronous startup, reverse shutdown, partial-startup rollback, bounded per-hook cleanup, and privacy-safe structured failure events. A sealed insertion-ordered runtime service registry now adds explicit registration, stable lookup, immutable discovery, duplicate protection, and lifecycle-backed application ownership. Registered services can now opt into bounded component health reporting with deterministic sealed-registry aggregation, deadlines, safe failure normalization, transition events, and an informational endpoint that remains separate from liveness and readiness. Provider-neutral capabilities now use a sealed insertion-ordered registry with canonical identities, explicit registration, stable lookup, immutable discovery, duplicate protection, safe contract validation, application-owned execution composition, and compatibility for existing chat factory callers. Bounded immutable metadata now travels with capability registrations and powers ordered external discovery through `GET /v1/capabilities` without exposing providers, models, implementations, health, availability, or configuration. A sealed-registry-backed capability execution pipeline now resolves canonical identities once, preserves immutable context and native failures, returns values and events unchanged, and closes upstream streams across complete asynchronous lifecycles. Ordered provider-neutral capability middleware now supplies immutable invocation metadata, declaration-order entry, reverse unwind, single-use continuation, intentional short-circuiting, and deterministic cleanup across asynchronous and streaming execution. Registered capabilities can now opt into application ownership with ordered asynchronous startup, reverse shutdown, partial-startup rollback, bounded cleanup, deterministic state, and privacy-safe operational failures. Every registered capability now also has bounded informational availability: ordinary registrations default available, optional checks run concurrently within dedicated deadlines, safe failures normalize to unavailable, ordered fresh reports emit transition-only events, and `GET /v1/capabilities/availability` remains separate from execution and health. The Runtime Foundation milestone is complete, and the next priority is capability health reporting.
 
 ---
 
@@ -354,15 +354,26 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Runtime-service and capability application lifecycle ordering
 - Backward-compatible ordinary and chat capability composition
 - Capability lifecycle extension and privacy guidance
+- Frozen provider-neutral capability availability values and status
+- Optional asynchronous capability availability protocol
+- Sealed source-registry reporting in registration order
+- Default availability for ordinary registered capabilities
+- Concurrent fresh checks with serialized reports and dedicated deadlines
+- Stable timeout and check-failure normalization
+- Aggregate available and unavailable semantics
+- Native availability-check cancellation preservation
+- Transition-only bounded availability operational events
+- Informational `GET /v1/capabilities/availability` endpoint
+- OpenAPI, package, container, real-process, and Kubernetes validation
+- Capability availability configuration and extension guide
 
 ### Remaining
 
-- Capability availability reporting
 - Capability health reporting
 - Additional capability interfaces
 
-The capability framework remains in progress until availability, health, and
-additional capability interfaces are delivered.
+The capability framework remains in progress until health and additional
+capability interfaces are delivered.
 
 ---
 
@@ -859,13 +870,12 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add capability availability reporting
+1. Add capability health reporting
 
-This priority will define a bounded provider-neutral view of whether registered
-capabilities can currently accept execution, building on the delivered registry,
-metadata, lifecycle, execution-pipeline, and middleware contracts. Health,
-routing, retry, provider registration, model discovery, and dynamic plugins will
-remain separate milestones.
+This priority will define bounded provider-neutral capability health semantics
+separately from the delivered informational availability view. Routing, retry,
+provider registration, model discovery, dynamic plugins, and execution gating
+will remain separate milestones.
 
 ---
 

@@ -104,9 +104,9 @@ stable lookup, immutable snapshots, duplicate protection, safe errors, and the
 application-owned execution registry. Existing `chat_capability` callers must
 remain compatible. Attach only bounded provider-neutral public metadata and
 preserve the ordered endpoint contract documented in
-[CAPABILITY_DISCOVERY.md](CAPABILITY_DISCOVERY.md). Keep availability, health,
-provider registration, and plugin loading behind their future dedicated
-contracts. Execute registered capabilities through the sealed provider-neutral
+[CAPABILITY_DISCOVERY.md](CAPABILITY_DISCOVERY.md). Keep health, provider
+registration, and plugin loading behind their future dedicated contracts.
+Execute registered capabilities through the sealed provider-neutral
 boundary in
 [CAPABILITY_EXECUTION_PIPELINE.md](CAPABILITY_EXECUTION_PIPELINE.md). Preserve
 single resolution, immutable context, result and event identity, native errors
@@ -119,8 +119,9 @@ cleanup. Compose optional application-owned capability hooks through
 [CAPABILITY_LIFECYCLE.md](CAPABILITY_LIFECYCLE.md). Preserve sealed-registry
 ownership, registry-order startup, reverse shutdown, partial rollback, bounded
 cleanup, native cancellation, stable failures, and ordinary-capability
-compatibility. Keep availability, health, routing, retry, provider, plugin, and
-policy behavior outside lifecycle hooks.
+compatibility. Availability belongs to the separate contract in
+[CAPABILITY_AVAILABILITY.md](CAPABILITY_AVAILABILITY.md). Keep health, routing,
+retry, provider, plugin, and policy behavior outside lifecycle hooks.
 
 The production entry point drains active requests and SSE streams for 30
 seconds after `SIGTERM` by default. Override the positive whole-number deadline

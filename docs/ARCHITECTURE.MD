@@ -142,6 +142,12 @@ metadata travels with registrations and powers the ordered read-only
 `GET /v1/capabilities` discovery view without exposing implementations,
 providers, models, health, or availability.
 
+A separate reporter binds to the sealed source registry and gives every
+registration an informational availability state. Optional capability checks
+run concurrently within a dedicated deadline and feed the ordered
+`GET /v1/capabilities/availability` view without gating execution, liveness, or
+readiness.
+
 One application-owned execution pipeline sits on top of the sealed registry.
 It resolves canonical names once, binds immutable execution context across
 non-streaming and streaming work, preserves capability-specific results and
@@ -154,8 +160,8 @@ Each provider-neutral layer receives frozen resolved invocation metadata and a
 single-use continuation for asynchronous or streaming work. Declaration-order
 entry, reverse unwind, short-circuiting, context propagation, and pipeline-owned
 stream cleanup are shared across capability interfaces. Lifecycle management,
-availability, health, routing, provider registration, and dynamic plugins
-remain separate framework layers.
+availability reporting, health, routing, provider registration, and dynamic
+plugins remain separate framework layers.
 
 ---
 

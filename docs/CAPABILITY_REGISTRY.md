@@ -171,14 +171,16 @@ The core registry is deliberately explicit and application-scoped. It does not
 provide unregister, replacement, aliases, priorities, version negotiation, hot
 reload, package entry points, automatic discovery, plugins, provider
 registration, routing, retry, fallback, dependency graphs, general capability
-middleware, lifecycle hooks, availability, health, or recovery actions. One
+middleware, lifecycle hooks, health, or recovery actions. One
 generic execution pipeline and one ordered metadata collection endpoint are
 delivered;
 automatic registration, provider/model discovery, detail endpoints, filtering,
 pagination, mutation, caching, and remote control remain outside this contract.
 
 Capability lifecycle is now delivered through the separate
-[Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md). The remaining
-features require separate contracts. They must preserve registry
+[Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md), and
+availability through the separate
+[Capability Availability Reporting Guide](CAPABILITY_AVAILABILITY.md). The
+remaining features require separate contracts. They must preserve registry
 identity validation, insertion order, duplicate protection, immutable
 snapshots, sealing, safe errors, and the delivered chat compatibility boundary.

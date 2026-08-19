@@ -144,8 +144,11 @@ Use hooks only for resources owned for the complete application lifespan.
 Hooks should cooperate with cancellation and release partially initialized
 internal resources before raising when possible.
 
-Lifecycle does not define availability, health, routing, retry, fallback,
+Lifecycle does not define health, routing, retry, fallback,
 recovery, provider registration, model discovery, dependency graphs, dynamic
 registration, unloading, plugins, endpoints, Kubernetes resources, CRDs, or
 operator behavior. Those concerns require separate contracts over the
 delivered registry, metadata, execution pipeline, and middleware boundaries.
+Availability is delivered through the separate
+[Capability Availability Reporting Guide](CAPABILITY_AVAILABILITY.md) and does
+not alter lifecycle state or hook ordering.

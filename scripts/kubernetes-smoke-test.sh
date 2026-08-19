@@ -126,6 +126,8 @@ assert_equal "$(kubectl --context "$context" -n "$namespace" get poddisruptionbu
 
 kubectl --context "$context" -n "$namespace" exec deployment/trussium -- \
     python -c "import asyncio; from trussium.capabilities import CHAT_CAPABILITY_NAME, CapabilityExecutionPipeline, CapabilityInvocation, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); registry.register(CHAT_CAPABILITY_NAME, capability); registry.seal(); invocations = []; middleware = type('SmokeMiddleware', (), {'execute': lambda self, invocation, call_next: (invocations.append(invocation), call_next())[1], 'stream': lambda self, invocation, call_next: call_next()})(); pipeline = CapabilityExecutionPipeline(registry, middleware=(middleware,)); assert asyncio.run(pipeline.execute(CHAT_CAPABILITY_NAME, lambda resolved: asyncio.sleep(0, result=resolved))) is capability; assert pipeline.middleware == (middleware,); assert len(invocations) == 1; assert isinstance(invocations[0], CapabilityInvocation); assert invocations[0].capability is capability"
+kubectl --context "$context" -n "$namespace" exec deployment/trussium -- \
+    python -c "from trussium.capabilities import CapabilityAvailabilityReporter, CapabilityAvailabilityStatus; assert CapabilityAvailabilityReporter is not None; assert CapabilityAvailabilityStatus.AVAILABLE == 'available'"
 
 port="$(python3 -c 'import socket; sock = socket.socket(); sock.bind(("127.0.0.1", 0)); print(sock.getsockname()[1]); sock.close()')"
 kubectl --context "$context" -n "$namespace" port-forward service/trussium \
@@ -169,6 +171,9 @@ assert_equal "$(curl --fail --silent "http://127.0.0.1:$port/health/components")
 
 assert_equal "$(curl --fail --silent "http://127.0.0.1:$port/v1/capabilities")" \
     '{"capabilities":[]}' "capability discovery response"
+
+assert_equal "$(curl --fail --silent "http://127.0.0.1:$port/v1/capabilities/availability")" \
+    '{"status":"available","capabilities":[]}' "capability availability response"
 
 curl --fail --silent --show-error \
     "http://127.0.0.1:$port/metrics" \
