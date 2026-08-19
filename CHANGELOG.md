@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.41.0 (2026-08-19)
+
+### Features
+
+- **capabilities**: Add availability reporting
+  ([#110](https://github.com/trussiumhq/trussium/pull/110),
+  [`9ab80d3`](https://github.com/trussiumhq/trussium/commit/9ab80d3c036a0c8efdeed5f39f45098fa4752b78))
+
+
 ## v0.40.0 (2026-08-18)
 
 ### Features
