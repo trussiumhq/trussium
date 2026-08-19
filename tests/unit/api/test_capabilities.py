@@ -11,10 +11,76 @@ from trussium.app import create_application
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    CapabilityAvailability,
+    CapabilityAvailabilityStatus,
     CapabilityMetadata,
     CapabilityRegistry,
 )
 from trussium.capabilities.chat import ChatCapability
+
+
+class AvailabilityCapability:
+    """Capability with the optional availability contract."""
+
+    def __init__(self, availability: CapabilityAvailability) -> None:
+        self.availability = availability
+        self.calls = 0
+
+    async def check_availability(self) -> CapabilityAvailability:
+        """Return the configured bounded state."""
+        self.calls += 1
+        return self.availability
+
+
+def test_empty_application_returns_stable_empty_availability() -> None:
+    """Provider-free startup should report an available empty aggregate."""
+    response = TestClient(create_application()).get("/v1/capabilities/availability")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"status": "available", "capabilities": []}
+
+
+def test_availability_reports_checks_and_defaults_in_registration_order() -> None:
+    """Optional checks and ordinary registrations should share ordered reporting."""
+    checked = AvailabilityCapability(
+        CapabilityAvailability(
+            name="future.embeddings",
+            status=CapabilityAvailabilityStatus.UNAVAILABLE,
+            reason="provider_offline",
+        )
+    )
+    source = CapabilityRegistry()
+    source.register("future.embeddings", checked)
+    source.register("future.images", object())
+    app = create_application(capability_registry=source)
+
+    response = TestClient(app).get("/v1/capabilities/availability")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "status": "unavailable",
+        "capabilities": [
+            {
+                "name": "future.embeddings",
+                "status": "unavailable",
+                "reason": "provider_offline",
+            },
+            {"name": "future.images", "status": "available"},
+        ],
+    }
+    assert checked.calls == 1
+    assert app.state.capability_availability_reporter.registry is source
+
+
+def test_external_application_without_reporter_returns_empty_availability() -> None:
+    """Direct router composition should retain a safe compatibility fallback."""
+    app = FastAPI()
+    app.include_router(capabilities_router)
+
+    response = TestClient(app).get("/v1/capabilities/availability")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"status": "available", "capabilities": []}
 
 
 def test_empty_application_returns_stable_empty_discovery() -> None:
@@ -99,3 +165,13 @@ def test_discovery_is_documented_in_openapi() -> None:
     assert operation["summary"] == "Discover configured capabilities"
     assert operation["tags"] == ["capabilities"]
     assert "CapabilityDiscoveryResponse" in schema["components"]["schemas"]
+
+
+def test_availability_is_documented_in_openapi() -> None:
+    """Clients should be able to discover the stable availability schema."""
+    schema = create_application().openapi()
+
+    operation = schema["paths"]["/v1/capabilities/availability"]["get"]
+    assert operation["summary"] == "Report capability availability"
+    assert operation["tags"] == ["capabilities"]
+    assert "CapabilityAvailabilityReportResponse" in schema["components"]["schemas"]

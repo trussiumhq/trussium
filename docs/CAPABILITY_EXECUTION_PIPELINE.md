@@ -168,11 +168,14 @@ The pipeline changes no registry metadata or `GET /v1/capabilities` response.
 Discovery remains execution-free and exposes no provider, model,
 implementation, health, availability, or configuration data.
 
-The optional middleware contract adds no automatic lifecycle hooks,
-availability, health, routing, retries, fallback, caching, provider registry,
+The optional middleware contract adds no automatic lifecycle hooks, health,
+routing, retries, fallback, caching, provider registry,
 plugin loading, authentication, authorization, endpoint, setting, metric,
 event, span, container option, Kubernetes resource, probe, Helm value, CRD, or
 operator behavior. Those require separate contracts.
 
 Application-owned lifecycle hooks use the separate
 [Capability Lifecycle Management Guide](CAPABILITY_LIFECYCLE.md).
+Informational availability uses the separate
+[Capability Availability Reporting Guide](CAPABILITY_AVAILABILITY.md) and does
+not gate or alter pipeline execution.

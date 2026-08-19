@@ -12,6 +12,7 @@ from trussium.app import create_application
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    CapabilityAvailabilityReporter,
     CapabilityContractMismatchError,
     CapabilityExecuteNext,
     CapabilityExecutionPipeline,
@@ -250,7 +251,12 @@ def test_application_manages_capabilities_between_services_and_resources() -> No
     tracing = MagicMock(spec=RuntimeTracing)
     tracing.enabled = False
     tracing.shutdown.side_effect = lambda: events.append("stop:tracing")
-    settings = Settings(runtime=RuntimeSettings(service_cleanup_seconds=2.5))
+    settings = Settings(
+        runtime=RuntimeSettings(
+            service_cleanup_seconds=2.5,
+            capability_availability_timeout_seconds=0.625,
+        )
+    )
 
     app = create_application(
         settings,
@@ -261,6 +267,12 @@ def test_application_manages_capabilities_between_services_and_resources() -> No
     )
 
     assert isinstance(app.state.capability_lifecycle, CapabilityLifecycle)
+    assert isinstance(
+        app.state.capability_availability_reporter,
+        CapabilityAvailabilityReporter,
+    )
+    assert app.state.capability_availability_reporter.registry is registry
+    assert app.state.capability_availability_reporter.timeout_seconds == 0.625
     assert app.state.capability_lifecycle.names == ("first", "second")
     assert app.state.capability_lifecycle.cleanup_timeout_seconds == 2.5
     assert tuple(
@@ -383,6 +395,9 @@ def test_application_default_registries_are_isolated() -> None:
     assert second_app.state.capability_registry.registrations == ()
     assert first_app.state.capability_registry.sealed is True
     assert second_app.state.capability_registry.sealed is True
+    assert first_app.state.capability_availability_reporter is not (
+        second_app.state.capability_availability_reporter
+    )
     assert isinstance(
         first_app.state.capability_execution_pipeline,
         CapabilityExecutionPipeline,
@@ -541,6 +556,8 @@ def test_application_composes_an_injected_capability_registry() -> None:
     app = create_application(capability_registry=registry)
 
     assert registry.sealed is True
+    assert app.state.capability_availability_reporter.registry is registry
+    assert app.state.capability_availability_reporter.timeout_seconds == 1.0
     assert app.state.capability_registry is not registry
     assert app.state.capability_registry.sealed is True
     assert app.state.capability_registry.names == (

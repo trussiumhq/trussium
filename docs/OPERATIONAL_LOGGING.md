@@ -58,6 +58,8 @@ bounded and machine-readable.
 | `capability.shutdown.failed` | ERROR | One capability shutdown hook failed. |
 | `capability.shutdown.timeout` | ERROR | One capability shutdown hook exceeded its cleanup deadline. |
 | `capability.shutdown.cancelled` | WARNING | One capability shutdown hook retained native cancellation. |
+| `capability.availability.available` | INFO | A registered capability transitioned to available. |
+| `capability.availability.unavailable` | WARNING | A registered capability transitioned to unavailable. |
 | `observability.trace_export.failed` | ERROR | The OTLP exporter returned or raised a failure. |
 | `observability.tracing.shutdown.completed` | INFO | App-scoped tracing shutdown completed or tracing was disabled. |
 | `observability.tracing.shutdown.failed` | ERROR | App-scoped tracing shutdown raised an exception. |
@@ -75,7 +77,7 @@ With no provider credential and tracing disabled, startup includes records
 like these, one JSON object per line:
 
 ```json
-{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.34.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30,"service_cleanup_seconds":10.0,"component_health_timeout_seconds":1.0}
+{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.40.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30,"service_cleanup_seconds":10.0,"component_health_timeout_seconds":1.0,"capability_availability_timeout_seconds":1.0}
 {"level":"WARNING","logger":"trussium.provider","message":"Provider configuration unavailable","event":"provider.configuration.unavailable","provider":"openai","provider_configured":false}
 {"level":"INFO","logger":"trussium.readiness","message":"Readiness configuration loaded","event":"readiness.configuration.loaded","dependency_checks_enabled":false,"dependency_timeout_seconds":1.0,"dependency_cache_seconds":10.0,"required_model_configured":false}
 {"level":"INFO","logger":"trussium.observability","message":"Observability configuration loaded","event":"observability.configuration.loaded","metrics_enabled":true,"tracing_enabled":false,"trace_sample_ratio":1.0}
@@ -90,7 +92,8 @@ an API contract; event names, field meanings, and JSON value types are.
 Configuration summaries may include:
 
 - Runtime version, environment, port, debug mode, drain deadline,
-  per-service cleanup deadline, and component-health deadline.
+  per-service cleanup deadline, component-health deadline, and capability-
+  availability deadline.
 - Provider name and a boolean configuration-ready state.
 - Metrics and tracing enablement plus the trace sampling ratio.
 
@@ -112,6 +115,11 @@ Component-health transition events may include a stable `runtime_service`,
 bounded outcome and reason, duration, and error class. See
 [COMPONENT_HEALTH.md](COMPONENT_HEALTH.md) for aggregation and privacy
 semantics.
+
+Capability-availability transition events may include canonical `capability`,
+bounded outcome and reason, duration, and error class. See
+[CAPABILITY_AVAILABILITY.md](CAPABILITY_AVAILABILITY.md) for aggregation,
+failure, and privacy semantics.
 
 Request-scoped logs continue to inherit request, execution, capability,
 provider, model, trace, and span identifiers from the active runtime context.

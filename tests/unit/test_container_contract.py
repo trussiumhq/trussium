@@ -74,7 +74,11 @@ def test_smoke_script_validates_runtime_security_and_shutdown() -> None:
     assert "component health body" in script
     assert '"http://127.0.0.1:${host_port}/v1/capabilities"' in script
     assert "capability discovery body" in script
+    assert '"http://127.0.0.1:${host_port}/v1/capabilities/availability"' in script
+    assert "capability availability body" in script
     assert "RuntimeComponentHealthReporter" in script
+    assert "CapabilityAvailabilityReporter" in script
+    assert "CapabilityAvailabilityStatus" in script
     assert "CHAT_CAPABILITY_NAME" in script
     assert "CHAT_CAPABILITY_METADATA" in script
     assert "CapabilityRegistry" in script

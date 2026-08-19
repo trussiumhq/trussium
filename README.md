@@ -183,6 +183,12 @@ bounded cleanup, and privacy-safe operational failures. Ordinary capabilities
 remain unchanged. See the
 [Capability Lifecycle Management Guide](docs/CAPABILITY_LIFECYCLE.md).
 
+Every registered capability now has a bounded informational availability state.
+Ordinary registrations default to available, while implementations can opt into
+concurrent deadline-bound checks. `GET /v1/capabilities/availability` returns
+the ordered aggregate without gating execution, liveness, or readiness. See the
+[Capability Availability Reporting Guide](docs/CAPABILITY_AVAILABILITY.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -224,11 +230,11 @@ versioned official [`trussium` chart](https://github.com/trussiumhq/trussium-hel
 helm registry login ghcr.io --username YOUR_GITHUB_USERNAME
 helm install trussium \
   oci://ghcr.io/trussiumhq/charts/trussium \
-  --version 0.4.8 \
+  --version 0.4.9 \
   --namespace trussium-system
 ```
 
-Chart v0.4.8 defaults to runtime v0.39.0, enables the production CPU
+Chart v0.4.9 defaults to runtime v0.40.0, enables the production CPU
 autoscaler and runtime metrics contract, and exposes schema-validated
 dependency-readiness settings with safe disabled defaults. It also exposes
 schema-validated OpenTelemetry tracing values while keeping trace export
@@ -260,6 +266,7 @@ Project documentation is available in the `docs/` directory.
 - [Capability Execution Pipeline Guide](docs/CAPABILITY_EXECUTION_PIPELINE.md)
 - [Capability Middleware Guide](docs/CAPABILITY_MIDDLEWARE.md)
 - [Capability Lifecycle Management Guide](docs/CAPABILITY_LIFECYCLE.md)
+- [Capability Availability Reporting Guide](docs/CAPABILITY_AVAILABILITY.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)

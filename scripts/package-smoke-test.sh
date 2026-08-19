@@ -248,6 +248,8 @@ from trussium.app import create_application
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    CapabilityAvailabilityReporter,
+    CapabilityAvailabilityStatus,
     CapabilityExecuteNext,
     CapabilityExecutionPipeline,
     CapabilityInvocation,
@@ -294,6 +296,11 @@ assert CapabilityMetadata is not None
 assert capability_registry.require(CHAT_CAPABILITY_NAME) is capability
 assert capability_registry.seal()[0].capability is capability
 assert capability_registry.sealed is True
+availability_report = asyncio.run(
+    CapabilityAvailabilityReporter(capability_registry).report()
+)
+assert availability_report.status is CapabilityAvailabilityStatus.AVAILABLE
+assert availability_report.capabilities[0].name == CHAT_CAPABILITY_NAME
 
 
 class SmokeMiddleware:
@@ -404,6 +411,15 @@ capabilities_request = urllib.request.Request(
 with urllib.request.urlopen(capabilities_request, timeout=1) as response:
     assert response.status == 200
     assert json.load(response) == {"capabilities": []}
+    assert response.headers["X-Request-ID"] == request_id
+
+availability_request = urllib.request.Request(
+    f"http://127.0.0.1:{port}/v1/capabilities/availability",
+    headers={"X-Request-ID": request_id},
+)
+with urllib.request.urlopen(availability_request, timeout=1) as response:
+    assert response.status == 200
+    assert json.load(response) == {"status": "available", "capabilities": []}
     assert response.headers["X-Request-ID"] == request_id
 
 metrics_request = urllib.request.Request(
