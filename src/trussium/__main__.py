@@ -11,6 +11,7 @@ from trussium.app.bootstrap import (
     create_provider_health_check_from_environment,
     create_reranking_capability_from_environment,
     create_transcription_capability_from_environment,
+    create_video_capability_from_environment,
 )
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
@@ -25,6 +26,8 @@ from trussium.capabilities import (
     RERANKING_CAPABILITY_NAME,
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
+    VIDEO_CAPABILITY_METADATA,
+    VIDEO_CAPABILITY_NAME,
     CapabilityRegistry,
 )
 from trussium.config.settings import get_settings
@@ -79,6 +82,7 @@ def main() -> None:
     transcription_capability = create_transcription_capability_from_environment(
         provider=settings.provider
     )
+    video_capability = create_video_capability_from_environment(provider=settings.provider)
     dependency_health_check = create_provider_health_check_from_environment(
         provider=settings.provider,
         readiness=settings.readiness,
@@ -119,6 +123,12 @@ def main() -> None:
             TRANSCRIPTION_CAPABILITY_NAME,
             transcription_capability,
             metadata=TRANSCRIPTION_CAPABILITY_METADATA,
+        )
+    if video_capability is not None:
+        capability_registry.register(
+            VIDEO_CAPABILITY_NAME,
+            video_capability,
+            metadata=VIDEO_CAPABILITY_METADATA,
         )
 
     app = create_application(

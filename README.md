@@ -181,6 +181,9 @@ See the [Audio-transcription Capability Guide](docs/AUDIO_TRANSCRIPTION.md).
 Provider-neutral reranking is available at `POST /v1/rerankings`. See the
 [Reranking Capability Guide](docs/RERANKING.md).
 
+Video job metadata is available at `POST /v1/videos` and `GET /v1/videos/{video_id}`.
+See the [Video-generation Jobs Guide](docs/VIDEO_GENERATION.md).
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and

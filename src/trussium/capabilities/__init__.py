@@ -65,6 +65,7 @@ from trussium.capabilities.transcription import (
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
 )
+from trussium.capabilities.videos import VIDEO_CAPABILITY_METADATA, VIDEO_CAPABILITY_NAME
 
 __all__ = [
     "CAPABILITY_AVAILABILITY_CHECK_FAILED",
@@ -84,6 +85,8 @@ __all__ = [
     "RERANKING_CAPABILITY_NAME",
     "TRANSCRIPTION_CAPABILITY_METADATA",
     "TRANSCRIPTION_CAPABILITY_NAME",
+    "VIDEO_CAPABILITY_METADATA",
+    "VIDEO_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",
     "CapabilityAvailability",
     "CapabilityAvailabilityCheck",

@@ -13,6 +13,7 @@ from trussium.capabilities.images import ImageGenerationCapability
 from trussium.capabilities.moderation import ModerationCapability
 from trussium.capabilities.reranking import RerankingCapability
 from trussium.capabilities.transcription import TranscriptionCapability
+from trussium.capabilities.videos import VideoCapability
 from trussium.config.settings import (
     ProviderName,
     ProviderSettings,
@@ -29,6 +30,7 @@ from trussium.providers.openai import (
     OpenAIImageGenerationCapability,
     OpenAIModerationCapability,
     OpenAITranscriptionCapability,
+    OpenAIVideoCapability,
 )
 from trussium.providers.tei import TEIRerankingCapability
 from trussium.runtime import (
@@ -177,6 +179,23 @@ def create_transcription_capability_from_environment(
         else AsyncOpenAI(api_key=api_key)
     )
     return OpenAITranscriptionCapability(client)
+
+
+def create_video_capability_from_environment(
+    *, provider: ProviderSettings | None = None
+) -> VideoCapability | None:
+    """Create the configured OpenAI video-jobs capability."""
+    resolved_provider = provider or ProviderSettings()
+    api_key = _resolve_api_key(resolved_provider)
+    if api_key is None:
+        return None
+    base_url = _resolve_base_url(resolved_provider)
+    client = (
+        AsyncOpenAI(api_key=api_key, base_url=base_url)
+        if base_url
+        else AsyncOpenAI(api_key=api_key)
+    )
+    return OpenAIVideoCapability(client)
 
 
 def create_provider_health_check_from_environment(
