@@ -5,7 +5,11 @@ from typing import Literal, cast
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from trussium.capabilities import CapabilityAvailabilityReporter, CapabilityRegistry
+from trussium.capabilities import (
+    CapabilityAvailabilityReporter,
+    CapabilityHealthReporter,
+    CapabilityRegistry,
+)
 
 router = APIRouter(
     prefix="/v1/capabilities",
@@ -51,6 +55,25 @@ class CapabilityAvailabilityReportResponse(BaseModel):
     capabilities: list[CapabilityAvailabilityResponse] = Field(default_factory=list)
 
 
+class CapabilityHealthResponse(BaseModel):
+    """Bounded public health for one configured capability."""
+
+    model_config = ConfigDict(frozen=True)
+
+    name: str
+    status: Literal["ok", "degraded", "unavailable", "unknown"]
+    reason: str | None = None
+
+
+class CapabilityHealthReportResponse(BaseModel):
+    """Informational aggregate over configured capability health."""
+
+    model_config = ConfigDict(frozen=True)
+
+    status: Literal["ok", "degraded", "unavailable", "unknown"] = "ok"
+    capabilities: list[CapabilityHealthResponse] = Field(default_factory=list)
+
+
 @router.get(
     "/availability",
     response_model=CapabilityAvailabilityReportResponse,
@@ -74,6 +97,36 @@ async def report_capability_availability(
         status=report.status.value,
         capabilities=[
             CapabilityAvailabilityResponse(
+                name=capability.name,
+                status=capability.status.value,
+                reason=capability.reason,
+            )
+            for capability in report.capabilities
+        ],
+    )
+
+
+@router.get(
+    "/health",
+    response_model=CapabilityHealthReportResponse,
+    response_model_exclude_none=True,
+    status_code=status.HTTP_200_OK,
+    summary="Report capability health",
+)
+async def report_capability_health(request: Request) -> CapabilityHealthReportResponse:
+    """Report informational health without affecting availability or readiness."""
+    reporter = cast(
+        CapabilityHealthReporter | None,
+        getattr(request.app.state, "capability_health_reporter", None),
+    )
+    if reporter is None:
+        return CapabilityHealthReportResponse()
+
+    report = await reporter.report()
+    return CapabilityHealthReportResponse(
+        status=report.status.value,
+        capabilities=[
+            CapabilityHealthResponse(
                 name=capability.name,
                 status=capability.status.value,
                 reason=capability.reason,
@@ -116,8 +169,11 @@ __all__ = [
     "CapabilityAvailabilityReportResponse",
     "CapabilityAvailabilityResponse",
     "CapabilityDiscoveryResponse",
+    "CapabilityHealthReportResponse",
+    "CapabilityHealthResponse",
     "CapabilityMetadataResponse",
     "discover_capabilities",
     "report_capability_availability",
+    "report_capability_health",
     "router",
 ]

@@ -36,6 +36,7 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "service_cleanup_seconds",
     "component_health_timeout_seconds",
     "capability_availability_timeout_seconds",
+    "capability_health_timeout_seconds",
     "runtime_service",
     "lifecycle_phase",
     "dependency_checks_enabled",

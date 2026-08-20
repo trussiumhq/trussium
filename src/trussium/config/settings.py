@@ -100,6 +100,12 @@ class RuntimeSettings(BaseModel):
         description="Maximum duration of one capability availability check.",
     )
 
+    capability_health_timeout_seconds: FiniteFloat = Field(
+        default=1.0,
+        gt=0.0,
+        description="Maximum duration of one capability health check.",
+    )
+
 
 class TimeoutSettings(BaseModel):
     """Provider execution timeout configuration."""

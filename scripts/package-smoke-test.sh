@@ -113,6 +113,7 @@ required_modules = {
     "trussium/api/chat.py",
     "trussium/app/factory.py",
     "trussium/capabilities/execution.py",
+    "trussium/capabilities/health.py",
     "trussium/capabilities/metadata.py",
     "trussium/capabilities/middleware.py",
     "trussium/capabilities/registry.py",
@@ -250,6 +251,8 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityAvailabilityReporter,
     CapabilityAvailabilityStatus,
+    CapabilityHealthReporter,
+    CapabilityHealthStatus,
     CapabilityExecuteNext,
     CapabilityExecutionPipeline,
     CapabilityInvocation,
@@ -301,6 +304,9 @@ availability_report = asyncio.run(
 )
 assert availability_report.status is CapabilityAvailabilityStatus.AVAILABLE
 assert availability_report.capabilities[0].name == CHAT_CAPABILITY_NAME
+health_report = asyncio.run(CapabilityHealthReporter(capability_registry).report())
+assert health_report.status is CapabilityHealthStatus.UNKNOWN
+assert health_report.capabilities[0].name == CHAT_CAPABILITY_NAME
 
 
 class SmokeMiddleware:
@@ -420,6 +426,15 @@ availability_request = urllib.request.Request(
 with urllib.request.urlopen(availability_request, timeout=1) as response:
     assert response.status == 200
     assert json.load(response) == {"status": "available", "capabilities": []}
+    assert response.headers["X-Request-ID"] == request_id
+
+health_request = urllib.request.Request(
+    f"http://127.0.0.1:{port}/v1/capabilities/health",
+    headers={"X-Request-ID": request_id},
+)
+with urllib.request.urlopen(health_request, timeout=1) as response:
+    assert response.status == 200
+    assert json.load(response) == {"status": "ok", "capabilities": []}
     assert response.headers["X-Request-ID"] == request_id
 
 metrics_request = urllib.request.Request(

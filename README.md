@@ -189,6 +189,11 @@ concurrent deadline-bound checks. `GET /v1/capabilities/availability` returns
 the ordered aggregate without gating execution, liveness, or readiness. See the
 [Capability Availability Reporting Guide](docs/CAPABILITY_AVAILABILITY.md).
 
+Registered capabilities can also expose a bounded informational health state.
+`GET /v1/capabilities/health` aggregates optional concurrent checks without
+changing availability, execution, liveness, or readiness. See the
+[Capability Health Reporting Guide](docs/CAPABILITY_HEALTH.md).
+
 ### Container quick start
 
 Build and validate the production image:
@@ -267,6 +272,7 @@ Project documentation is available in the `docs/` directory.
 - [Capability Middleware Guide](docs/CAPABILITY_MIDDLEWARE.md)
 - [Capability Lifecycle Management Guide](docs/CAPABILITY_LIFECYCLE.md)
 - [Capability Availability Reporting Guide](docs/CAPABILITY_AVAILABILITY.md)
+- [Capability Health Reporting Guide](docs/CAPABILITY_HEALTH.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)

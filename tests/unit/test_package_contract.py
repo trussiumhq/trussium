@@ -23,6 +23,7 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert '"trussium/errors.py"' in script
     assert '"trussium/api/capabilities.py"' in script
     assert '"trussium/capabilities/execution.py"' in script
+    assert '"trussium/capabilities/health.py"' in script
     assert '"trussium/capabilities/metadata.py"' in script
     assert '"trussium/capabilities/middleware.py"' in script
     assert '"trussium/capabilities/registry.py"' in script
@@ -41,6 +42,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert "CapabilityExecutionPipeline" in script
     assert "CapabilityAvailabilityReporter" in script
     assert "CapabilityAvailabilityStatus" in script
+    assert "CapabilityHealthReporter" in script
+    assert "CapabilityHealthStatus" in script
     assert "CapabilityInvocation" in script
     assert "CapabilityExecuteNext" in script
     assert "CapabilityStreamNext" in script
@@ -59,6 +62,8 @@ def test_package_smoke_script_validates_artifacts_and_installed_runtimes() -> No
     assert '{"capabilities": []}' in script
     assert 'f"http://127.0.0.1:{port}/v1/capabilities/availability"' in script
     assert '{"status": "available", "capabilities": []}' in script
+    assert 'f"http://127.0.0.1:{port}/v1/capabilities/health"' in script
+    assert '{"status": "ok", "capabilities": []}' in script
     assert 'f"http://127.0.0.1:{port}/metrics"' in script
     assert 'assert "trussium_http_requests_active 0.0" in metrics' in script
     assert 'request_id="package-smoke-65-$label"' in script

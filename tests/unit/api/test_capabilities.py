@@ -13,6 +13,8 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     CapabilityAvailability,
     CapabilityAvailabilityStatus,
+    CapabilityHealth,
+    CapabilityHealthStatus,
     CapabilityMetadata,
     CapabilityRegistry,
 )
@@ -30,6 +32,19 @@ class AvailabilityCapability:
         """Return the configured bounded state."""
         self.calls += 1
         return self.availability
+
+
+class HealthCapability:
+    """Capability with the optional health contract."""
+
+    def __init__(self, health: CapabilityHealth) -> None:
+        self.health = health
+        self.calls = 0
+
+    async def check_health(self) -> CapabilityHealth:
+        """Return the configured bounded state."""
+        self.calls += 1
+        return self.health
 
 
 def test_empty_application_returns_stable_empty_availability() -> None:
@@ -81,6 +96,57 @@ def test_external_application_without_reporter_returns_empty_availability() -> N
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "available", "capabilities": []}
+
+
+def test_empty_application_returns_stable_empty_capability_health() -> None:
+    """Provider-free startup should report an ok empty health aggregate."""
+    response = TestClient(create_application()).get("/v1/capabilities/health")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"status": "ok", "capabilities": []}
+
+
+def test_capability_health_is_ordered_and_independent_from_availability() -> None:
+    """Health checks should not change availability or execution contracts."""
+    checked = HealthCapability(
+        CapabilityHealth(
+            name="future.embeddings",
+            status=CapabilityHealthStatus.DEGRADED,
+            reason="warming",
+        )
+    )
+    source = CapabilityRegistry()
+    source.register("future.embeddings", checked)
+    source.register("future.images", object())
+    app = create_application(capability_registry=source)
+
+    response = TestClient(app).get("/v1/capabilities/health")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+        "status": "degraded",
+        "capabilities": [
+            {"name": "future.embeddings", "status": "degraded", "reason": "warming"},
+            {
+                "name": "future.images",
+                "status": "unknown",
+                "reason": "capability_health_not_reported",
+            },
+        ],
+    }
+    assert checked.calls == 1
+    assert app.state.capability_health_reporter.registry is source
+
+
+def test_external_application_without_reporter_returns_empty_capability_health() -> None:
+    """Direct router composition should retain a safe compatibility fallback."""
+    app = FastAPI()
+    app.include_router(capabilities_router)
+
+    response = TestClient(app).get("/v1/capabilities/health")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"status": "ok", "capabilities": []}
 
 
 def test_empty_application_returns_stable_empty_discovery() -> None:
@@ -175,3 +241,13 @@ def test_availability_is_documented_in_openapi() -> None:
     assert operation["summary"] == "Report capability availability"
     assert operation["tags"] == ["capabilities"]
     assert "CapabilityAvailabilityReportResponse" in schema["components"]["schemas"]
+
+
+def test_capability_health_is_documented_in_openapi() -> None:
+    """Clients should be able to discover the stable health schema."""
+    schema = create_application().openapi()
+
+    operation = schema["paths"]["/v1/capabilities/health"]["get"]
+    assert operation["summary"] == "Report capability health"
+    assert operation["tags"] == ["capabilities"]
+    assert "CapabilityHealthReportResponse" in schema["components"]["schemas"]

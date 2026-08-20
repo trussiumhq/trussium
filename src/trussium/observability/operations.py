@@ -76,6 +76,7 @@ def log_startup_configuration(
             "capability_availability_timeout_seconds": (
                 settings.runtime.capability_availability_timeout_seconds
             ),
+            "capability_health_timeout_seconds": settings.runtime.capability_health_timeout_seconds,
         },
     )
 
