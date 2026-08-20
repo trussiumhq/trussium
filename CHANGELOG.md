@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.47.0 (2026-08-20)
+
+### Features
+
+- **capabilities**: Add reranking ([#127](https://github.com/trussiumhq/trussium/pull/127),
+  [`58e0b25`](https://github.com/trussiumhq/trussium/commit/58e0b255e951c38421d3d8f71b57ed72be5f396b))
+
+
 ## v0.46.0 (2026-08-20)
 
 ### Features
