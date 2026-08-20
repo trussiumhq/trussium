@@ -5,11 +5,14 @@ from pydantic import ValidationError
 from trussium.app import create_application
 from trussium.app.bootstrap import (
     create_chat_capability_from_environment,
+    create_embeddings_capability_from_environment,
     create_provider_health_check_from_environment,
 )
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
+    EMBEDDINGS_CAPABILITY_METADATA,
+    EMBEDDINGS_CAPABILITY_NAME,
     CapabilityRegistry,
 )
 from trussium.config.settings import get_settings
@@ -49,6 +52,9 @@ def main() -> None:
         timeouts=settings.timeouts,
         tracer=tracing.tracer,
     )
+    embeddings_capability = create_embeddings_capability_from_environment(
+        provider=settings.provider,
+    )
     dependency_health_check = create_provider_health_check_from_environment(
         provider=settings.provider,
         readiness=settings.readiness,
@@ -59,6 +65,12 @@ def main() -> None:
             CHAT_CAPABILITY_NAME,
             chat_capability,
             metadata=CHAT_CAPABILITY_METADATA,
+        )
+    if embeddings_capability is not None:
+        capability_registry.register(
+            EMBEDDINGS_CAPABILITY_NAME,
+            embeddings_capability,
+            metadata=EMBEDDINGS_CAPABILITY_METADATA,
         )
 
     app = create_application(
