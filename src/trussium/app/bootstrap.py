@@ -10,6 +10,7 @@ from trussium.capabilities.chat import ChatCapability
 from trussium.capabilities.embeddings import EmbeddingsCapability
 from trussium.capabilities.images import ImageGenerationCapability
 from trussium.capabilities.moderation import ModerationCapability
+from trussium.capabilities.transcription import TranscriptionCapability
 from trussium.config.settings import (
     ProviderName,
     ProviderSettings,
@@ -24,6 +25,7 @@ from trussium.providers.openai import (
     OpenAIEmbeddingsCapability,
     OpenAIImageGenerationCapability,
     OpenAIModerationCapability,
+    OpenAITranscriptionCapability,
 )
 from trussium.runtime import (
     DependencyFailureReason,
@@ -136,6 +138,24 @@ def create_moderation_capability_from_environment(
         else AsyncOpenAI(api_key=api_key)
     )
     return OpenAIModerationCapability(client)
+
+
+def create_transcription_capability_from_environment(
+    *,
+    provider: ProviderSettings | None = None,
+) -> TranscriptionCapability | None:
+    """Create the configured OpenAI audio-transcription capability."""
+    resolved_provider = provider or ProviderSettings()
+    api_key = _resolve_api_key(resolved_provider)
+    if api_key is None:
+        return None
+    base_url = _resolve_base_url(resolved_provider)
+    client = (
+        AsyncOpenAI(api_key=api_key, base_url=base_url)
+        if base_url is not None
+        else AsyncOpenAI(api_key=api_key)
+    )
+    return OpenAITranscriptionCapability(client)
 
 
 def create_provider_health_check_from_environment(

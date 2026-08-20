@@ -9,6 +9,7 @@ from trussium.app.bootstrap import (
     create_image_generation_capability_from_environment,
     create_moderation_capability_from_environment,
     create_provider_health_check_from_environment,
+    create_transcription_capability_from_environment,
 )
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
@@ -19,6 +20,8 @@ from trussium.capabilities import (
     IMAGE_GENERATION_CAPABILITY_NAME,
     MODERATION_CAPABILITY_METADATA,
     MODERATION_CAPABILITY_NAME,
+    TRANSCRIPTION_CAPABILITY_METADATA,
+    TRANSCRIPTION_CAPABILITY_NAME,
     CapabilityRegistry,
 )
 from trussium.config.settings import get_settings
@@ -67,6 +70,9 @@ def main() -> None:
     moderation_capability = create_moderation_capability_from_environment(
         provider=settings.provider
     )
+    transcription_capability = create_transcription_capability_from_environment(
+        provider=settings.provider
+    )
     dependency_health_check = create_provider_health_check_from_environment(
         provider=settings.provider,
         readiness=settings.readiness,
@@ -95,6 +101,12 @@ def main() -> None:
             MODERATION_CAPABILITY_NAME,
             moderation_capability,
             metadata=MODERATION_CAPABILITY_METADATA,
+        )
+    if transcription_capability is not None:
+        capability_registry.register(
+            TRANSCRIPTION_CAPABILITY_NAME,
+            transcription_capability,
+            metadata=TRANSCRIPTION_CAPABILITY_METADATA,
         )
 
     app = create_application(

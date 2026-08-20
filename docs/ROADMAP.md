@@ -761,22 +761,32 @@ SDK development should follow a stable HTTP API rather than preceding it.
 
 ## Milestone 11 — Additional AI Capabilities
 
-**Status:** ⏸ Deferred
+**Status:** 🚧 In Progress
 
 Expand the runtime after the chat execution path, routing, identity, telemetry, and deployment experience are stable.
 
-### Potential Deliverables
+### Delivered
 
 - Embeddings
 - Image generation
-- Audio processing
+- Moderation
+- Audio transcription
+
+Each delivered capability is a complete vertical slice: immutable contracts,
+registry metadata, execution-context propagation, provider adapter, HTTP API,
+error normalization, tests, and documentation. Image-generation responses expose
+base64 artifacts only; audio transcription forwards multipart audio without
+storing it or logging audio bytes or transcript content.
+
+### Remaining Deliverables
+
 - Video processing
 - Reranking
-- Moderation
 - Tool execution
 - Batch inference
 
-Each capability should be introduced as a complete vertical slice with contracts, provider adapters, APIs, telemetry, tests, and documentation.
+Each additional capability should be introduced as a complete vertical slice with
+contracts, provider adapters, APIs, telemetry, tests, and documentation.
 
 ---
 
