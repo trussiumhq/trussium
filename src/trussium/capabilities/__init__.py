@@ -25,6 +25,10 @@ from trussium.capabilities.health import (
     CapabilityHealthReporter,
     CapabilityHealthStatus,
 )
+from trussium.capabilities.images import (
+    IMAGE_GENERATION_CAPABILITY_METADATA,
+    IMAGE_GENERATION_CAPABILITY_NAME,
+)
 from trussium.capabilities.lifecycle import (
     CapabilityLifecycle,
     CapabilityLifecycleError,
@@ -67,6 +71,8 @@ __all__ = [
     "CHAT_CAPABILITY_NAME",
     "EMBEDDINGS_CAPABILITY_METADATA",
     "EMBEDDINGS_CAPABILITY_NAME",
+    "IMAGE_GENERATION_CAPABILITY_METADATA",
+    "IMAGE_GENERATION_CAPABILITY_NAME",
     "MODERATION_CAPABILITY_METADATA",
     "MODERATION_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",
