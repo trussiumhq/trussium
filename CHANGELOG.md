@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v0.48.0 (2026-08-20)
+
+### Chores
+
+- **deps**: Bump docker/build-push-action from 6 to 7
+  ([#117](https://github.com/trussiumhq/trussium/pull/117),
+  [`6098d57`](https://github.com/trussiumhq/trussium/commit/6098d57abca44b2bb31bedc5039d64b015ab4b5f))
+
+- **deps**: Bump docker/metadata-action from 5 to 6
+  ([#118](https://github.com/trussiumhq/trussium/pull/118),
+  [`177b3e3`](https://github.com/trussiumhq/trussium/commit/177b3e3db2bbcc6924bc8e483734724f6e516b2e))
+
+- **deps**: Bump docker/setup-buildx-action from 3 to 4
+  ([#119](https://github.com/trussiumhq/trussium/pull/119),
+  [`6c0072f`](https://github.com/trussiumhq/trussium/commit/6c0072fc6e7acb7a650d04fd6d893459b8c18f95))
+
+- **deps**: Bump docker/setup-qemu-action from 3 to 4
+  ([#115](https://github.com/trussiumhq/trussium/pull/115),
+  [`9c0705d`](https://github.com/trussiumhq/trussium/commit/9c0705d9d7821600317c50dc91c84d922afaa77d))
+
+### Features
+
+- **capabilities**: Add video generation jobs
+  ([#130](https://github.com/trussiumhq/trussium/pull/130),
+  [`c0cc909`](https://github.com/trussiumhq/trussium/commit/c0cc909de5e2c7893cf611b2415e8a2cae62e849))
+
+
 ## v0.47.0 (2026-08-20)
 
 ### Features
