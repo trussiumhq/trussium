@@ -49,6 +49,7 @@ from trussium.runtime import (
     RuntimeServiceLifecycle,
     RuntimeServiceRegistry,
 )
+from trussium.tools import ToolExecutor
 
 
 def create_application(
@@ -61,6 +62,7 @@ def create_application(
     dependency_health_check: DependencyHealthCheck | None = None,
     runtime_services: Sequence[RuntimeService] = (),
     runtime_service_registry: RuntimeServiceRegistry | None = None,
+    tool_executor: ToolExecutor | None = None,
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -73,6 +75,7 @@ def create_application(
         dependency_health_check: Optional configured provider dependency check.
         runtime_services: Ordered runtime services managed by application lifespan.
         runtime_service_registry: Optional preconfigured runtime-service registry.
+        tool_executor: Optional allowlisted in-process tool executor.
 
     Returns:
         Configured FastAPI application.
@@ -304,6 +307,8 @@ def create_application(
         debug=resolved_settings.runtime.debug,
         lifespan=lifespan,
     )
+    if tool_executor is not None:
+        application.state.tool_executor = tool_executor
 
     application.state.settings = resolved_settings
     application.state.runtime_tracing = runtime_tracing

@@ -1,0 +1,44 @@
+"""Controlled declared-tool execution endpoint."""
+
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import ValidationError
+
+from trussium.tools import ToolExecutionResult, ToolExecutor, ToolInvocation, ToolNotFoundError
+
+router = APIRouter(prefix="/v1", tags=["tools"])
+
+
+def get_tool_executor(request: Request) -> ToolExecutor:
+    executor = getattr(request.app.state, "tool_executor", None)
+    if not isinstance(executor, ToolExecutor):
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "tools_unavailable", "message": "No tools are configured."},
+        )
+    return executor
+
+
+@router.post("/tools/executions", response_model=ToolExecutionResult)
+async def execute_tool(
+    invocation: ToolInvocation,
+    executor: Annotated[ToolExecutor, Depends(get_tool_executor)],
+) -> ToolExecutionResult:
+    try:
+        return await executor.execute(invocation)
+    except ToolNotFoundError as error:
+        raise HTTPException(
+            status_code=404,
+            detail={"code": "tool_not_found", "message": str(error)},
+        ) from error
+    except ValidationError as error:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "invalid_tool_arguments", "message": "Tool arguments are invalid."},
+        ) from error
+    except TimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail={"code": "tool_execution_timed_out", "message": "Tool execution timed out."},
+        ) from error

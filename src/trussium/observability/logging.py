@@ -52,6 +52,7 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "cleanup_timeout_seconds",
     "span_count",
     "outcome",
+    "tool_name",
 )
 
 

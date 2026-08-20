@@ -777,6 +777,7 @@ Expand the runtime after the chat execution path, routing, identity, telemetry, 
 - Audio transcription
 - Reranking
 - Video generation jobs
+- Controlled tool execution
 
 Each delivered capability is a complete vertical slice: immutable contracts,
 registry metadata, execution-context propagation, provider adapter, HTTP API,
@@ -786,7 +787,6 @@ storing it or logging audio bytes or transcript content.
 
 ### Remaining Deliverables
 
-- Tool execution
 - Batch inference
 
 Each additional capability should be introduced as a complete vertical slice with

@@ -42,6 +42,9 @@ Example:
 0001-language-strategy.md
 0002-project-structure.md
 0003-capability-first-architecture.md
+0004-plugin-architecture.md
+0005-runtime-bootstrap-architecture.md
+0006-controlled-tool-execution.md
 ```
 
 Numbers are never reused.
