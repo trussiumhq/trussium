@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.44.0 (2026-08-20)
+
+### Features
+
+- **capabilities**: Add moderation capability
+  ([#120](https://github.com/trussiumhq/trussium/pull/120),
+  [`0e85ad7`](https://github.com/trussiumhq/trussium/commit/0e85ad7484b517af0e3a6bdd62b7c8faf4d01fc0))
+
+
 ## v0.43.0 (2026-08-20)
 
 ### Features
