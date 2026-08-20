@@ -10,6 +10,10 @@ from trussium.capabilities.availability import (
     CapabilityAvailabilityStatus,
 )
 from trussium.capabilities.chat import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME
+from trussium.capabilities.embeddings import (
+    EMBEDDINGS_CAPABILITY_METADATA,
+    EMBEDDINGS_CAPABILITY_NAME,
+)
 from trussium.capabilities.execution import CapabilityExecutionPipeline
 from trussium.capabilities.health import (
     CAPABILITY_HEALTH_CHECK_FAILED,
@@ -57,6 +61,8 @@ __all__ = [
     "CAPABILITY_HEALTH_TIMEOUT",
     "CHAT_CAPABILITY_METADATA",
     "CHAT_CAPABILITY_NAME",
+    "EMBEDDINGS_CAPABILITY_METADATA",
+    "EMBEDDINGS_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",
     "CapabilityAvailability",
     "CapabilityAvailabilityCheck",

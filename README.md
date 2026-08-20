@@ -163,6 +163,11 @@ Discovery exposes no provider, model, implementation, health, availability, or
 configuration data. See the
 [Capability Metadata and Discovery Guide](docs/CAPABILITY_DISCOVERY.md).
 
+The runtime also exposes provider-neutral non-streaming text embeddings through
+`POST /v1/embeddings`, using the same sealed capability registry and execution
+context as chat without introducing vector storage or retrieval orchestration.
+See the [Embeddings Capability Guide](docs/EMBEDDINGS.md).
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and

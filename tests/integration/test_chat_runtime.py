@@ -141,7 +141,10 @@ def test_runtime_health_over_real_network(
     assert availability.status_code == 200
     assert availability.json() == {
         "status": "available",
-        "capabilities": [{"name": "chat.completions", "status": "available"}],
+        "capabilities": [
+            {"name": "chat.completions", "status": "available"},
+            {"name": "embeddings", "status": "available"},
+        ],
     }
     assert str(UUID(availability.headers["x-request-id"])) == availability.headers["x-request-id"]
     assert metrics.status_code == 200

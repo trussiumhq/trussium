@@ -374,10 +374,14 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Transition-only bounded health events and informational `GET /v1/capabilities/health`
 - Capability health configuration, OpenAPI, package, container, real-process, and Kubernetes validation
 - Capability health extension and privacy guidance
+- Provider-neutral non-streaming embeddings capability
+- Immutable embeddings request, response, vector, and usage contracts
+- OpenAI-compatible embeddings adapter and `POST /v1/embeddings`
+- Sealed registry, execution-context, OpenAPI, and privacy-boundary integration
 
 ### Remaining
 
-- Additional capability interfaces
+- Additional capability interfaces beyond embeddings
 
 The capability framework remains in progress until additional capability
 interfaces are delivered.
@@ -877,7 +881,7 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add additional capability interfaces
+1. Add additional capability interfaces beyond embeddings
 
 This priority will extend the established provider-neutral capability boundary.
 Routing, retry, provider registration, model discovery, dynamic plugins, and
