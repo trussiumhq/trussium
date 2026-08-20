@@ -6,9 +6,11 @@ from trussium.api.capabilities import router as capabilities_router
 from trussium.api.chat import router as chat_router
 from trussium.api.embeddings import router as embeddings_router
 from trussium.api.health import router as health_router
+from trussium.api.moderation import router as moderation_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)
 api_router.include_router(capabilities_router)
 api_router.include_router(chat_router)
 api_router.include_router(embeddings_router)
+api_router.include_router(moderation_router)

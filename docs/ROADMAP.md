@@ -378,10 +378,12 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Immutable embeddings request, response, vector, and usage contracts
 - OpenAI-compatible embeddings adapter and `POST /v1/embeddings`
 - Sealed registry, execution-context, OpenAPI, and privacy-boundary integration
+- Provider-neutral non-streaming moderation capability and `POST /v1/moderations`
+- Informational safety classification without execution gating or policy enforcement
 
 ### Remaining
 
-- Additional capability interfaces beyond embeddings
+- Additional capability interfaces beyond embeddings and moderation
 
 The capability framework remains in progress until additional capability
 interfaces are delivered.
@@ -881,7 +883,7 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add additional capability interfaces beyond embeddings
+1. Add additional capability interfaces beyond embeddings and moderation
 
 This priority will extend the established provider-neutral capability boundary.
 Routing, retry, provider registration, model discovery, dynamic plugins, and

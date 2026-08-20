@@ -8,6 +8,7 @@ from opentelemetry.trace import Tracer
 
 from trussium.capabilities.chat import ChatCapability
 from trussium.capabilities.embeddings import EmbeddingsCapability
+from trussium.capabilities.moderation import ModerationCapability
 from trussium.config.settings import (
     ProviderName,
     ProviderSettings,
@@ -20,6 +21,7 @@ from trussium.providers.openai import (
     OpenAIChatCapability,
     OpenAICompatibleProviderHealthCheck,
     OpenAIEmbeddingsCapability,
+    OpenAIModerationCapability,
 )
 from trussium.runtime import (
     DependencyFailureReason,
@@ -96,6 +98,24 @@ def create_embeddings_capability_from_environment(
         else AsyncOpenAI(api_key=api_key)
     )
     return OpenAIEmbeddingsCapability(client)
+
+
+def create_moderation_capability_from_environment(
+    *,
+    provider: ProviderSettings | None = None,
+) -> ModerationCapability | None:
+    """Create the configured OpenAI moderation capability."""
+    resolved_provider = provider or ProviderSettings()
+    api_key = _resolve_api_key(resolved_provider)
+    if api_key is None:
+        return None
+    base_url = _resolve_base_url(resolved_provider)
+    client = (
+        AsyncOpenAI(api_key=api_key, base_url=base_url)
+        if base_url is not None
+        else AsyncOpenAI(api_key=api_key)
+    )
+    return OpenAIModerationCapability(client)
 
 
 def create_provider_health_check_from_environment(

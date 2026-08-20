@@ -144,6 +144,7 @@ def test_runtime_health_over_real_network(
         "capabilities": [
             {"name": "chat.completions", "status": "available"},
             {"name": "embeddings", "status": "available"},
+            {"name": "moderation", "status": "available"},
         ],
     }
     assert str(UUID(availability.headers["x-request-id"])) == availability.headers["x-request-id"]

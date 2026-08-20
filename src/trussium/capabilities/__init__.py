@@ -42,6 +42,10 @@ from trussium.capabilities.middleware import (
     CapabilityMiddleware,
     CapabilityStreamNext,
 )
+from trussium.capabilities.moderation import (
+    MODERATION_CAPABILITY_METADATA,
+    MODERATION_CAPABILITY_NAME,
+)
 from trussium.capabilities.registry import (
     CapabilityAlreadyRegisteredError,
     CapabilityContractMismatchError,
@@ -63,6 +67,8 @@ __all__ = [
     "CHAT_CAPABILITY_NAME",
     "EMBEDDINGS_CAPABILITY_METADATA",
     "EMBEDDINGS_CAPABILITY_NAME",
+    "MODERATION_CAPABILITY_METADATA",
+    "MODERATION_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",
     "CapabilityAvailability",
     "CapabilityAvailabilityCheck",
