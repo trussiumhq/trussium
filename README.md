@@ -168,6 +168,10 @@ The runtime also exposes provider-neutral non-streaming text embeddings through
 context as chat without introducing vector storage or retrieval orchestration.
 See the [Embeddings Capability Guide](docs/EMBEDDINGS.md).
 
+Provider-neutral moderation classification is also available through
+`POST /v1/moderations`. It reports classifications but never gates execution.
+See the [Moderation Capability Guide](docs/MODERATION.md).
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and

@@ -6,6 +6,7 @@ from trussium.app import create_application
 from trussium.app.bootstrap import (
     create_chat_capability_from_environment,
     create_embeddings_capability_from_environment,
+    create_moderation_capability_from_environment,
     create_provider_health_check_from_environment,
 )
 from trussium.capabilities import (
@@ -13,6 +14,8 @@ from trussium.capabilities import (
     CHAT_CAPABILITY_NAME,
     EMBEDDINGS_CAPABILITY_METADATA,
     EMBEDDINGS_CAPABILITY_NAME,
+    MODERATION_CAPABILITY_METADATA,
+    MODERATION_CAPABILITY_NAME,
     CapabilityRegistry,
 )
 from trussium.config.settings import get_settings
@@ -55,6 +58,9 @@ def main() -> None:
     embeddings_capability = create_embeddings_capability_from_environment(
         provider=settings.provider,
     )
+    moderation_capability = create_moderation_capability_from_environment(
+        provider=settings.provider
+    )
     dependency_health_check = create_provider_health_check_from_environment(
         provider=settings.provider,
         readiness=settings.readiness,
@@ -71,6 +77,12 @@ def main() -> None:
             EMBEDDINGS_CAPABILITY_NAME,
             embeddings_capability,
             metadata=EMBEDDINGS_CAPABILITY_METADATA,
+        )
+    if moderation_capability is not None:
+        capability_registry.register(
+            MODERATION_CAPABILITY_NAME,
+            moderation_capability,
+            metadata=MODERATION_CAPABILITY_METADATA,
         )
 
     app = create_application(
