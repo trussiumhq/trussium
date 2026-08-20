@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.45.0 (2026-08-20)
+
+### Features
+
+- **capabilities**: Add image generation capability
+  ([#122](https://github.com/trussiumhq/trussium/pull/122),
+  [`75f074a`](https://github.com/trussiumhq/trussium/commit/75f074a3cb4413b5bf6203560398da3c8dea8447))
+
+
 ## v0.44.0 (2026-08-20)
 
 ### Features
