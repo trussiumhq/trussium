@@ -146,6 +146,7 @@ def test_runtime_health_over_real_network(
             {"name": "embeddings", "status": "available"},
             {"name": "images.generations", "status": "available"},
             {"name": "moderation", "status": "available"},
+            {"name": "audio.transcriptions", "status": "available"},
         ],
     }
     assert str(UUID(availability.headers["x-request-id"])) == availability.headers["x-request-id"]
