@@ -8,6 +8,7 @@ from trussium.api.embeddings import router as embeddings_router
 from trussium.api.health import router as health_router
 from trussium.api.images import router as images_router
 from trussium.api.moderation import router as moderation_router
+from trussium.api.reranking import router as reranking_router
 from trussium.api.transcription import router as transcription_router
 
 api_router = APIRouter()
@@ -16,5 +17,6 @@ api_router.include_router(capabilities_router)
 api_router.include_router(chat_router)
 api_router.include_router(embeddings_router)
 api_router.include_router(moderation_router)
+api_router.include_router(reranking_router)
 api_router.include_router(images_router)
 api_router.include_router(transcription_router)

@@ -3,6 +3,7 @@
 import os
 from typing import Final
 
+import httpx
 from openai import AsyncOpenAI
 from opentelemetry.trace import Tracer
 
@@ -10,11 +11,13 @@ from trussium.capabilities.chat import ChatCapability
 from trussium.capabilities.embeddings import EmbeddingsCapability
 from trussium.capabilities.images import ImageGenerationCapability
 from trussium.capabilities.moderation import ModerationCapability
+from trussium.capabilities.reranking import RerankingCapability
 from trussium.capabilities.transcription import TranscriptionCapability
 from trussium.config.settings import (
     ProviderName,
     ProviderSettings,
     ReadinessSettings,
+    RerankingSettings,
     TimeoutSettings,
 )
 from trussium.observability import LoggingProviderChatCapability
@@ -27,6 +30,7 @@ from trussium.providers.openai import (
     OpenAIModerationCapability,
     OpenAITranscriptionCapability,
 )
+from trussium.providers.tei import TEIRerankingCapability
 from trussium.runtime import (
     DependencyFailureReason,
     DependencyHealthCheck,
@@ -138,6 +142,23 @@ def create_moderation_capability_from_environment(
         else AsyncOpenAI(api_key=api_key)
     )
     return OpenAIModerationCapability(client)
+
+
+def create_reranking_capability_from_environment(
+    *, reranking: RerankingSettings | None = None
+) -> RerankingCapability | None:
+    """Create the configured privately hosted TEI reranking capability."""
+    resolved = reranking or RerankingSettings()
+    if resolved.base_url is None:
+        return None
+    headers = (
+        {"Authorization": f"Bearer {resolved.api_key.get_secret_value()}"}
+        if resolved.api_key is not None
+        else None
+    )
+    return TEIRerankingCapability(
+        httpx.AsyncClient(base_url=str(resolved.base_url), headers=headers)
+    )
 
 
 def create_transcription_capability_from_environment(

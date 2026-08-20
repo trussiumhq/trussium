@@ -52,6 +52,18 @@ class ProviderSettings(BaseModel):
     )
 
 
+class RerankingSettings(BaseModel):
+    """Dedicated privately hosted reranking provider configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    base_url: AnyHttpUrl | None = Field(
+        default=None,
+        description="Optional Hugging Face Text Embeddings Inference base URL.",
+    )
+    api_key: SecretStr | None = Field(default=None, description="Optional TEI credential.")
+
+
 class RuntimeSettings(BaseModel):
     """Runtime configuration."""
 
@@ -219,6 +231,7 @@ class Settings(BaseSettings):
 
     runtime: RuntimeSettings = RuntimeSettings()
     provider: ProviderSettings = ProviderSettings()
+    reranking: RerankingSettings = RerankingSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
     readiness: ReadinessSettings = ReadinessSettings()
     observability: ObservabilitySettings = ObservabilitySettings()
