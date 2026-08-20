@@ -255,6 +255,7 @@ def test_application_manages_capabilities_between_services_and_resources() -> No
         runtime=RuntimeSettings(
             service_cleanup_seconds=2.5,
             capability_availability_timeout_seconds=0.625,
+            capability_health_timeout_seconds=0.5,
         )
     )
 
@@ -273,6 +274,8 @@ def test_application_manages_capabilities_between_services_and_resources() -> No
     )
     assert app.state.capability_availability_reporter.registry is registry
     assert app.state.capability_availability_reporter.timeout_seconds == 0.625
+    assert app.state.capability_health_reporter.registry is registry
+    assert app.state.capability_health_reporter.timeout_seconds == 0.5
     assert app.state.capability_lifecycle.names == ("first", "second")
     assert app.state.capability_lifecycle.cleanup_timeout_seconds == 2.5
     assert tuple(

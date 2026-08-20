@@ -366,14 +366,21 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Informational `GET /v1/capabilities/availability` endpoint
 - OpenAPI, package, container, real-process, and Kubernetes validation
 - Capability availability configuration and extension guide
+- Frozen provider-neutral capability health values and statuses
+- Optional asynchronous capability health protocol
+- Sealed source-registry health reporting with concurrent fresh checks and stable ordering
+- Unknown defaults for ordinary capabilities, safe timeout and check-failure normalization
+- Aggregate unavailable, degraded, unknown, and ok semantics
+- Transition-only bounded health events and informational `GET /v1/capabilities/health`
+- Capability health configuration, OpenAPI, package, container, real-process, and Kubernetes validation
+- Capability health extension and privacy guidance
 
 ### Remaining
 
-- Capability health reporting
 - Additional capability interfaces
 
-The capability framework remains in progress until health and additional
-capability interfaces are delivered.
+The capability framework remains in progress until additional capability
+interfaces are delivered.
 
 ---
 
@@ -870,12 +877,11 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add capability health reporting
+1. Add additional capability interfaces
 
-This priority will define bounded provider-neutral capability health semantics
-separately from the delivered informational availability view. Routing, retry,
-provider registration, model discovery, dynamic plugins, and execution gating
-will remain separate milestones.
+This priority will extend the established provider-neutral capability boundary.
+Routing, retry, provider registration, model discovery, dynamic plugins, and
+execution gating remain separate milestones.
 
 ---
 

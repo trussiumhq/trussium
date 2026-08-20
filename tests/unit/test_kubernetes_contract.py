@@ -249,6 +249,8 @@ def test_kubernetes_validation_is_executable_and_runs_in_ci() -> None:
     assert "CapabilityInvocation" in smoke_path.read_text()
     assert "CapabilityAvailabilityReporter" in smoke_path.read_text()
     assert "CapabilityAvailabilityStatus" in smoke_path.read_text()
+    assert "CapabilityHealthReporter" in smoke_path.read_text()
+    assert "CapabilityHealthStatus" in smoke_path.read_text()
     assert "middleware=(middleware,)" in smoke_path.read_text()
     assert "pipeline.middleware == (middleware,)" in smoke_path.read_text()
     assert "pipeline.execute(" in smoke_path.read_text()
@@ -256,6 +258,8 @@ def test_kubernetes_validation_is_executable_and_runs_in_ci() -> None:
     assert "capability discovery response" in smoke_path.read_text()
     assert '"http://127.0.0.1:$port/v1/capabilities/availability"' in smoke_path.read_text()
     assert "capability availability response" in smoke_path.read_text()
+    assert '"http://127.0.0.1:$port/v1/capabilities/health"' in smoke_path.read_text()
+    assert "capability health response" in smoke_path.read_text()
     assert '"event":"runtime.configuration.loaded"' in smoke_path.read_text()
     assert '"event":"provider.configuration.unavailable"' in smoke_path.read_text()
     assert "uses: helm/kind-action@v1" in workflow

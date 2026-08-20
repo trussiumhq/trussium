@@ -70,6 +70,8 @@ docker run --rm --entrypoint python "$image" -c \
 docker run --rm --entrypoint python "$image" -c \
     "from trussium.capabilities import CapabilityAvailabilityReporter, CapabilityAvailabilityStatus; assert CapabilityAvailabilityReporter is not None; assert CapabilityAvailabilityStatus.AVAILABLE == 'available'"
 docker run --rm --entrypoint python "$image" -c \
+    "from trussium.capabilities import CapabilityHealthReporter, CapabilityHealthStatus; assert CapabilityHealthReporter is not None; assert CapabilityHealthStatus.OK == 'ok'"
+docker run --rm --entrypoint python "$image" -c \
     "import asyncio; from trussium.capabilities import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME, CapabilityExecutionPipeline, CapabilityInvocation, CapabilityRegistry; capability = object(); registry = CapabilityRegistry(); assert registry.register(CHAT_CAPABILITY_NAME, capability, metadata=CHAT_CAPABILITY_METADATA) is capability; assert registry.seal()[0].metadata is CHAT_CAPABILITY_METADATA; invocations = []; middleware = type('SmokeMiddleware', (), {'execute': lambda self, invocation, call_next: (invocations.append(invocation), call_next())[1], 'stream': lambda self, invocation, call_next: call_next()})(); pipeline = CapabilityExecutionPipeline(registry, middleware=(middleware,)); assert asyncio.run(pipeline.execute(CHAT_CAPABILITY_NAME, lambda resolved: asyncio.sleep(0, result=resolved))) is capability; assert pipeline.middleware == (middleware,); assert len(invocations) == 1; assert isinstance(invocations[0], CapabilityInvocation); assert invocations[0].capability is capability"
 
 if docker run --rm --entrypoint sh "$image" -c 'command -v uv >/dev/null'; then
@@ -147,6 +149,13 @@ curl --fail --silent --show-error \
 
 assert_equal "$(cat "$response_body")" \
     '{"status":"available","capabilities":[]}' "capability availability body"
+
+curl --fail --silent --show-error \
+    "http://127.0.0.1:${host_port}/v1/capabilities/health" \
+    --output "$response_body"
+
+assert_equal "$(cat "$response_body")" \
+    '{"status":"ok","capabilities":[]}' "capability health body"
 
 curl --fail --silent --show-error \
     "http://127.0.0.1:${host_port}/metrics" \

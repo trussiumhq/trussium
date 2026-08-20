@@ -11,6 +11,16 @@ from trussium.capabilities.availability import (
 )
 from trussium.capabilities.chat import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME
 from trussium.capabilities.execution import CapabilityExecutionPipeline
+from trussium.capabilities.health import (
+    CAPABILITY_HEALTH_CHECK_FAILED,
+    CAPABILITY_HEALTH_NOT_REPORTED,
+    CAPABILITY_HEALTH_TIMEOUT,
+    CapabilityHealth,
+    CapabilityHealthCheck,
+    CapabilityHealthReport,
+    CapabilityHealthReporter,
+    CapabilityHealthStatus,
+)
 from trussium.capabilities.lifecycle import (
     CapabilityLifecycle,
     CapabilityLifecycleError,
@@ -42,6 +52,9 @@ from trussium.capabilities.registry import (
 __all__ = [
     "CAPABILITY_AVAILABILITY_CHECK_FAILED",
     "CAPABILITY_AVAILABILITY_TIMEOUT",
+    "CAPABILITY_HEALTH_CHECK_FAILED",
+    "CAPABILITY_HEALTH_NOT_REPORTED",
+    "CAPABILITY_HEALTH_TIMEOUT",
     "CHAT_CAPABILITY_METADATA",
     "CHAT_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",
@@ -53,6 +66,11 @@ __all__ = [
     "CapabilityContractMismatchError",
     "CapabilityExecuteNext",
     "CapabilityExecutionPipeline",
+    "CapabilityHealth",
+    "CapabilityHealthCheck",
+    "CapabilityHealthReport",
+    "CapabilityHealthReporter",
+    "CapabilityHealthStatus",
     "CapabilityInvocation",
     "CapabilityLifecycle",
     "CapabilityLifecycleError",

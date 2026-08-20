@@ -15,6 +15,7 @@ from trussium.capabilities import (
     CapabilityAvailabilityReporter,
     CapabilityContractMismatchError,
     CapabilityExecutionPipeline,
+    CapabilityHealthReporter,
     CapabilityLifecycle,
     CapabilityMiddleware,
     CapabilityRegistry,
@@ -111,6 +112,10 @@ def create_application(
     capability_availability_reporter = CapabilityAvailabilityReporter(
         configured_capability_registry,
         timeout_seconds=(resolved_settings.runtime.capability_availability_timeout_seconds),
+    )
+    capability_health_reporter = CapabilityHealthReporter(
+        configured_capability_registry,
+        timeout_seconds=resolved_settings.runtime.capability_health_timeout_seconds,
     )
     capability_lifecycle = CapabilityLifecycle(
         configured_capability_registry,
@@ -308,6 +313,7 @@ def create_application(
     application.state.runtime_component_health_reporter = runtime_component_health_reporter
     application.state.capability_registry = resolved_capability_registry
     application.state.capability_availability_reporter = capability_availability_reporter
+    application.state.capability_health_reporter = capability_health_reporter
     application.state.capability_lifecycle = capability_lifecycle
     application.state.capability_execution_pipeline = capability_execution_pipeline
     application.state.chat_capability = resolved_chat_capability
