@@ -10,6 +10,7 @@ from trussium.api.images import router as images_router
 from trussium.api.moderation import router as moderation_router
 from trussium.api.reranking import router as reranking_router
 from trussium.api.transcription import router as transcription_router
+from trussium.api.videos import router as videos_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)
@@ -20,3 +21,4 @@ api_router.include_router(moderation_router)
 api_router.include_router(reranking_router)
 api_router.include_router(images_router)
 api_router.include_router(transcription_router)
+api_router.include_router(videos_router)

@@ -9,6 +9,7 @@ from trussium.providers.openai.health import OpenAICompatibleProviderHealthCheck
 from trussium.providers.openai.images import OpenAIImageGenerationCapability
 from trussium.providers.openai.moderation import OpenAIModerationCapability
 from trussium.providers.openai.transcription import OpenAITranscriptionCapability
+from trussium.providers.openai.videos import OpenAIVideoCapability
 
 __all__ = [
     "OpenAIChatCapability",
@@ -18,4 +19,5 @@ __all__ = [
     "OpenAIModerationCapability",
     "OpenAIProviderError",
     "OpenAITranscriptionCapability",
+    "OpenAIVideoCapability",
 ]
