@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.43.0 (2026-08-20)
+
+### Features
+
+- **capabilities**: Add embeddings capability
+  ([#114](https://github.com/trussiumhq/trussium/pull/114),
+  [`c649533`](https://github.com/trussiumhq/trussium/commit/c649533de7812967626caa97c9a67b495ee1d304))
+
+
 ## v0.42.0 (2026-08-20)
 
 ### Chores
