@@ -2,6 +2,21 @@
 
 <!-- version list -->
 
+## v0.46.0 (2026-08-20)
+
+### Features
+
+- **capabilities**: Add audio transcription
+  ([#124](https://github.com/trussiumhq/trussium/pull/124),
+  [`d661de6`](https://github.com/trussiumhq/trussium/commit/d661de64745a049ba58b075d14aaf2856c94778e))
+
+### Testing
+
+- **packaging**: Cover audio transcription dependency
+  ([#124](https://github.com/trussiumhq/trussium/pull/124),
+  [`d661de6`](https://github.com/trussiumhq/trussium/commit/d661de64745a049ba58b075d14aaf2856c94778e))
+
+
 ## v0.45.0 (2026-08-20)
 
 ### Features
