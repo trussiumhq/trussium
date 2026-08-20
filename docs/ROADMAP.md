@@ -380,10 +380,14 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Sealed registry, execution-context, OpenAPI, and privacy-boundary integration
 - Provider-neutral non-streaming moderation capability and `POST /v1/moderations`
 - Informational safety classification without execution gating or policy enforcement
+- Provider-neutral non-streaming image generation and `POST /v1/images/generations`
+- Provider-neutral non-streaming audio transcription and `POST /v1/audio/transcriptions`
+- Provider-neutral non-streaming reranking and `POST /v1/rerankings`
 
 ### Remaining
 
-- Additional capability interfaces beyond embeddings and moderation
+- Additional capability interfaces beyond embeddings, moderation, image generation,
+  audio transcription, and reranking
 
 The capability framework remains in progress until additional capability
 interfaces are delivered.
@@ -771,6 +775,7 @@ Expand the runtime after the chat execution path, routing, identity, telemetry, 
 - Image generation
 - Moderation
 - Audio transcription
+- Reranking
 
 Each delivered capability is a complete vertical slice: immutable contracts,
 registry metadata, execution-context propagation, provider adapter, HTTP API,
@@ -781,7 +786,6 @@ storing it or logging audio bytes or transcript content.
 ### Remaining Deliverables
 
 - Video processing
-- Reranking
 - Tool execution
 - Batch inference
 
@@ -893,7 +897,8 @@ Public interface stability should be clearly documented before the first stable 
 
 The next priority is:
 
-1. Add additional capability interfaces beyond embeddings and moderation
+1. Add additional capability interfaces beyond embeddings, moderation, image generation,
+   audio transcription, and reranking
 
 This priority will extend the established provider-neutral capability boundary.
 Routing, retry, provider registration, model discovery, dynamic plugins, and

@@ -86,6 +86,7 @@ Examples include:
 - Embeddings
 - Image Generation
 - Audio Processing
+- Reranking
 - Video Generation
 - Real-time Communication
 - Tool Execution
@@ -108,6 +109,7 @@ OpenAI
 ✓ Embeddings
 ✓ Images
 ✓ Audio
+✓ Reranking (through a dedicated adapter)
 ✓ Realtime
 ```
 

@@ -111,6 +111,7 @@ required_modules = {
     "trussium/__main__.py",
     "trussium/api/capabilities.py",
     "trussium/api/chat.py",
+    "trussium/api/reranking.py",
     "trussium/api/transcription.py",
     "trussium/app/factory.py",
     "trussium/capabilities/execution.py",
@@ -118,6 +119,7 @@ required_modules = {
     "trussium/capabilities/metadata.py",
     "trussium/capabilities/middleware.py",
     "trussium/capabilities/registry.py",
+    "trussium/capabilities/reranking/models.py",
     "trussium/capabilities/transcription/models.py",
     "trussium/config/settings.py",
     "trussium/errors.py",
@@ -127,6 +129,7 @@ required_modules = {
     "trussium/providers/ollama/chat.py",
     "trussium/providers/openai/chat.py",
     "trussium/providers/openai/transcription.py",
+    "trussium/providers/tei/reranking.py",
     "trussium/runtime/context.py",
     "trussium/runtime/health.py",
     "trussium/runtime/registry.py",
@@ -134,6 +137,7 @@ required_modules = {
 }
 expected_dependencies = {
     "fastapi",
+    "httpx",
     "openai",
     "opentelemetry-api",
     "opentelemetry-exporter-otlp-proto-http",

@@ -60,6 +60,7 @@ from trussium.capabilities.registry import (
     CapabilityRegistrySealedError,
     validate_capability_name,
 )
+from trussium.capabilities.reranking import RERANKING_CAPABILITY_METADATA, RERANKING_CAPABILITY_NAME
 from trussium.capabilities.transcription import (
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
@@ -79,6 +80,8 @@ __all__ = [
     "IMAGE_GENERATION_CAPABILITY_NAME",
     "MODERATION_CAPABILITY_METADATA",
     "MODERATION_CAPABILITY_NAME",
+    "RERANKING_CAPABILITY_METADATA",
+    "RERANKING_CAPABILITY_NAME",
     "TRANSCRIPTION_CAPABILITY_METADATA",
     "TRANSCRIPTION_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",

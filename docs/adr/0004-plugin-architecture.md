@@ -63,6 +63,7 @@ Examples:
 - Embeddings
 - Image Generation
 - Audio
+- Reranking
 - Video
 - Tool Execution
 - Agent Execution

@@ -9,6 +9,7 @@ from trussium.app.bootstrap import (
     create_image_generation_capability_from_environment,
     create_moderation_capability_from_environment,
     create_provider_health_check_from_environment,
+    create_reranking_capability_from_environment,
     create_transcription_capability_from_environment,
 )
 from trussium.capabilities import (
@@ -20,6 +21,8 @@ from trussium.capabilities import (
     IMAGE_GENERATION_CAPABILITY_NAME,
     MODERATION_CAPABILITY_METADATA,
     MODERATION_CAPABILITY_NAME,
+    RERANKING_CAPABILITY_METADATA,
+    RERANKING_CAPABILITY_NAME,
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
     CapabilityRegistry,
@@ -70,6 +73,9 @@ def main() -> None:
     moderation_capability = create_moderation_capability_from_environment(
         provider=settings.provider
     )
+    reranking_capability = create_reranking_capability_from_environment(
+        reranking=settings.reranking
+    )
     transcription_capability = create_transcription_capability_from_environment(
         provider=settings.provider
     )
@@ -101,6 +107,12 @@ def main() -> None:
             MODERATION_CAPABILITY_NAME,
             moderation_capability,
             metadata=MODERATION_CAPABILITY_METADATA,
+        )
+    if reranking_capability is not None:
+        capability_registry.register(
+            RERANKING_CAPABILITY_NAME,
+            reranking_capability,
+            metadata=RERANKING_CAPABILITY_METADATA,
         )
     if transcription_capability is not None:
         capability_registry.register(
