@@ -2,6 +2,36 @@
 
 <!-- version list -->
 
+## v0.42.0 (2026-08-20)
+
+### Chores
+
+- **deps**: Bump actions/checkout from 4 to 7
+  ([#13](https://github.com/trussiumhq/trussium/pull/13),
+  [`00e0ad3`](https://github.com/trussiumhq/trussium/commit/00e0ad3f74ef15d55534a185cf613c0b9a894d9b))
+
+- **deps**: Bump actions/setup-python from 5 to 7
+  ([#16](https://github.com/trussiumhq/trussium/pull/16),
+  [`c5a629a`](https://github.com/trussiumhq/trussium/commit/c5a629aea4448a2dd4024bddb34b3ac5a6fd5c31))
+
+- **deps**: Bump astral-sh/setup-uv from 5 to 7
+  ([#15](https://github.com/trussiumhq/trussium/pull/15),
+  [`da7b2aa`](https://github.com/trussiumhq/trussium/commit/da7b2aa6deb71d4920d28dd7fa3ad1e55adfe2b4))
+
+- **deps**: Bump docker/login-action from 3 to 4
+  ([#63](https://github.com/trussiumhq/trussium/pull/63),
+  [`0391d11`](https://github.com/trussiumhq/trussium/commit/0391d11064d1cbb6f4b44c8e617aefda60ac9fbf))
+
+- **deps**: Bump github/codeql-action from 3 to 4
+  ([#41](https://github.com/trussiumhq/trussium/pull/41),
+  [`80ff11e`](https://github.com/trussiumhq/trussium/commit/80ff11ea31d8c906bac020d0d59ab589c0aa0fdc))
+
+### Features
+
+- **capabilities**: Add health reporting ([#112](https://github.com/trussiumhq/trussium/pull/112),
+  [`b49f01f`](https://github.com/trussiumhq/trussium/commit/b49f01fa10e8e3dc7b3ea703422eca5d9e9b9ec5))
+
+
 ## v0.41.0 (2026-08-19)
 
 ### Features
