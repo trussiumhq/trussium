@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.49.0 (2026-08-20)
+
+### Features
+
+- **tools**: Add controlled tool execution ([#132](https://github.com/trussiumhq/trussium/pull/132),
+  [`777d4ec`](https://github.com/trussiumhq/trussium/commit/777d4ecf162fd74c5f9d6a16c3897972d603e9fc))
+
+
 ## v0.48.0 (2026-08-20)
 
 ### Chores
