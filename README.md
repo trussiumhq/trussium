@@ -172,6 +172,9 @@ Provider-neutral moderation classification is also available through
 `POST /v1/moderations`. It reports classifications but never gates execution.
 See the [Moderation Capability Guide](docs/MODERATION.md).
 
+Provider-neutral image generation is available at `POST /v1/images/generations`.
+See the [Image-generation Capability Guide](docs/IMAGE_GENERATION.md).
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and
