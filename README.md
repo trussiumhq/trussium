@@ -198,6 +198,9 @@ Provider-neutral batch-job metadata is available at `POST /v1/batches`,
 The runtime CLI provides `trussium serve`, `trussium config validate`,
 `trussium health`, and `trussium version`. See the [CLI Guide](docs/CLI.md).
 
+The [Python SDK Guide](docs/PYTHON_SDK.md) shows how applications can call a
+local, private, or public Trussium runtime without hosting it themselves.
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and
