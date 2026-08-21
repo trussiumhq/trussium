@@ -1,0 +1,53 @@
+"""Typed Python client for an existing Trussium runtime."""
+
+from typing import Any
+
+import httpx
+
+from trussium.capabilities.chat.models import ChatCompletionRequest, ChatCompletionResponse
+
+
+class TrussiumClientError(RuntimeError):
+    """Raised when a Trussium runtime request cannot complete."""
+
+
+class TrussiumClient:
+    """Synchronous typed client for a configured Trussium runtime URL."""
+
+    def __init__(
+        self, base_url: str = "http://127.0.0.1:9000", *, timeout_seconds: float = 30.0
+    ) -> None:
+        self._client = httpx.Client(base_url=base_url.rstrip("/"), timeout=timeout_seconds)
+
+    def close(self) -> None:
+        self._client.close()
+
+    def __enter__(self) -> "TrussiumClient":
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        self.close()
+
+    def complete(self, request: ChatCompletionRequest) -> ChatCompletionResponse:
+        return ChatCompletionResponse.model_validate(
+            self._request("POST", "/v1/chat/completions", request.model_dump())
+        )
+
+    def readiness(self) -> dict[str, Any]:
+        return self._request("GET", "/health/ready")
+
+    def capabilities(self) -> dict[str, Any]:
+        return self._request("GET", "/v1/capabilities/availability")
+
+    def _request(
+        self, method: str, path: str, payload: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        try:
+            response = self._client.request(method, path, json=payload)
+            response.raise_for_status()
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise TrussiumClientError("The Trussium runtime returned an invalid response.")
+            return payload
+        except httpx.HTTPError as error:
+            raise TrussiumClientError("The Trussium runtime request failed.") from error
