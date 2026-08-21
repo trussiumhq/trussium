@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter
 
+from trussium.api.batches import router as batches_router
 from trussium.api.capabilities import router as capabilities_router
 from trussium.api.chat import router as chat_router
 from trussium.api.embeddings import router as embeddings_router
@@ -15,6 +16,7 @@ from trussium.api.videos import router as videos_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)
+api_router.include_router(batches_router)
 api_router.include_router(capabilities_router)
 api_router.include_router(chat_router)
 api_router.include_router(embeddings_router)

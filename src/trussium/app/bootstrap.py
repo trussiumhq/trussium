@@ -7,6 +7,7 @@ import httpx
 from openai import AsyncOpenAI
 from opentelemetry.trace import Tracer
 
+from trussium.capabilities.batches import BatchCapability
 from trussium.capabilities.chat import ChatCapability
 from trussium.capabilities.embeddings import EmbeddingsCapability
 from trussium.capabilities.images import ImageGenerationCapability
@@ -24,6 +25,7 @@ from trussium.config.settings import (
 from trussium.observability import LoggingProviderChatCapability
 from trussium.providers.ollama import OllamaChatCapability
 from trussium.providers.openai import (
+    OpenAIBatchCapability,
     OpenAIChatCapability,
     OpenAICompatibleProviderHealthCheck,
     OpenAIEmbeddingsCapability,
@@ -89,6 +91,19 @@ def create_chat_capability_from_environment(
         provider=adapter.provider_name,
         tracer=tracer,
     )
+
+
+def create_batch_capability_from_environment(
+    *, provider: ProviderSettings | None = None
+) -> BatchCapability | None:
+    """Create the configured OpenAI batch-inference capability."""
+    resolved_provider = provider or ProviderSettings()
+    if resolved_provider.name is not ProviderName.OPENAI:
+        return None
+    api_key = _resolve_api_key(resolved_provider)
+    if api_key is None:
+        return None
+    return OpenAIBatchCapability(AsyncOpenAI(api_key=api_key))
 
 
 def create_embeddings_capability_from_environment(

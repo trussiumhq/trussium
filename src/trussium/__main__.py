@@ -4,6 +4,7 @@ from pydantic import ValidationError
 
 from trussium.app import create_application
 from trussium.app.bootstrap import (
+    create_batch_capability_from_environment,
     create_chat_capability_from_environment,
     create_embeddings_capability_from_environment,
     create_image_generation_capability_from_environment,
@@ -14,6 +15,8 @@ from trussium.app.bootstrap import (
     create_video_capability_from_environment,
 )
 from trussium.capabilities import (
+    BATCHES_CAPABILITY_METADATA,
+    BATCHES_CAPABILITY_NAME,
     CHAT_CAPABILITY_METADATA,
     CHAT_CAPABILITY_NAME,
     EMBEDDINGS_CAPABILITY_METADATA,
@@ -67,6 +70,7 @@ def main() -> None:
         timeouts=settings.timeouts,
         tracer=tracing.tracer,
     )
+    batch_capability = create_batch_capability_from_environment(provider=settings.provider)
     embeddings_capability = create_embeddings_capability_from_environment(
         provider=settings.provider,
     )
@@ -93,6 +97,12 @@ def main() -> None:
             CHAT_CAPABILITY_NAME,
             chat_capability,
             metadata=CHAT_CAPABILITY_METADATA,
+        )
+    if batch_capability is not None:
+        capability_registry.register(
+            BATCHES_CAPABILITY_NAME,
+            batch_capability,
+            metadata=BATCHES_CAPABILITY_METADATA,
         )
     if embeddings_capability is not None:
         capability_registry.register(

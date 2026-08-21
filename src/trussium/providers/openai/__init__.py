@@ -1,5 +1,6 @@
 """OpenAI provider adapter."""
 
+from trussium.providers.openai.batches import OpenAIBatchCapability
 from trussium.providers.openai.chat import (
     OpenAIChatCapability,
     OpenAIProviderError,
@@ -12,6 +13,7 @@ from trussium.providers.openai.transcription import OpenAITranscriptionCapabilit
 from trussium.providers.openai.videos import OpenAIVideoCapability
 
 __all__ = [
+    "OpenAIBatchCapability",
     "OpenAIChatCapability",
     "OpenAICompatibleProviderHealthCheck",
     "OpenAIEmbeddingsCapability",
