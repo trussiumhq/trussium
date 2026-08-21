@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.52.0 (2026-08-21)
+
+### Features
+
+- **sdk**: Add initial Python client ([#140](https://github.com/trussiumhq/trussium/pull/140),
+  [`662b51c`](https://github.com/trussiumhq/trussium/commit/662b51cf4bb709a4aa5eaa37c73638137cd583bf))
+
+
 ## v0.51.0 (2026-08-21)
 
 ### Documentation
