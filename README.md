@@ -187,6 +187,10 @@ See the [Video-generation Jobs Guide](docs/VIDEO_GENERATION.md).
 Controlled execution of application-declared tools is available at
 `POST /v1/tools/executions`. See the [Tool Execution Guide](docs/TOOL_EXECUTION.md).
 
+Provider-neutral batch-job metadata is available at `POST /v1/batches`,
+`GET /v1/batches/{batch_id}`, and `POST /v1/batches/{batch_id}/cancel`. See the
+[Batch Inference Guide](docs/BATCH_INFERENCE.md).
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and

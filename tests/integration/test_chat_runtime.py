@@ -143,6 +143,7 @@ def test_runtime_health_over_real_network(
         "status": "available",
         "capabilities": [
             {"name": "chat.completions", "status": "available"},
+            {"name": "batches", "status": "available"},
             {"name": "embeddings", "status": "available"},
             {"name": "images.generations", "status": "available"},
             {"name": "moderation", "status": "available"},

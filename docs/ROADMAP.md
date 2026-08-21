@@ -778,6 +778,7 @@ Expand the runtime after the chat execution path, routing, identity, telemetry, 
 - Reranking
 - Video generation jobs
 - Controlled tool execution
+- Batch inference
 
 Each delivered capability is a complete vertical slice: immutable contracts,
 registry metadata, execution-context propagation, provider adapter, HTTP API,
@@ -785,12 +786,8 @@ error normalization, tests, and documentation. Image-generation responses expose
 base64 artifacts only; audio transcription forwards multipart audio without
 storing it or logging audio bytes or transcript content.
 
-### Remaining Deliverables
-
-- Batch inference
-
-Each additional capability should be introduced as a complete vertical slice with
-contracts, provider adapters, APIs, telemetry, tests, and documentation.
+Milestone 11 is complete. Each capability was introduced as a complete vertical
+slice with contracts, provider adapters, APIs, telemetry, tests, and documentation.
 
 ---
 

@@ -9,6 +9,7 @@ from trussium.capabilities.availability import (
     CapabilityAvailabilityReporter,
     CapabilityAvailabilityStatus,
 )
+from trussium.capabilities.batches import BATCHES_CAPABILITY_METADATA, BATCHES_CAPABILITY_NAME
 from trussium.capabilities.chat import CHAT_CAPABILITY_METADATA, CHAT_CAPABILITY_NAME
 from trussium.capabilities.embeddings import (
     EMBEDDINGS_CAPABILITY_METADATA,
@@ -68,6 +69,8 @@ from trussium.capabilities.transcription import (
 from trussium.capabilities.videos import VIDEO_CAPABILITY_METADATA, VIDEO_CAPABILITY_NAME
 
 __all__ = [
+    "BATCHES_CAPABILITY_METADATA",
+    "BATCHES_CAPABILITY_NAME",
     "CAPABILITY_AVAILABILITY_CHECK_FAILED",
     "CAPABILITY_AVAILABILITY_TIMEOUT",
     "CAPABILITY_HEALTH_CHECK_FAILED",
