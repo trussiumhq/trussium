@@ -45,6 +45,9 @@ dependencies = [
     "prometheus-client>=0.26.0",
 ]
 
+[project.scripts]
+trussium = "trussium.cli:main"
+
 [dependency-groups]
 dev = [
     "ruff>=0.12.5",

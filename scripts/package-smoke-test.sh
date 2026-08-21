@@ -109,6 +109,7 @@ distribution_info = f"trussium-{version}.dist-info"
 required_modules = {
     "trussium/__init__.py",
     "trussium/__main__.py",
+    "trussium/cli.py",
     "trussium/api/capabilities.py",
     "trussium/api/batches.py",
     "trussium/api/chat.py",
