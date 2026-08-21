@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.51.0 (2026-08-21)
+
+### Documentation
+
+- Add project logo
+  ([`3dacccb`](https://github.com/trussiumhq/trussium/commit/3dacccb0e62f7738b511e10e86bff2326c2fc608))
+
+- Add project maintainers
+  ([`dbac154`](https://github.com/trussiumhq/trussium/commit/dbac154a821eb0355721d3644239df9402393158))
+
+### Features
+
+- **cli**: Add runtime command foundation ([#136](https://github.com/trussiumhq/trussium/pull/136),
+  [`5742931`](https://github.com/trussiumhq/trussium/commit/5742931678676c644d7a7c4f15ce159057c57e0b))
+
+
 ## v0.50.0 (2026-08-21)
 
 ### Features
