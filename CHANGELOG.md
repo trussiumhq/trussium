@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.50.0 (2026-08-21)
+
+### Features
+
+- **batches**: Add batch inference jobs ([#134](https://github.com/trussiumhq/trussium/pull/134),
+  [`f92a941`](https://github.com/trussiumhq/trussium/commit/f92a9418b06a3a4b7a060723a24438523e9ad9ae))
+
+
 ## v0.49.0 (2026-08-20)
 
 ### Features
