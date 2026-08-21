@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Trussium logo</title>
+  <desc id="desc">An abstract truss lattice in navy and teal.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 68 104 132 256 220 408 132 256 68Z" stroke="#00AFA8" stroke-width="34"/>
+    <path d="M104 132 256 220 408 132" stroke="#102F5B" stroke-width="34"/>
+    <path d="M104 132 178 350 256 444 334 350 408 132" stroke="#00AFA8" stroke-width="34"/>
+    <path d="M256 220V444" stroke="#102F5B" stroke-width="34"/>
+    <path d="M178 350 256 304 334 350" stroke="#102F5B" stroke-width="34"/>
+  </g>
+  <g fill="#102F5B" stroke="#00AFA8" stroke-width="10">
+    <circle cx="104" cy="132" r="25"/>
+    <circle cx="408" cy="132" r="25"/>
+    <circle cx="256" cy="220" r="27"/>
+    <circle cx="256" cy="444" r="25"/>
+  </g>
+</svg>

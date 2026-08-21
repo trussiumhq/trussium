@@ -1,5 +1,9 @@
 # Trussium
 
+<p align="center">
+  <img src=".github/assets/trussium-logo.svg" alt="Trussium logo" width="144">
+</p>
+
 > **The cloud-native runtime for AI applications.**
 
 Build AI applications once. Run them anywhere.
