@@ -201,6 +201,8 @@ The runtime CLI provides `trussium serve`, `trussium config validate`,
 The [Python SDK Guide](docs/PYTHON_SDK.md) shows how applications can call a
 local, private, or public Trussium runtime without hosting it themselves.
 
+Copyable HTTP and Python examples are available in the [API Usage Guide](docs/API_USAGE.md).
+
 A sealed-registry-backed execution pipeline now provides one provider-neutral
 boundary for asynchronous and streaming capability work. It resolves canonical
 identities once, preserves execution context and native error semantics, and
