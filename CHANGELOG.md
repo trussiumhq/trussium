@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.53.0 (2026-08-24)
+
+### Documentation
+
+- **api**: Add runnable usage examples ([#142](https://github.com/trussiumhq/trussium/pull/142),
+  [`931d63c`](https://github.com/trussiumhq/trussium/commit/931d63cda37310eb758e8169ec0d07eb12841292))
+
+### Features
+
+- **sdk**: Add embeddings and moderation ([#144](https://github.com/trussiumhq/trussium/pull/144),
+  [`3ee3722`](https://github.com/trussiumhq/trussium/commit/3ee3722bf91bae62bd36db067fec753fdc009647))
+
+
 ## v0.52.0 (2026-08-21)
 
 ### Features
