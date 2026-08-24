@@ -5,6 +5,8 @@ from typing import Any
 import httpx
 
 from trussium.capabilities.chat.models import ChatCompletionRequest, ChatCompletionResponse
+from trussium.capabilities.embeddings.models import EmbeddingsRequest, EmbeddingsResponse
+from trussium.capabilities.moderation.models import ModerationRequest, ModerationResponse
 
 
 class TrussiumClientError(RuntimeError):
@@ -31,6 +33,16 @@ class TrussiumClient:
     def complete(self, request: ChatCompletionRequest) -> ChatCompletionResponse:
         return ChatCompletionResponse.model_validate(
             self._request("POST", "/v1/chat/completions", request.model_dump())
+        )
+
+    def embeddings(self, request: EmbeddingsRequest) -> EmbeddingsResponse:
+        return EmbeddingsResponse.model_validate(
+            self._request("POST", "/v1/embeddings", request.model_dump())
+        )
+
+    def moderations(self, request: ModerationRequest) -> ModerationResponse:
+        return ModerationResponse.model_validate(
+            self._request("POST", "/v1/moderations", request.model_dump())
         )
 
     def readiness(self) -> dict[str, Any]:

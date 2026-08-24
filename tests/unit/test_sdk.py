@@ -1,6 +1,8 @@
 import httpx
 import pytest
 
+from trussium.capabilities.embeddings.models import EmbeddingsRequest
+from trussium.capabilities.moderation.models import ModerationRequest
 from trussium.sdk import TrussiumClient, TrussiumClientError
 
 
@@ -24,4 +26,36 @@ def test_transport_errors_are_normalized() -> None:
     )
     with pytest.raises(TrussiumClientError):
         client.capabilities()
+    client.close()
+
+
+def test_embeddings_and_moderations_use_typed_contracts() -> None:
+    responses = iter(
+        (
+            {
+                "id": "embedding-1",
+                "provider": "stub",
+                "model": "embed",
+                "data": [{"index": 0, "embedding": [0.1]}],
+                "usage": {"input_tokens": 1, "total_tokens": 1},
+            },
+            {
+                "id": "moderation-1",
+                "provider": "stub",
+                "model": "moderate",
+                "results": [{"flagged": False, "categories": {}, "category_scores": {}}],
+            },
+        )
+    )
+    client = TrussiumClient("http://runtime")
+    client._client = httpx.Client(
+        base_url="http://runtime",
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, json=next(responses))),
+    )
+
+    assert client.embeddings(EmbeddingsRequest(model="embed", input=["hello"])).data[0].index == 0
+    assert (
+        client.moderations(ModerationRequest(model="moderate", input=["hello"])).results[0].flagged
+        is False
+    )
     client.close()
