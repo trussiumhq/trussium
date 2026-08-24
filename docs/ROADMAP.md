@@ -756,7 +756,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Integration documentation
 - Local development environment
 - Community provider plugins
-- API usage examples
+- Runnable API usage examples
 - Troubleshooting guide
 
 SDK development should follow a stable HTTP API rather than preceding it.
