@@ -2,7 +2,9 @@ import httpx
 import pytest
 
 from trussium.capabilities.embeddings.models import EmbeddingsRequest
+from trussium.capabilities.images.models import ImageGenerationRequest
 from trussium.capabilities.moderation.models import ModerationRequest
+from trussium.capabilities.transcription.models import AudioInput, TranscriptionRequest
 from trussium.sdk import TrussiumClient, TrussiumClientError
 
 
@@ -57,5 +59,36 @@ def test_embeddings_and_moderations_use_typed_contracts() -> None:
     assert (
         client.moderations(ModerationRequest(model="moderate", input=["hello"])).results[0].flagged
         is False
+    )
+    client.close()
+
+
+def test_images_and_transcription_use_typed_contracts() -> None:
+    responses = iter(
+        (
+            {
+                "id": "image-1",
+                "provider": "stub",
+                "model": "image",
+                "data": [{"b64_json": "aW1hZ2U="}],
+            },
+            {"id": "audio-1", "provider": "stub", "model": "audio", "text": "hello"},
+        )
+    )
+    client = TrussiumClient("http://runtime")
+    client._client = httpx.Client(
+        base_url="http://runtime",
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, json=next(responses))),
+    )
+    assert (
+        client.generate_image(ImageGenerationRequest(model="image", prompt="tree")).id == "image-1"
+    )
+    assert (
+        client.transcribe(
+            TranscriptionRequest(
+                model="audio", audio=AudioInput(filename="audio.wav", data=b"audio")
+            )
+        ).text
+        == "hello"
     )
     client.close()
