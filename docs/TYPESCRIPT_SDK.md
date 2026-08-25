@@ -2,11 +2,15 @@
 
 The TypeScript SDK is maintained in the dedicated
 [`trussium-typescript`](https://github.com/trussiumhq/trussium-typescript)
-repository and published as `@trussium/sdk`. It calls an existing local,
-private, or public runtime; it does not install, host, or configure one.
+repository and published as `@trussium/sdk` when npm publication is enabled.
+It calls an existing local, private, or public runtime; it does not install,
+host, or configure one.
 
 ```bash
-npm install @trussium/sdk
+git clone https://github.com/trussiumhq/trussium-typescript.git
+cd trussium-typescript
+npm ci
+npm run build
 ```
 
 ```ts
@@ -20,5 +24,7 @@ const response = await client.complete(
 ```
 
 The foundation provides typed non-streaming chat completions, readiness,
-capability discovery, request-ID forwarding, and typed API errors. See the
+capability discovery, request-ID forwarding, and typed API errors. Semantic
+release currently creates versions, tags, changelogs, and GitHub releases;
+npm publication is deferred until the repository has an `NPM_TOKEN`. See the
 dedicated repository for package and runtime compatibility details.
