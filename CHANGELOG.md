@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v0.55.0 (2026-08-25)
+
+### Code Style
+
+- **sdk**: Format reranking and batch methods
+  ([#148](https://github.com/trussiumhq/trussium/pull/148),
+  [`6c1e880`](https://github.com/trussiumhq/trussium/commit/6c1e880aee7d7a5c3826d6de6bbca1fb85b25aaf))
+
+### Features
+
+- **sdk**: Add reranking and batches ([#148](https://github.com/trussiumhq/trussium/pull/148),
+  [`6c1e880`](https://github.com/trussiumhq/trussium/commit/6c1e880aee7d7a5c3826d6de6bbca1fb85b25aaf))
+
+
 ## v0.54.0 (2026-08-25)
 
 ### Features
