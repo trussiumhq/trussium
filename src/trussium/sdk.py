@@ -92,9 +92,7 @@ class TrussiumClient:
         return BatchJob.model_validate(self._request("GET", f"/v1/batches/{batch_id}"))
 
     def cancel_batch(self, batch_id: str) -> BatchJob:
-        return BatchJob.model_validate(
-            self._request("POST", f"/v1/batches/{batch_id}/cancel")
-        )
+        return BatchJob.model_validate(self._request("POST", f"/v1/batches/{batch_id}/cancel"))
 
     def readiness(self) -> dict[str, Any]:
         return self._request("GET", "/health/ready")
