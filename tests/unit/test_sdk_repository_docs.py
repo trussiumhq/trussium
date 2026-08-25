@@ -11,4 +11,5 @@ def test_sdk_guides_reference_published_packages() -> None:
     assert "github.com/trussiumhq/trussium-go" in readme
     assert "@trussium/sdk" in readme
     assert "@trussium/sdk" in typescript
-    assert "npm install @trussium/sdk" in typescript
+    assert "npm publication is deferred" in typescript
+    assert "npm run build" in typescript
