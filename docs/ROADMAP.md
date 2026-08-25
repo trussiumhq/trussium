@@ -568,7 +568,7 @@ This milestone represents Trussium’s first usable vertical slice and should be
 
 ## Milestone 7 — Routing and Resilience
 
-**Status:** 🗓 Planned
+**Status:** 🚧 In progress
 
 Enable Trussium to select providers and recover from provider failures.
 
@@ -745,9 +745,9 @@ Make Trussium easy to install, integrate, extend, and operate.
 ### Deliverables
 
 - Command-line interface foundation
-- Dedicated Python SDK repository and package
-- Dedicated Go SDK repository and module
-- Dedicated TypeScript SDK repository and package
+- Dedicated Python SDK repository and package ✅
+- Dedicated Go SDK repository and module ✅
+- Dedicated TypeScript SDK repository and package ✅
 - Example applications
 - Project templates
 - Provider development guide
@@ -756,10 +756,15 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Integration documentation
 - Local development environment
 - Community provider plugins
-- Runnable API usage examples
+- Runnable API usage examples ✅ (Python, Go, and TypeScript)
 - Self-hosted operations and troubleshooting guide
 
 SDK development should follow a stable HTTP API rather than preceding it.
+
+The dedicated SDK repositories now provide runnable self-hosted examples for
+the three supported languages. Remaining Milestone 10 work includes the CLI
+foundation, project templates, developer guides, plugin tooling, and broader
+integration and operations documentation.
 
 ---
 

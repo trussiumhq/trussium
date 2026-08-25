@@ -19,6 +19,18 @@ with TrussiumClient("http://127.0.0.1:9000") as client:
     )
 ```
 
+For a runnable self-hosted workflow, see the dedicated repository's
+[`examples/basic.py`](https://github.com/trussiumhq/trussium-python/blob/main/examples/basic.py).
+It accepts `TRUSSIUM_URL`, `TRUSSIUM_MODEL`, and `TRUSSIUM_PROMPT` and checks
+readiness and capabilities before making a completion request:
+
+```bash
+TRUSSIUM_URL=http://127.0.0.1:9000 \
+TRUSSIUM_MODEL=llama3.1:8b \
+TRUSSIUM_PROMPT="Say hello." \
+uv run python examples/basic.py
+```
+
 The package supports chat, embeddings, moderation, image generation,
 transcription, reranking, batch jobs, video jobs, controlled tools, readiness,
 and capability discovery. Audio bytes are sent only to the configured runtime;
