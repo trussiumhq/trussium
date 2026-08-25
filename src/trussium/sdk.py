@@ -6,7 +6,9 @@ import httpx
 
 from trussium.capabilities.chat.models import ChatCompletionRequest, ChatCompletionResponse
 from trussium.capabilities.embeddings.models import EmbeddingsRequest, EmbeddingsResponse
+from trussium.capabilities.images.models import ImageGenerationRequest, ImageGenerationResponse
 from trussium.capabilities.moderation.models import ModerationRequest, ModerationResponse
+from trussium.capabilities.transcription.models import TranscriptionRequest, TranscriptionResponse
 
 
 class TrussiumClientError(RuntimeError):
@@ -44,6 +46,37 @@ class TrussiumClient:
         return ModerationResponse.model_validate(
             self._request("POST", "/v1/moderations", request.model_dump())
         )
+
+    def generate_image(self, request: ImageGenerationRequest) -> ImageGenerationResponse:
+        return ImageGenerationResponse.model_validate(
+            self._request("POST", "/v1/images/generations", request.model_dump())
+        )
+
+    def transcribe(self, request: TranscriptionRequest) -> TranscriptionResponse:
+        data = {"model": request.model}
+        for name in ("language", "prompt", "temperature"):
+            value = getattr(request, name)
+            if value is not None:
+                data[name] = str(value)
+        try:
+            response = self._client.post(
+                "/v1/audio/transcriptions",
+                data=data,
+                files={
+                    "file": (
+                        request.audio.filename,
+                        request.audio.data,
+                        request.audio.content_type or "application/octet-stream",
+                    )
+                },
+            )
+            response.raise_for_status()
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise TrussiumClientError("The Trussium runtime returned an invalid response.")
+            return TranscriptionResponse.model_validate(payload)
+        except httpx.HTTPError as error:
+            raise TrussiumClientError("The Trussium runtime request failed.") from error
 
     def readiness(self) -> dict[str, Any]:
         return self._request("GET", "/health/ready")
