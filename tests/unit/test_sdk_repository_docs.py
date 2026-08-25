@@ -13,6 +13,8 @@ def test_sdk_guides_reference_published_packages() -> None:
     assert "@trussium/sdk" in typescript
     assert "npm publication is deferred" in typescript
     assert "npm run build" in typescript
+    assert "examples/basic.ts" in typescript
+    assert "TRUSSIUM_URL" in typescript
     assert "multipart" in typescript
     assert "transcription" in typescript
     assert "batch jobs" in typescript
