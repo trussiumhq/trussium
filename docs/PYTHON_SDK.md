@@ -44,3 +44,17 @@ with TrussiumClient("http://127.0.0.1:9000") as client:
     batch = client.create_batch(BatchCreateRequest(input_file_id="file-provider-owned"))
     current = client.get_batch(batch.id)
 ```
+
+Video jobs return metadata only. Tool invocation can call only a runtime
+application's pre-registered allowlisted tools; the SDK cannot register or
+broaden tool authority.
+
+```python
+from trussium.capabilities.videos.models import VideoCreateRequest
+from trussium.tools.contracts import ToolInvocation
+
+with TrussiumClient("http://127.0.0.1:9000") as client:
+    video = client.create_video(VideoCreateRequest(model="sora-2", prompt="a tree"))
+    current_video = client.get_video(video.id)
+    result = client.execute_tool(ToolInvocation(name="echo", arguments={"value": "hello"}))
+```
