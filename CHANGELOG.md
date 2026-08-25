@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.54.0 (2026-08-25)
+
+### Features
+
+- **sdk**: Add images and transcription ([#146](https://github.com/trussiumhq/trussium/pull/146),
+  [`ad625a0`](https://github.com/trussiumhq/trussium/commit/ad625a0d4f331d2e68ef153f9b3b111013e8c585))
+
+
 ## v0.53.0 (2026-08-24)
 
 ### Documentation
