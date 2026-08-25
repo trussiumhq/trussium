@@ -302,6 +302,7 @@ Project documentation is available in the `docs/` directory.
 - [Structured Operational Logging Guide](docs/OPERATIONAL_LOGGING.md)
 - [Runtime Dashboards Guide](docs/DASHBOARDS.md)
 - [Runtime Alerting and Runbook Guide](docs/ALERTING.md)
+- [Self-Hosted Operations Guide](docs/SELF_HOSTING.md)
 - [Runtime Health and Dependency Readiness Guide](docs/HEALTH.md)
 - [Runtime Service Lifecycle Guide](docs/LIFECYCLE.md)
 - [Runtime Service Registry Guide](docs/SERVICE_REGISTRY.md)
