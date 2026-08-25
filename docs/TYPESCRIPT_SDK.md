@@ -23,8 +23,10 @@ const response = await client.complete(
 );
 ```
 
-The foundation provides typed non-streaming chat completions, readiness,
-capability discovery, request-ID forwarding, and typed API errors. Semantic
-release currently creates versions, tags, changelogs, and GitHub releases;
-npm publication is deferred until the repository has an `NPM_TOKEN`. See the
-dedicated repository for package and runtime compatibility details.
+Version `v1.0.0` provides typed non-streaming chat completions, readiness,
+capability discovery, embeddings, moderation, image generation, multipart
+transcription, reranking, batch jobs, video jobs, controlled tools, request-ID
+forwarding, and typed API errors. Semantic release currently creates versions,
+tags, changelogs, and GitHub releases; npm publication is deferred until the
+repository has an `NPM_TOKEN`. See the dedicated repository for package and
+runtime compatibility details.
