@@ -11,6 +11,8 @@ from trussium.capabilities.images.models import ImageGenerationRequest, ImageGen
 from trussium.capabilities.moderation.models import ModerationRequest, ModerationResponse
 from trussium.capabilities.reranking.models import RerankingRequest, RerankingResponse
 from trussium.capabilities.transcription.models import TranscriptionRequest, TranscriptionResponse
+from trussium.capabilities.videos.models import VideoCreateRequest, VideoJob
+from trussium.tools.contracts import ToolExecutionResult, ToolInvocation
 
 
 class TrussiumClientError(RuntimeError):
@@ -93,6 +95,17 @@ class TrussiumClient:
 
     def cancel_batch(self, batch_id: str) -> BatchJob:
         return BatchJob.model_validate(self._request("POST", f"/v1/batches/{batch_id}/cancel"))
+
+    def create_video(self, request: VideoCreateRequest) -> VideoJob:
+        return VideoJob.model_validate(self._request("POST", "/v1/videos", request.model_dump()))
+
+    def get_video(self, video_id: str) -> VideoJob:
+        return VideoJob.model_validate(self._request("GET", f"/v1/videos/{video_id}"))
+
+    def execute_tool(self, invocation: ToolInvocation) -> ToolExecutionResult:
+        return ToolExecutionResult.model_validate(
+            self._request("POST", "/v1/tools/executions", invocation.model_dump())
+        )
 
     def readiness(self) -> dict[str, Any]:
         return self._request("GET", "/health/ready")

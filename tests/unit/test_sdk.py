@@ -7,7 +7,9 @@ from trussium.capabilities.images.models import ImageGenerationRequest
 from trussium.capabilities.moderation.models import ModerationRequest
 from trussium.capabilities.reranking.models import RerankingDocument, RerankingRequest
 from trussium.capabilities.transcription.models import AudioInput, TranscriptionRequest
+from trussium.capabilities.videos.models import VideoCreateRequest
 from trussium.sdk import TrussiumClient, TrussiumClientError
+from trussium.tools.contracts import ToolInvocation
 
 
 def test_readiness_uses_configured_runtime_url() -> None:
@@ -145,4 +147,38 @@ def test_reranking_and_batch_lifecycle_use_typed_contracts() -> None:
     assert client.create_batch(BatchCreateRequest(input_file_id="file-in")).status == "validating"
     assert client.get_batch("batch-1").output_file_id == "file-out"
     assert client.cancel_batch("batch-1").status == "cancelling"
+    client.close()
+
+
+def test_videos_and_registered_tools_use_typed_contracts() -> None:
+    responses = iter(
+        (
+            {
+                "id": "video-1",
+                "provider": "stub",
+                "model": "video",
+                "status": "queued",
+                "progress": 0,
+            },
+            {
+                "id": "video-1",
+                "provider": "stub",
+                "model": "video",
+                "status": "completed",
+                "progress": 100,
+            },
+            {"tool_name": "echo", "output": {"value": "ok"}},
+        )
+    )
+    client = TrussiumClient("http://runtime")
+    client._client = httpx.Client(
+        base_url="http://runtime",
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, json=next(responses))),
+    )
+    assert client.create_video(VideoCreateRequest(model="video", prompt="tree")).status == "queued"
+    assert client.get_video("video-1").progress == 100
+    assert (
+        client.execute_tool(ToolInvocation(name="echo", arguments={"value": "ok"})).tool_name
+        == "echo"
+    )
     client.close()
