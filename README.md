@@ -204,6 +204,9 @@ The [Python SDK Guide](docs/PYTHON_SDK.md) links to the independently published
 The [Go SDK Guide](docs/GO_SDK.md) links to the independently published
 `github.com/trussiumhq/trussium-go` module for Go applications.
 
+The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
+published `@trussium/sdk` package for TypeScript applications.
+
 Copyable HTTP and Python examples are available in the [API Usage Guide](docs/API_USAGE.md).
 
 A sealed-registry-backed execution pipeline now provides one provider-neutral
@@ -320,6 +323,7 @@ Project documentation is available in the `docs/` directory.
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
 - [Python SDK Guide](docs/PYTHON_SDK.md)
 - [Go SDK Guide](docs/GO_SDK.md)
+- [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)

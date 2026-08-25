@@ -747,7 +747,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Command-line interface foundation
 - Dedicated Python SDK repository and package
 - Dedicated Go SDK repository and module
-- TypeScript SDK
+- Dedicated TypeScript SDK repository and package
 - Example applications
 - Project templates
 - Provider development guide
