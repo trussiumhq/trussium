@@ -4,10 +4,12 @@ from typing import Any
 
 import httpx
 
+from trussium.capabilities.batches.models import BatchCreateRequest, BatchJob
 from trussium.capabilities.chat.models import ChatCompletionRequest, ChatCompletionResponse
 from trussium.capabilities.embeddings.models import EmbeddingsRequest, EmbeddingsResponse
 from trussium.capabilities.images.models import ImageGenerationRequest, ImageGenerationResponse
 from trussium.capabilities.moderation.models import ModerationRequest, ModerationResponse
+from trussium.capabilities.reranking.models import RerankingRequest, RerankingResponse
 from trussium.capabilities.transcription.models import TranscriptionRequest, TranscriptionResponse
 
 
@@ -77,6 +79,20 @@ class TrussiumClient:
             return TranscriptionResponse.model_validate(payload)
         except httpx.HTTPError as error:
             raise TrussiumClientError("The Trussium runtime request failed.") from error
+
+    def rerank(self, request: RerankingRequest) -> RerankingResponse:
+        return RerankingResponse.model_validate(
+            self._request("POST", "/v1/rerankings", request.model_dump())
+        )
+
+    def create_batch(self, request: BatchCreateRequest) -> BatchJob:
+        return BatchJob.model_validate(self._request("POST", "/v1/batches", request.model_dump()))
+
+    def get_batch(self, batch_id: str) -> BatchJob:
+        return BatchJob.model_validate(self._request("GET", f"/v1/batches/{batch_id}"))
+
+    def cancel_batch(self, batch_id: str) -> BatchJob:
+        return BatchJob.model_validate(self._request("POST", f"/v1/batches/{batch_id}/cancel"))
 
     def readiness(self) -> dict[str, Any]:
         return self._request("GET", "/health/ready")

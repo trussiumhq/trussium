@@ -31,3 +31,16 @@ with TrussiumClient("http://127.0.0.1:9000") as client:
     image = client.generate_image(ImageGenerationRequest(model="gpt-image-1", prompt="a tree"))
     audio = client.transcribe(TranscriptionRequest(model="whisper-1", audio=AudioInput(filename="audio.wav", data=b"...")))
 ```
+
+Reranking and batch-job metadata are also supported. Batch input and output
+files remain provider-owned; the SDK accepts only the existing input-file ID.
+
+```python
+from trussium.capabilities.batches.models import BatchCreateRequest
+from trussium.capabilities.reranking.models import RerankingDocument, RerankingRequest
+
+with TrussiumClient("http://127.0.0.1:9000") as client:
+    ranking = client.rerank(RerankingRequest(model="rerank", query="hello", documents=[RerankingDocument(text="hello world")]))
+    batch = client.create_batch(BatchCreateRequest(input_file_id="file-provider-owned"))
+    current = client.get_batch(batch.id)
+```
