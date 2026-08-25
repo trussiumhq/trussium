@@ -30,3 +30,11 @@ forwarding, and typed API errors. Semantic release currently creates versions,
 tags, changelogs, and GitHub releases; npm publication is deferred until the
 repository has an `NPM_TOKEN`. See the dedicated repository for package and
 runtime compatibility details.
+
+## Runnable example
+
+The dedicated repository includes [`examples/basic.ts`](https://github.com/trussiumhq/trussium-typescript/blob/main/examples/basic.ts),
+which checks readiness, discovers capabilities, and submits a chat request.
+Build it with `npm run build:examples` and configure `TRUSSIUM_URL`,
+`TRUSSIUM_MODEL`, and `TRUSSIUM_PROMPT`; it defaults to the local runtime at
+`http://127.0.0.1:9000`.
