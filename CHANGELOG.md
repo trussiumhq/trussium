@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.56.0 (2026-08-25)
+
+### Features
+
+- **sdk**: Add videos and tools ([#150](https://github.com/trussiumhq/trussium/pull/150),
+  [`676c448`](https://github.com/trussiumhq/trussium/commit/676c4487ef4bfce581aa105ba8dc1c34952a0cc0))
+
+
 ## v0.55.0 (2026-08-25)
 
 ### Code Style
