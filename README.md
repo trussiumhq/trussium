@@ -198,8 +198,11 @@ Provider-neutral batch-job metadata is available at `POST /v1/batches`,
 The runtime CLI provides `trussium serve`, `trussium config validate`,
 `trussium health`, and `trussium version`. See the [CLI Guide](docs/CLI.md).
 
-The [Python SDK Guide](docs/PYTHON_SDK.md) shows how applications can call a
-local, private, or public Trussium runtime without hosting it themselves.
+The [Python SDK Guide](docs/PYTHON_SDK.md) links to the independently published
+`trussium-sdk` package for calling a local, private, or public runtime.
+
+The [Go SDK Guide](docs/GO_SDK.md) links to the independently published
+`github.com/trussiumhq/trussium-go` module for Go applications.
 
 Copyable HTTP and Python examples are available in the [API Usage Guide](docs/API_USAGE.md).
 
@@ -315,6 +318,8 @@ Project documentation is available in the `docs/` directory.
 - [Capability Availability Reporting Guide](docs/CAPABILITY_AVAILABILITY.md)
 - [Capability Health Reporting Guide](docs/CAPABILITY_HEALTH.md)
 - [Runtime Exception Hierarchy Guide](docs/ERRORS.md)
+- [Python SDK Guide](docs/PYTHON_SDK.md)
+- [Go SDK Guide](docs/GO_SDK.md)
 - [Python Packaging Guide](docs/PACKAGING.md)
 - [Container Guide](docs/CONTAINERS.md)
 - [Kubernetes Deployment Guide](docs/KUBERNETES.md)

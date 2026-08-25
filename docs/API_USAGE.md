@@ -28,16 +28,16 @@ credentials in requests; configure them in the runtime environment instead.
 ## Python SDK
 
 ```python
-from trussium.capabilities.chat.models import ChatCompletionRequest, ChatMessage, ChatRole
-from trussium.sdk import TrussiumClient
-
-request = ChatCompletionRequest(
-    model="gpt-4.1-mini",
-    messages=[ChatMessage(role=ChatRole.USER, content="Hello from Trussium")],
-)
+from trussium_sdk import TrussiumClient
 
 with TrussiumClient("http://127.0.0.1:9000") as client:
     print(client.readiness())
     print(client.capabilities())
-    completion = client.complete(request)
+    completion = client.complete({
+        "model": "gpt-4.1-mini",
+        "messages": [{"role": "user", "content": "Hello from Trussium"}],
+    })
 ```
+
+Install with `pip install trussium-sdk`; the independent package calls the
+runtime and does not install or host it.

@@ -10,4 +10,4 @@ def test_api_usage_examples_reference_public_runtime_contracts() -> None:
     assert "/health/ready" in document
     assert "/v1/capabilities/availability" in document
     assert "/v1/chat/completions" in document
-    assert "from trussium.sdk import TrussiumClient" in document
+    assert "from trussium_sdk import TrussiumClient" in document
