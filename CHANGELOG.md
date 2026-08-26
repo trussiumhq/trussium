@@ -2,6 +2,29 @@
 
 <!-- version list -->
 
+## v0.62.0 (2026-08-26)
+
+### Documentation
+
+- Document SDK translation parity ([#199](https://github.com/trussiumhq/trussium/pull/199),
+  [`b25fe4c`](https://github.com/trussiumhq/trussium/commit/b25fe4c07973dc2cef6f307cc808894a20290af7))
+
+### Features
+
+- **capabilities**: Add text to speech contract
+  ([#201](https://github.com/trussiumhq/trussium/pull/201),
+  [`54bb97d`](https://github.com/trussiumhq/trussium/commit/54bb97dd3bc9fdc86b848ed735b589f7b1285c62))
+
+- **capabilities**: Add text-to-speech contract
+  ([#201](https://github.com/trussiumhq/trussium/pull/201),
+  [`54bb97d`](https://github.com/trussiumhq/trussium/commit/54bb97dd3bc9fdc86b848ed735b589f7b1285c62))
+
+### Testing
+
+- Satisfy strict speech mypy ([#201](https://github.com/trussiumhq/trussium/pull/201),
+  [`54bb97d`](https://github.com/trussiumhq/trussium/commit/54bb97dd3bc9fdc86b848ed735b589f7b1285c62))
+
+
 ## v0.61.0 (2026-08-26)
 
 ### Documentation
