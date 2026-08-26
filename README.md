@@ -105,7 +105,7 @@ uv venv
 
 source .venv/bin/activate
 
-uv sync --extra dev --extra docs
+uv sync
 ```
 
 Start the runtime locally:
@@ -216,6 +216,9 @@ provider-neutral contracts, registration, execution, lifecycle, and testing.
 
 The [Application Integration Guide](docs/INTEGRATION.md) connects REST, SDK,
 self-hosting, correlation, streaming, and operational workflows.
+
+The [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) provides the fresh
+checkout, provider-free smoke path, validation ladder, and troubleshooting.
 
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.
