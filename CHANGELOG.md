@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v0.59.0 (2026-08-26)
+
+### Documentation
+
+- Add application integration guide ([#175](https://github.com/trussiumhq/trussium/pull/175),
+  [`9421aa6`](https://github.com/trussiumhq/trussium/commit/9421aa68dda52351d2b5d8962d218b40a51c0976))
+
+- Add capability development guide ([#173](https://github.com/trussiumhq/trussium/pull/173),
+  [`6225f9a`](https://github.com/trussiumhq/trussium/commit/6225f9a3781c9e983fe8cb21e7707344b725c4a3))
+
+- Add local development guide ([#177](https://github.com/trussiumhq/trussium/pull/177),
+  [`474c99b`](https://github.com/trussiumhq/trussium/commit/474c99b8327dd36949f4c164554a4b8cea892fe8))
+
+- Add plugin development kit guide ([#179](https://github.com/trussiumhq/trussium/pull/179),
+  [`334230e`](https://github.com/trussiumhq/trussium/commit/334230e25f63200bb839b791f038a917c64f74cb))
+
+- Add provider development guide ([#171](https://github.com/trussiumhq/trussium/pull/171),
+  [`66238af`](https://github.com/trussiumhq/trussium/commit/66238afd48af1a4e2f5a717076ef6dc8eeca2f9f))
+
+### Features
+
+- Add complete Python example application ([#181](https://github.com/trussiumhq/trussium/pull/181),
+  [`36d257c`](https://github.com/trussiumhq/trussium/commit/36d257c24e0f07c301e9c38fc4b621cd051999a3))
+
+
 ## v0.58.0 (2026-08-26)
 
 ### Features
