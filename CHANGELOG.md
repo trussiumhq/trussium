@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.65.0 (2026-08-26)
+
+### Features
+
+- Add sealed provider registry ([#209](https://github.com/trussiumhq/trussium/pull/209),
+  [`7162f95`](https://github.com/trussiumhq/trussium/commit/7162f95607b69fe2f2f2b20db30117e80a4c7d99))
+
+
 ## v0.64.0 (2026-08-26)
 
 ### Documentation
