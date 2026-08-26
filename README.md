@@ -208,6 +208,9 @@ The [Go SDK Guide](docs/GO_SDK.md) links to the independently published
 The [Project Templates Guide](docs/PROJECT_TEMPLATES.md) provides a copyable
 self-hosted Docker Compose starter.
 
+The [Provider Development Guide](docs/PROVIDER_DEVELOPMENT.md) documents the
+adapter contracts, error boundaries, testing, and self-hosted constraints.
+
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.
 
