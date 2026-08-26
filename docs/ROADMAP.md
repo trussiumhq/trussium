@@ -754,6 +754,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Capability development guide ✅
 - Plugin development kit ✅ (documentation-first boundary)
 - Community provider plugin boundary ✅ (ADR-0008; explicit registration)
+- Standalone provider-plugin template ✅
 - Integration documentation ✅
 - Local development environment ✅
 - Runnable API usage examples ✅ (Python, Go, and TypeScript)

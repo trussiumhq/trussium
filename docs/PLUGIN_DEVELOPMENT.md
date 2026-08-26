@@ -36,6 +36,10 @@ provider SDK objects, or global state.
 
 ## Package layout
 
+The repository includes a copyable [provider-plugin template](../templates/provider-plugin-example)
+that demonstrates this layout and normalized chat lifecycle without network
+access.
+
 A plugin should be independently buildable and testable:
 
 ```text
