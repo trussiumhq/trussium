@@ -758,6 +758,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Standalone provider-plugin template ✅
 - First community provider plugin ✅ (`trussium-provider-vllm`)
 - Managed community provider plugin ✅ (`trussium-provider-anthropic`)
+- Standalone translation provider plugin ✅ (`trussium-provider-libretranslate`)
 - Integration documentation ✅
 - Local development environment ✅
 - Runnable API usage examples ✅ (Python, Go, and TypeScript)
@@ -794,6 +795,7 @@ Expand the runtime after the chat execution path, routing, identity, telemetry, 
 - Moderation
 - Audio transcription
 - Reranking
+- Translation
 - Video generation jobs
 - Controlled tool execution
 - Batch inference

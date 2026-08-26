@@ -23,6 +23,11 @@ normalized chat contract. Supply its API key through the application's secret
 boundary and register it explicitly; the plugin does not store credentials or
 manage the Anthropic service.
 
+The first standalone translation adapter is
+[`trussium-provider-libretranslate`](https://github.com/trussiumhq/trussium-provider-libretranslate).
+It connects to a separately operated LibreTranslate deployment and implements
+the `TranslationCapability`; it does not host or manage LibreTranslate.
+
 ## Choose a capability contract
 
 Start with the provider-neutral protocol for the capability you are adding:
@@ -34,6 +39,7 @@ Start with the provider-neutral protocol for the capability you are adding:
 | Images | [`ImageGenerationCapability`](../src/trussium/capabilities/images/capability.py) | No |
 | Moderation | [`ModerationCapability`](../src/trussium/capabilities/moderation/capability.py) | No |
 | Reranking | [`RerankingCapability`](../src/trussium/capabilities/reranking/capability.py) | No |
+| Translation | [`TranslationCapability`](../src/trussium/capabilities/translation/capability.py) | No |
 | Transcription | [`TranscriptionCapability`](../src/trussium/capabilities/transcription/capability.py) | No |
 | Video jobs | [`VideoCapability`](../src/trussium/capabilities/videos/capability.py) | No |
 
