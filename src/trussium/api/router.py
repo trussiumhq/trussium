@@ -10,6 +10,7 @@ from trussium.api.health import router as health_router
 from trussium.api.images import router as images_router
 from trussium.api.moderation import router as moderation_router
 from trussium.api.reranking import router as reranking_router
+from trussium.api.speech import router as speech_router
 from trussium.api.tools import router as tools_router
 from trussium.api.transcription import router as transcription_router
 from trussium.api.translation import router as translation_router
@@ -23,6 +24,7 @@ api_router.include_router(chat_router)
 api_router.include_router(embeddings_router)
 api_router.include_router(moderation_router)
 api_router.include_router(reranking_router)
+api_router.include_router(speech_router)
 api_router.include_router(images_router)
 api_router.include_router(transcription_router)
 api_router.include_router(translation_router)

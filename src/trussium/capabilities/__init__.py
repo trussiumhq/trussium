@@ -62,6 +62,7 @@ from trussium.capabilities.registry import (
     validate_capability_name,
 )
 from trussium.capabilities.reranking import RERANKING_CAPABILITY_METADATA, RERANKING_CAPABILITY_NAME
+from trussium.capabilities.speech import SPEECH_CAPABILITY_METADATA, SPEECH_CAPABILITY_NAME
 from trussium.capabilities.transcription import (
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
@@ -90,6 +91,8 @@ __all__ = [
     "MODERATION_CAPABILITY_NAME",
     "RERANKING_CAPABILITY_METADATA",
     "RERANKING_CAPABILITY_NAME",
+    "SPEECH_CAPABILITY_METADATA",
+    "SPEECH_CAPABILITY_NAME",
     "TRANSCRIPTION_CAPABILITY_METADATA",
     "TRANSCRIPTION_CAPABILITY_NAME",
     "TRANSLATION_CAPABILITY_METADATA",

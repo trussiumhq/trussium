@@ -23,6 +23,7 @@ the capability package. Existing contracts are useful references:
 | Moderation | [`ModerationCapability`](../src/trussium/capabilities/moderation/capability.py) | `moderations` |
 | Reranking | [`RerankingCapability`](../src/trussium/capabilities/reranking/capability.py) | `rerankings` |
 | Translation | [`TranslationCapability`](../src/trussium/capabilities/translation/capability.py) | `translations` |
+| Text-to-speech | [`SpeechCapability`](../src/trussium/capabilities/speech/capability.py) | `audio.speech` |
 | Transcription | [`TranscriptionCapability`](../src/trussium/capabilities/transcription/capability.py) | `audio.transcriptions` |
 | Video jobs | [`VideoCapability`](../src/trussium/capabilities/videos/capability.py) | `videos` |
 
