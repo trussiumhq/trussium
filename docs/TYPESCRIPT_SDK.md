@@ -21,12 +21,22 @@ const response = await client.complete(
   { model: "gpt-4.1-mini", messages: [{ role: "user", content: "Hello" }] },
   "request-123",
 );
+
+const translation = await client.translate(
+  {
+    model: "translator",
+    input: ["Hello world"],
+    source_language: "en",
+    target_language: "fr",
+  },
+  "translation-123",
+);
 ```
 
-Version `v1.0.0` provides typed non-streaming chat completions, readiness,
+Version `v1.2.0` provides typed non-streaming chat completions, readiness,
 capability discovery, embeddings, moderation, image generation, multipart
-transcription, reranking, batch jobs, video jobs, controlled tools, request-ID
-forwarding, and typed API errors. Semantic release currently creates versions,
+transcription, reranking, translation, batch jobs, video jobs, controlled tools,
+request-ID forwarding, and typed API errors. Semantic release currently creates versions,
 tags, changelogs, and GitHub releases; npm publication is deferred until the
 repository has an `NPM_TOKEN`. See the dedicated repository for package and
 runtime compatibility details.

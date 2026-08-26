@@ -41,3 +41,15 @@ with TrussiumClient("http://127.0.0.1:9000") as client:
 
 Install with `pip install trussium-sdk`; the independent package calls the
 runtime and does not install or host it.
+
+## Translation
+
+```bash
+curl http://127.0.0.1:9000/v1/translations \
+  -H 'Content-Type: application/json' \
+  -H 'X-Request-ID: translation-123' \
+  -d '{"model":"translator","input":["Hello world"],"source_language":"en","target_language":"fr"}'
+```
+
+The runtime must have a registered translation provider, such as the
+self-hosted [LibreTranslate adapter](https://github.com/trussiumhq/trussium-provider-libretranslate).

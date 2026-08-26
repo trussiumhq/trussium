@@ -762,6 +762,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Integration documentation ✅
 - Local development environment ✅
 - Runnable API usage examples ✅ (Python, Go, and TypeScript)
+- SDK translation parity ✅ (Python, Go, and TypeScript)
 - Self-hosted operations and troubleshooting guide ✅
 
 SDK development should follow a stable HTTP API rather than preceding it.
