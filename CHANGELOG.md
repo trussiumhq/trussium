@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.64.0 (2026-08-26)
+
+### Documentation
+
+- Document Piper speech adapter ([#205](https://github.com/trussiumhq/trussium/pull/205),
+  [`c4a80a3`](https://github.com/trussiumhq/trussium/commit/c4a80a3d75bfd54ae2204d14c857ae7e0e9cfb3b))
+
+### Features
+
+- Define provider metadata contract ([#207](https://github.com/trussiumhq/trussium/pull/207),
+  [`95a7ec6`](https://github.com/trussiumhq/trussium/commit/95a7ec62b3c0d7dcca92c00c2640602b2014b342))
+
+
 ## v0.63.0 (2026-08-26)
 
 ### Code Style
