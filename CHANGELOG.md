@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.67.0 (2026-08-26)
+
+### Features
+
+- Add provider lifecycle management ([#213](https://github.com/trussiumhq/trussium/pull/213),
+  [`bb63626`](https://github.com/trussiumhq/trussium/commit/bb63626c26133d80a87c44969bfe43e771359acc))
+
+
 ## v0.66.0 (2026-08-26)
 
 ### Features
