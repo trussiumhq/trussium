@@ -185,6 +185,9 @@ See the [Audio-transcription Capability Guide](docs/AUDIO_TRANSCRIPTION.md).
 Provider-neutral reranking is available at `POST /v1/rerankings`. See the
 [Reranking Capability Guide](docs/RERANKING.md).
 
+Provider-neutral text translation is available at `POST /v1/translations`.
+See the [Translation Guide](docs/TRANSLATION.md).
+
 Video job metadata is available at `POST /v1/videos` and `GET /v1/videos/{video_id}`.
 See the [Video-generation Jobs Guide](docs/VIDEO_GENERATION.md).
 
