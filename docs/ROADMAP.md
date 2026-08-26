@@ -450,6 +450,7 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Provider-aware correlated Ollama lifecycle logging
 - Standalone self-hosted Piper speech adapter
 - Provider-neutral provider interface and immutable metadata contract
+- Explicit ordered provider registry with typed lookup and sealed composition
 
 ### Remaining
 
