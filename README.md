@@ -214,6 +214,9 @@ adapter contracts, error boundaries, testing, and self-hosted constraints.
 The [Capability Development Guide](docs/CAPABILITY_DEVELOPMENT.md) documents
 provider-neutral contracts, registration, execution, lifecycle, and testing.
 
+The [Application Integration Guide](docs/INTEGRATION.md) connects REST, SDK,
+self-hosting, correlation, streaming, and operational workflows.
+
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.
 
