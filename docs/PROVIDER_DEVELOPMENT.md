@@ -10,6 +10,12 @@ This guide describes the current in-repository extension boundary. Provider
 registries, dynamic plugin loading, and automatic model discovery are future
 work and are not required to add a test-backed adapter today.
 
+The first standalone community adapter is
+[`trussium-provider-vllm`](https://github.com/trussiumhq/trussium-provider-vllm).
+It connects to a separately operated self-hosted vLLM deployment through its
+OpenAI-compatible chat API. Install and register it explicitly in the
+application; the plugin does not install, configure, or manage vLLM.
+
 ## Choose a capability contract
 
 Start with the provider-neutral protocol for the capability you are adding:
