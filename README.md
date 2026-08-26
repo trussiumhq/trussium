@@ -215,6 +215,9 @@ The [Python SDK Guide](docs/PYTHON_SDK.md) links to the independently published
 Configured provider metadata is available through `GET /v1/providers`; see the
 [Provider Discovery Guide](docs/PROVIDER_DISCOVERY.md).
 
+Providers that own resources can use the deterministic lifecycle contract
+described in the [Provider Lifecycle Guide](docs/PROVIDER_LIFECYCLE.md).
+
 The [Go SDK Guide](docs/GO_SDK.md) links to the independently published
 `github.com/trussiumhq/trussium-go` module for Go applications.
 
