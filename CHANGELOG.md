@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.63.0 (2026-08-26)
+
+### Code Style
+
+- Format speech availability test ([#203](https://github.com/trussiumhq/trussium/pull/203),
+  [`13efb80`](https://github.com/trussiumhq/trussium/commit/13efb80b882774bbfd68309cc11cff0431599e58))
+
+### Features
+
+- **openai**: Add speech provider adapter ([#203](https://github.com/trussiumhq/trussium/pull/203),
+  [`13efb80`](https://github.com/trussiumhq/trussium/commit/13efb80b882774bbfd68309cc11cff0431599e58))
+
+### Testing
+
+- Include speech in availability expectations
+  ([#203](https://github.com/trussiumhq/trussium/pull/203),
+  [`13efb80`](https://github.com/trussiumhq/trussium/commit/13efb80b882774bbfd68309cc11cff0431599e58))
+
+
 ## v0.62.0 (2026-08-26)
 
 ### Documentation
