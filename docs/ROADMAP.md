@@ -448,6 +448,7 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Live JSON and streaming validation against Ollama 0.32.5
 - Model-preserving token-usage normalization for Ollama
 - Provider-aware correlated Ollama lifecycle logging
+- Standalone self-hosted Piper speech adapter
 
 ### Remaining
 
