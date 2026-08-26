@@ -1,5 +1,6 @@
 """Tests for the runtime CLI."""
 
+import httpx
 import pytest
 
 from trussium import __version__
@@ -14,3 +15,30 @@ def test_version_prints_package_version(capsys: pytest.CaptureFixture[str]) -> N
 def test_configuration_validation_reports_success(capsys: pytest.CaptureFixture[str]) -> None:
     main(("config", "validate"))
     assert capsys.readouterr().out == "Configuration is valid.\n"
+
+
+def test_capabilities_prints_stable_json(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def get(url: str, *, timeout: float) -> httpx.Response:
+        assert url == "http://runtime.test/v1/capabilities"
+        assert timeout == 5
+        return httpx.Response(
+            200,
+            json={"capabilities": [{"name": "chat.completions"}]},
+            request=httpx.Request("GET", url),
+        )
+
+    monkeypatch.setattr("trussium.cli.httpx.get", get)
+    main(("capabilities", "--url", "http://runtime.test/"))
+    assert capsys.readouterr().out == '{"capabilities": [{"name": "chat.completions"}]}\n'
+
+
+def test_capabilities_exits_one_on_runtime_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    def get(_: str, *, timeout: float) -> httpx.Response:
+        del timeout
+        return httpx.Response(503, request=httpx.Request("GET", "http://runtime.test"))
+
+    monkeypatch.setattr("trussium.cli.httpx.get", get)
+    with pytest.raises(SystemExit, match="1"):
+        main(("capabilities", "--url", "http://runtime.test"))
