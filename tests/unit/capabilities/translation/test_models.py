@@ -13,7 +13,7 @@ def test_translation_request_is_immutable_and_validated() -> None:
     )
 
     with pytest.raises(ValidationError):
-        request.model = "other"  # type: ignore[misc]
+        request.model = "other"
 
 
 def test_translation_result_rejects_empty_text() -> None:
