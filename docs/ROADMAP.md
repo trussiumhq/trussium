@@ -756,6 +756,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Community provider plugin boundary ✅ (ADR-0008; explicit registration)
 - Standalone provider-plugin template ✅
 - First community provider plugin ✅ (`trussium-provider-vllm`)
+- Managed community provider plugin ✅ (`trussium-provider-anthropic`)
 - Integration documentation ✅
 - Local development environment ✅
 - Runnable API usage examples ✅ (Python, Go, and TypeScript)

@@ -16,6 +16,13 @@ It connects to a separately operated self-hosted vLLM deployment through its
 OpenAI-compatible chat API. Install and register it explicitly in the
 application; the plugin does not install, configure, or manage vLLM.
 
+The first managed-provider adapter is
+[`trussium-provider-anthropic`](https://github.com/trussiumhq/trussium-provider-anthropic).
+It translates Anthropic's Messages API and SSE lifecycle into the same
+normalized chat contract. Supply its API key through the application's secret
+boundary and register it explicitly; the plugin does not store credentials or
+manage the Anthropic service.
+
 ## Choose a capability contract
 
 Start with the provider-neutral protocol for the capability you are adding:
