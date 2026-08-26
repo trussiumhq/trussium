@@ -12,6 +12,9 @@ def test_self_hosting_guide_references_runtime_operations_contracts() -> None:
         "/health/live",
         "/health/ready",
         "/metrics",
+        "templates/self-hosted-runtime",
+        "docker compose config",
+        "docker compose up -d",
         "KUBERNETES.md",
         "trussium-operator",
     ):
