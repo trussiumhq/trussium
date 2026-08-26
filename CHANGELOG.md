@@ -2,6 +2,42 @@
 
 <!-- version list -->
 
+## v0.60.0 (2026-08-26)
+
+### Continuous Integration
+
+- Retrigger pull request checks ([#191](https://github.com/trussiumhq/trussium/pull/191),
+  [`b4b8755`](https://github.com/trussiumhq/trussium/commit/b4b875506c4421623a63e244a8f8c3ef6748a520))
+
+### Documentation
+
+- Add provider plugin template ([#187](https://github.com/trussiumhq/trussium/pull/187),
+  [`2e55513`](https://github.com/trussiumhq/trussium/commit/2e555139a6419753a0db5433ac5abd333928ea9a))
+
+- Complete self-hosted operations guide ([#183](https://github.com/trussiumhq/trussium/pull/183),
+  [`f232ca4`](https://github.com/trussiumhq/trussium/commit/f232ca437c89cb6740ca81b7dc6ea73e72356ddd))
+
+- Define provider plugin loading boundary ([#185](https://github.com/trussiumhq/trussium/pull/185),
+  [`4ca88b5`](https://github.com/trussiumhq/trussium/commit/4ca88b55f1772acfc588c66ecc10abe46276bbc8))
+
+- Link community Anthropic provider ([#191](https://github.com/trussiumhq/trussium/pull/191),
+  [`b4b8755`](https://github.com/trussiumhq/trussium/commit/b4b875506c4421623a63e244a8f8c3ef6748a520))
+
+- Link community vLLM provider ([#189](https://github.com/trussiumhq/trussium/pull/189),
+  [`11ee8c1`](https://github.com/trussiumhq/trussium/commit/11ee8c12db92dc6169a3cc72c7514d5c0cfd6065))
+
+### Features
+
+- **capabilities**: Add translation contract
+  ([#193](https://github.com/trussiumhq/trussium/pull/193),
+  [`b161062`](https://github.com/trussiumhq/trussium/commit/b161062d1929779cf427425fbd2481d2d80e7663))
+
+### Testing
+
+- Satisfy strict translation mypy ([#193](https://github.com/trussiumhq/trussium/pull/193),
+  [`b161062`](https://github.com/trussiumhq/trussium/commit/b161062d1929779cf427425fbd2481d2d80e7663))
+
+
 ## v0.59.0 (2026-08-26)
 
 ### Documentation
