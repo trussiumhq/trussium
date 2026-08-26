@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.61.0 (2026-08-26)
+
+### Documentation
+
+- Link LibreTranslate provider ([#195](https://github.com/trussiumhq/trussium/pull/195),
+  [`70dc227`](https://github.com/trussiumhq/trussium/commit/70dc227808cd281b40d6b5295ab97f7386ce0cd3))
+
+### Features
+
+- Add translation example flow ([#197](https://github.com/trussiumhq/trussium/pull/197),
+  [`431e4ca`](https://github.com/trussiumhq/trussium/commit/431e4ca4eee93f25a352f2618db72e2fcefcaa7b))
+
+
 ## v0.60.0 (2026-08-26)
 
 ### Continuous Integration
