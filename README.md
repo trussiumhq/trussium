@@ -212,6 +212,9 @@ The runtime CLI provides `trussium serve`, `trussium config validate`,
 The [Python SDK Guide](docs/PYTHON_SDK.md) links to the independently published
 `trussium-sdk` package for calling a local, private, or public runtime.
 
+Configured provider metadata is available through `GET /v1/providers`; see the
+[Provider Discovery Guide](docs/PROVIDER_DISCOVERY.md).
+
 The [Go SDK Guide](docs/GO_SDK.md) links to the independently published
 `github.com/trussiumhq/trussium-go` module for Go applications.
 

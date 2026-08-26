@@ -451,12 +451,10 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Standalone self-hosted Piper speech adapter
 - Provider-neutral provider interface and immutable metadata contract
 - Explicit ordered provider registry with typed lookup and sealed composition
+- Ordered bounded `GET /v1/providers` provider discovery
 
 ### Remaining
 
-- Provider interface and metadata contract
-- Provider registry
-- Provider discovery
 - Provider lifecycle management
 - Plugin loading
 - Model availability discovery
