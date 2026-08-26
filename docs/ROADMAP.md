@@ -452,10 +452,10 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Provider-neutral provider interface and immutable metadata contract
 - Explicit ordered provider registry with typed lookup and sealed composition
 - Ordered bounded `GET /v1/providers` provider discovery
+- Deterministic provider startup, rollback, reverse shutdown, and bounded cleanup
 
 ### Remaining
 
-- Provider lifecycle management
 - Plugin loading
 - Model availability discovery
 - At least one additional managed provider

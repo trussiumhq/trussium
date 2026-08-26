@@ -41,7 +41,7 @@ from trussium.observability import (
     get_logger,
     log_startup_configuration,
 )
-from trussium.providers import ProviderRegistry
+from trussium.providers import ProviderLifecycle, ProviderRegistry
 from trussium.runtime import (
     DependencyHealthCheck,
     DependencyReadiness,
@@ -59,6 +59,7 @@ def create_application(
     chat_capability: ChatCapability | None = None,
     capability_registry: CapabilityRegistry | None = None,
     provider_registry: ProviderRegistry | None = None,
+    provider_lifecycle: ProviderLifecycle | None = None,
     capability_middleware: Sequence[CapabilityMiddleware] = (),
     tracing: RuntimeTracing | None = None,
     dependency_health_check: DependencyHealthCheck | None = None,
@@ -85,6 +86,7 @@ def create_application(
     resolved_settings = settings or get_settings()
     resolved_provider_registry = provider_registry or ProviderRegistry()
     resolved_provider_registry.seal()
+    resolved_provider_lifecycle = provider_lifecycle or ProviderLifecycle()
 
     if capability_registry is not None and chat_capability is not None:
         raise ValueError("chat_capability and capability_registry are mutually exclusive")
@@ -178,6 +180,7 @@ def create_application(
         started_at = perf_counter()
         startup_error: BaseException | None = None
         capabilities_started = False
+        providers_started = False
         runtime_services_started = False
         runtime_started = False
         log_startup_configuration(
@@ -193,6 +196,13 @@ def create_application(
                 raise
 
             runtime_services_started = True
+            try:
+                await resolved_provider_lifecycle.startup()
+            except BaseException as error:
+                startup_error = error
+                raise
+
+            providers_started = True
             try:
                 await capability_lifecycle.startup()
             except BaseException as error:
@@ -218,6 +228,7 @@ def create_application(
                 )
 
             capability_shutdown_error: BaseException | None = None
+            provider_shutdown_error: BaseException | None = None
             lifecycle_shutdown_error: BaseException | None = None
             dependency_shutdown_error: Exception | None = None
             tracing_shutdown_error: Exception | None = None
@@ -227,6 +238,12 @@ def create_application(
                     await capability_lifecycle.shutdown()
                 except BaseException as error:
                     capability_shutdown_error = error
+
+            if providers_started:
+                try:
+                    await resolved_provider_lifecycle.shutdown()
+                except BaseException as error:
+                    provider_shutdown_error = error
 
             if runtime_services_started:
                 try:
@@ -282,6 +299,8 @@ def create_application(
                     terminal_error = capability_shutdown_error
                 elif lifecycle_shutdown_error is not None:
                     terminal_error = lifecycle_shutdown_error
+                elif provider_shutdown_error is not None:
+                    terminal_error = provider_shutdown_error
                 elif dependency_shutdown_error is not None:
                     terminal_error = dependency_shutdown_error
 
@@ -322,6 +341,7 @@ def create_application(
     application.state.runtime_component_health_reporter = runtime_component_health_reporter
     application.state.capability_registry = resolved_capability_registry
     application.state.provider_registry = resolved_provider_registry
+    application.state.provider_lifecycle = resolved_provider_lifecycle
     application.state.capability_availability_reporter = capability_availability_reporter
     application.state.capability_health_reporter = capability_health_reporter
     application.state.capability_lifecycle = capability_lifecycle
