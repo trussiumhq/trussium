@@ -2,6 +2,45 @@
 
 <!-- version list -->
 
+## v0.57.0 (2026-08-26)
+
+### Documentation
+
+- Defer TypeScript npm publication ([#159](https://github.com/trussiumhq/trussium/pull/159),
+  [`bb43c90`](https://github.com/trussiumhq/trussium/commit/bb43c9012f2ff3462ba9b0be22867c0de732ec01))
+
+- Link dedicated TypeScript SDK ([#157](https://github.com/trussiumhq/trussium/pull/157),
+  [`78fcd8a`](https://github.com/trussiumhq/trussium/commit/78fcd8a367ff3129a34df6f04e3a3d6f00b0a2e0))
+
+- Link Python and Go SDK examples ([#165](https://github.com/trussiumhq/trussium/pull/165),
+  [`78969e2`](https://github.com/trussiumhq/trussium/commit/78969e2e73def9c828250c880d7bfd1a089918d8))
+
+- Link TypeScript runnable example ([#163](https://github.com/trussiumhq/trussium/pull/163),
+  [`a37da4b`](https://github.com/trussiumhq/trussium/commit/a37da4ba0b413fc0c46c45de253ddc469242111e))
+
+- Record TypeScript SDK parity ([#161](https://github.com/trussiumhq/trussium/pull/161),
+  [`77224a8`](https://github.com/trussiumhq/trussium/commit/77224a823f1a63c4dc7983962deb960e796cdd87))
+
+- **operations**: Add self-hosted guide ([#152](https://github.com/trussiumhq/trussium/pull/152),
+  [`fb071b8`](https://github.com/trussiumhq/trussium/commit/fb071b8c897ca9f858799518cb9484c72519f5f6))
+
+### Features
+
+- **cli**: Add capability inspection command
+  ([#167](https://github.com/trussiumhq/trussium/pull/167),
+  [`061c74e`](https://github.com/trussiumhq/trussium/commit/061c74edbe1d9e44b06b40dfafdcfb30fc65b2b7))
+
+### Refactoring
+
+- Extract language SDKs from runtime ([#155](https://github.com/trussiumhq/trussium/pull/155),
+  [`822c43c`](https://github.com/trussiumhq/trussium/commit/822c43c0fe8934d7dded0636de8cc1403941235c))
+
+### Testing
+
+- Tolerate wrapped SDK documentation ([#161](https://github.com/trussiumhq/trussium/pull/161),
+  [`77224a8`](https://github.com/trussiumhq/trussium/commit/77224a823f1a63c4dc7983962deb960e796cdd87))
+
+
 ## v0.56.0 (2026-08-25)
 
 ### Features
