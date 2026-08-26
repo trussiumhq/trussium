@@ -220,6 +220,9 @@ self-hosting, correlation, streaming, and operational workflows.
 The [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) provides the fresh
 checkout, provider-free smoke path, validation ladder, and troubleshooting.
 
+The [Plugin Development Guide](docs/PLUGIN_DEVELOPMENT.md) defines the current
+explicit registration, trust, compatibility, and testing boundaries.
+
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.
 
