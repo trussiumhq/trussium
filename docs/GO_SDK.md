@@ -11,7 +11,19 @@ go get github.com/trussiumhq/trussium-go
 ```
 
 See the dedicated repository for context-aware chat, readiness, capability
-discovery, request correlation, and typed runtime API errors.
+discovery, translation, request correlation, and typed runtime API errors.
+
+Translation requests use `Client.Translate` and the same `X-Request-ID`
+correlation header as chat requests:
+
+```go
+response, err := client.Translate(ctx, trussium.TranslationRequest{
+    Model: "translator",
+    Input: []string{"Hello world"},
+    SourceLanguage: "en",
+    TargetLanguage: "fr",
+}, "translation-123")
+```
 
 For a runnable self-hosted workflow, see the dedicated repository's
 [`examples/basic/main.go`](https://github.com/trussiumhq/trussium-go/blob/main/examples/basic/main.go).
