@@ -383,6 +383,7 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Provider-neutral non-streaming image generation and `POST /v1/images/generations`
 - Provider-neutral non-streaming audio transcription and `POST /v1/audio/transcriptions`
 - Provider-neutral non-streaming reranking and `POST /v1/rerankings`
+- Provider-neutral non-streaming translation and `POST /v1/translations`
 
 ### Remaining
 

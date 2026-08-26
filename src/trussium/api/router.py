@@ -12,6 +12,7 @@ from trussium.api.moderation import router as moderation_router
 from trussium.api.reranking import router as reranking_router
 from trussium.api.tools import router as tools_router
 from trussium.api.transcription import router as transcription_router
+from trussium.api.translation import router as translation_router
 from trussium.api.videos import router as videos_router
 
 api_router = APIRouter()
@@ -24,5 +25,6 @@ api_router.include_router(moderation_router)
 api_router.include_router(reranking_router)
 api_router.include_router(images_router)
 api_router.include_router(transcription_router)
+api_router.include_router(translation_router)
 api_router.include_router(tools_router)
 api_router.include_router(videos_router)

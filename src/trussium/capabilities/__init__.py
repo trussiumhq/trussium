@@ -66,6 +66,10 @@ from trussium.capabilities.transcription import (
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
 )
+from trussium.capabilities.translation import (
+    TRANSLATION_CAPABILITY_METADATA,
+    TRANSLATION_CAPABILITY_NAME,
+)
 from trussium.capabilities.videos import VIDEO_CAPABILITY_METADATA, VIDEO_CAPABILITY_NAME
 
 __all__ = [
@@ -88,6 +92,8 @@ __all__ = [
     "RERANKING_CAPABILITY_NAME",
     "TRANSCRIPTION_CAPABILITY_METADATA",
     "TRANSCRIPTION_CAPABILITY_NAME",
+    "TRANSLATION_CAPABILITY_METADATA",
+    "TRANSLATION_CAPABILITY_NAME",
     "VIDEO_CAPABILITY_METADATA",
     "VIDEO_CAPABILITY_NAME",
     "CapabilityAlreadyRegisteredError",
