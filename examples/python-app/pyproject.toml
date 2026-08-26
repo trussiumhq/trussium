@@ -5,6 +5,6 @@ description = "Example FastAPI application using an existing Trussium runtime."
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.116.0",
-    "trussium-sdk>=0.1.0",
+    "trussium-sdk @ git+https://github.com/trussiumhq/trussium-python.git@v0.2.0",
     "uvicorn[standard]>=0.35.0",
 ]

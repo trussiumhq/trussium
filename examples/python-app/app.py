@@ -15,6 +15,15 @@ class AskRequest(BaseModel):
     model: str | None = None
 
 
+class TranslateRequest(BaseModel):
+    """Application input for one translation request."""
+
+    text: list[str]
+    target_language: str
+    source_language: str | None = None
+    model: str = "translator"
+
+
 app = FastAPI(title="Trussium example application")
 
 
@@ -65,6 +74,29 @@ def ask(
                 {
                     "model": request.model or configured_model(),
                     "messages": [{"role": "user", "content": request.prompt}],
+                },
+                request_id=correlation_id(x_request_id),
+            )
+    except APIError as error:
+        raise HTTPException(status_code=502, detail=error.code or "runtime_error") from error
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail="Trussium runtime is unavailable") from error
+
+
+@app.post("/translate")
+def translate(
+    request: TranslateRequest,
+    x_request_id: str | None = Header(default=None),
+) -> dict[str, object]:
+    """Forward text translation while preserving request correlation."""
+    try:
+        with TrussiumClient(runtime_url()) as client:
+            return client.translate(
+                {
+                    "model": request.model,
+                    "input": request.text,
+                    "source_language": request.source_language,
+                    "target_language": request.target_language,
                 },
                 request_id=correlation_id(x_request_id),
             )

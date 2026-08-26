@@ -26,12 +26,19 @@ curl http://127.0.0.1:8000/ask \
   -H 'Content-Type: application/json' \
   -H 'X-Request-ID: example-demo-001' \
   -d '{"prompt":"Say hello in one sentence."}'
+curl http://127.0.0.1:8000/translate \
+  -H 'Content-Type: application/json' \
+  -H 'X-Request-ID: example-translation-001' \
+  -d '{"text":["Hello world"],"source_language":"en","target_language":"fr"}'
 ```
 
 `/health` and `/capabilities` call the runtime's readiness and public discovery
 endpoints. `/ask` forwards the caller's `X-Request-ID`, or creates an
 application-owned correlation ID when the header is absent. Provider credentials
 remain in the runtime environment, never in this application request.
+`/translate` requires a runtime with a registered translation provider such as
+the standalone LibreTranslate adapter; the example does not install or manage
+that provider.
 
 Stop the application with `Ctrl-C`. Stop the runtime through its own CLI or
 deployment mechanism. For production concerns, see the [Integration Guide](../../docs/INTEGRATION.md)
