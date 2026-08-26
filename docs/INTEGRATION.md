@@ -126,6 +126,10 @@ For production rollout, probes, scaling, secrets, and rollback, follow the
 [Container Guide](CONTAINERS.md) or [Kubernetes Guide](KUBERNETES.md). For
 provider and capability extensions, use the dedicated development guides.
 
+The [complete Python example application](../examples/python-app/README.md)
+demonstrates these steps as a small FastAPI service with `/health`,
+`/capabilities`, and `/ask` endpoints.
+
 ## Integration checklist
 
 - [ ] Runtime configuration validates before startup.

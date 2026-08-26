@@ -748,7 +748,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Dedicated Python SDK repository and package ✅
 - Dedicated Go SDK repository and module ✅
 - Dedicated TypeScript SDK repository and package ✅
-- Example applications
+- Example applications ✅ (Python FastAPI integration example)
 - Project templates ✅ (self-hosted Docker Compose starter)
 - Provider development guide ✅
 - Capability development guide ✅
@@ -763,7 +763,8 @@ SDK development should follow a stable HTTP API rather than preceding it.
 
 The repository now includes a copyable self-hosted Docker Compose starter,
 provider and capability development guides, an end-to-end application
-integration guide, a fresh-checkout local development guide, and a
+integration guide, a fresh-checkout local development guide, a complete
+Python FastAPI example application, and a
 documentation-first plugin development kit. The
 dedicated SDK repositories provide runnable self-hosted examples for
 the three supported languages. Remaining Milestone 10 work includes the CLI
