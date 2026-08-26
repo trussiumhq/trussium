@@ -46,6 +46,7 @@ Example:
 0005-runtime-bootstrap-architecture.md
 0006-controlled-tool-execution.md
 0007-provider-batch-inference.md
+0008-community-provider-plugin-boundary.md
 ```
 
 Numbers are never reused.

@@ -738,7 +738,7 @@ Health checks and structured HTTP lifecycle logs have already been delivered as 
 
 ## Milestone 10 — Developer Experience and Ecosystem
 
-**Status:** 🗓 Planned
+**Status:** 🚧 In progress
 
 Make Trussium easy to install, integrate, extend, and operate.
 
@@ -753,9 +753,9 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Provider development guide ✅
 - Capability development guide ✅
 - Plugin development kit ✅ (documentation-first boundary)
+- Community provider plugin boundary ✅ (ADR-0008; explicit registration)
 - Integration documentation ✅
 - Local development environment ✅
-- Community provider plugins
 - Runnable API usage examples ✅ (Python, Go, and TypeScript)
 - Self-hosted operations and troubleshooting guide ✅
 
@@ -769,9 +769,11 @@ development guides, an end-to-end application integration guide, a
 fresh-checkout local development guide, a complete Python FastAPI example
 application, and a documentation-first plugin development kit. The dedicated
 SDK repositories provide runnable self-hosted examples for the three supported
-languages. Remaining Milestone 10 work is community provider plugins; the
-plugin development kit intentionally remains a documentation-first boundary
-until a plugin loading policy is adopted.
+languages. The community provider plugin boundary is documented in ADR-0008:
+registration remains explicit and application-owned until a separately reviewed
+loader provides trust, compatibility, permissions, isolation, lifecycle, and
+rollback guarantees. Remaining Milestone 10 work is implementation of trusted
+community provider plugins.
 
 ---
 
