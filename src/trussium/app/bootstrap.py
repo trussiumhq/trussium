@@ -13,6 +13,7 @@ from trussium.capabilities.embeddings import EmbeddingsCapability
 from trussium.capabilities.images import ImageGenerationCapability
 from trussium.capabilities.moderation import ModerationCapability
 from trussium.capabilities.reranking import RerankingCapability
+from trussium.capabilities.speech import SpeechCapability
 from trussium.capabilities.transcription import TranscriptionCapability
 from trussium.capabilities.videos import VideoCapability
 from trussium.config.settings import (
@@ -31,6 +32,7 @@ from trussium.providers.openai import (
     OpenAIEmbeddingsCapability,
     OpenAIImageGenerationCapability,
     OpenAIModerationCapability,
+    OpenAISpeechCapability,
     OpenAITranscriptionCapability,
     OpenAIVideoCapability,
 )
@@ -194,6 +196,24 @@ def create_transcription_capability_from_environment(
         else AsyncOpenAI(api_key=api_key)
     )
     return OpenAITranscriptionCapability(client)
+
+
+def create_speech_capability_from_environment(
+    *,
+    provider: ProviderSettings | None = None,
+) -> SpeechCapability | None:
+    """Create the configured OpenAI text-to-speech capability."""
+    resolved_provider = provider or ProviderSettings()
+    api_key = _resolve_api_key(resolved_provider)
+    if api_key is None:
+        return None
+    base_url = _resolve_base_url(resolved_provider)
+    client = (
+        AsyncOpenAI(api_key=api_key, base_url=base_url)
+        if base_url is not None
+        else AsyncOpenAI(api_key=api_key)
+    )
+    return OpenAISpeechCapability(client)
 
 
 def create_video_capability_from_environment(

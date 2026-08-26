@@ -11,6 +11,7 @@ from trussium.app.bootstrap import (
     create_moderation_capability_from_environment,
     create_provider_health_check_from_environment,
     create_reranking_capability_from_environment,
+    create_speech_capability_from_environment,
     create_transcription_capability_from_environment,
     create_video_capability_from_environment,
 )
@@ -27,6 +28,8 @@ from trussium.capabilities import (
     MODERATION_CAPABILITY_NAME,
     RERANKING_CAPABILITY_METADATA,
     RERANKING_CAPABILITY_NAME,
+    SPEECH_CAPABILITY_METADATA,
+    SPEECH_CAPABILITY_NAME,
     TRANSCRIPTION_CAPABILITY_METADATA,
     TRANSCRIPTION_CAPABILITY_NAME,
     VIDEO_CAPABILITY_METADATA,
@@ -86,6 +89,7 @@ def main() -> None:
     transcription_capability = create_transcription_capability_from_environment(
         provider=settings.provider
     )
+    speech_capability = create_speech_capability_from_environment(provider=settings.provider)
     video_capability = create_video_capability_from_environment(provider=settings.provider)
     dependency_health_check = create_provider_health_check_from_environment(
         provider=settings.provider,
@@ -133,6 +137,12 @@ def main() -> None:
             TRANSCRIPTION_CAPABILITY_NAME,
             transcription_capability,
             metadata=TRANSCRIPTION_CAPABILITY_METADATA,
+        )
+    if speech_capability is not None:
+        capability_registry.register(
+            SPEECH_CAPABILITY_NAME,
+            speech_capability,
+            metadata=SPEECH_CAPABILITY_METADATA,
         )
     if video_capability is not None:
         capability_registry.register(
