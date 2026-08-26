@@ -12,4 +12,6 @@ def test_speech_request_is_immutable_and_bounded() -> None:
 
 def test_speech_request_rejects_unsupported_format() -> None:
     with pytest.raises(ValidationError):
-        SpeechRequest(model="voice-model", input="Hello", voice="alloy", response_format="ogg")
+        SpeechRequest.model_validate(
+            {"model": "voice-model", "input": "Hello", "voice": "alloy", "response_format": "ogg"}
+        )
