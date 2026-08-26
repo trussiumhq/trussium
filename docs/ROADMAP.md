@@ -595,7 +595,7 @@ Deterministic routing should be implemented and measured before introducing adva
 
 ## Milestone 8 — Identity, Governance, and Usage Controls
 
-**Status:** 🗓 Planned
+**Status:** 🚧 In progress
 
 Provide the controls required for secure organizational and enterprise use.
 
@@ -757,19 +757,21 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Local development environment ✅
 - Community provider plugins
 - Runnable API usage examples ✅ (Python, Go, and TypeScript)
-- Self-hosted operations and troubleshooting guide
+- Self-hosted operations and troubleshooting guide ✅
 
 SDK development should follow a stable HTTP API rather than preceding it.
 
-The repository now includes a copyable self-hosted Docker Compose starter,
-provider and capability development guides, an end-to-end application
-integration guide, a fresh-checkout local development guide, a complete
-Python FastAPI example application, and a
-documentation-first plugin development kit. The
-dedicated SDK repositories provide runnable self-hosted examples for
-the three supported languages. Remaining Milestone 10 work includes the CLI
-foundation, developer guides, plugin tooling, and broader integration and
-operations documentation.
+The repository now includes a copyable self-hosted Docker Compose starter and
+an operations guide covering local, container, Compose, and Kubernetes
+deployment boundaries, health and traffic decisions, observability, upgrades,
+rollback, and troubleshooting. It also includes provider and capability
+development guides, an end-to-end application integration guide, a
+fresh-checkout local development guide, a complete Python FastAPI example
+application, and a documentation-first plugin development kit. The dedicated
+SDK repositories provide runnable self-hosted examples for the three supported
+languages. Remaining Milestone 10 work is community provider plugins; the
+plugin development kit intentionally remains a documentation-first boundary
+until a plugin loading policy is adopted.
 
 ---
 

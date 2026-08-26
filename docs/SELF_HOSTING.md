@@ -51,6 +51,21 @@ Use your platform's secret injection instead of placing credentials in a shell
 command. The [Container Guide](CONTAINERS.md) covers hardened options, provider
 environment files, image validation, shutdown, and a reachable Ollama address.
 
+For a copyable single-host deployment, start from the maintained
+[`templates/self-hosted-runtime`](../templates/self-hosted-runtime) Compose
+starter:
+
+```bash
+cd templates/self-hosted-runtime
+docker compose config
+docker compose up -d
+curl http://127.0.0.1:9000/health/ready
+```
+
+Review the template's provider settings and replace its example values before
+using it outside a local or private development environment. Compose starts the
+Trussium runtime; it does not install the separate `trussium-operator` project.
+
 For Kubernetes, the maintained Kustomize production overlay creates the
 runtime workload, Service, health probes, metrics endpoint, and optional
 provider Secret integration. The independently versioned official Helm chart
