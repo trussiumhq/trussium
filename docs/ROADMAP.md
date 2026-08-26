@@ -752,7 +752,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Project templates ✅ (self-hosted Docker Compose starter)
 - Provider development guide ✅
 - Capability development guide ✅
-- Plugin development kit
+- Plugin development kit ✅ (documentation-first boundary)
 - Integration documentation ✅
 - Local development environment ✅
 - Community provider plugins
@@ -763,7 +763,8 @@ SDK development should follow a stable HTTP API rather than preceding it.
 
 The repository now includes a copyable self-hosted Docker Compose starter,
 provider and capability development guides, an end-to-end application
-integration guide, and a fresh-checkout local development guide. The
+integration guide, a fresh-checkout local development guide, and a
+documentation-first plugin development kit. The
 dedicated SDK repositories provide runnable self-hosted examples for
 the three supported languages. Remaining Milestone 10 work includes the CLI
 foundation, developer guides, plugin tooling, and broader integration and
