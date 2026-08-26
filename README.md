@@ -223,6 +223,9 @@ checkout, provider-free smoke path, validation ladder, and troubleshooting.
 The [Plugin Development Guide](docs/PLUGIN_DEVELOPMENT.md) defines the current
 explicit registration, trust, compatibility, and testing boundaries.
 
+The [Example Application](examples/python-app/README.md) demonstrates a small
+FastAPI service using the independent Python SDK with a self-hosted runtime.
+
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.
 
