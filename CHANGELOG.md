@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.58.0 (2026-08-26)
+
+### Features
+
+- Add self-hosted project template ([#169](https://github.com/trussiumhq/trussium/pull/169),
+  [`95caecb`](https://github.com/trussiumhq/trussium/commit/95caecb35dfa33f70ffd5e84eeb61a8a2b9ff84f))
+
+
 ## v0.57.0 (2026-08-26)
 
 ### Documentation
