@@ -19,6 +19,11 @@ optional description. The protocol also exposes capability adapter instances in
 stable order. Applications still construct and register providers explicitly;
 this contract does not enable package scanning or configuration-driven imports.
 
+`ProviderRegistry` provides the corresponding explicit composition boundary. It
+preserves registration order, rejects duplicate identities, exposes immutable
+snapshots, and must be sealed before runtime startup. Registry lookup failures
+are typed and bounded; dynamic package loading remains deferred.
+
 The first standalone community adapter is
 [`trussium-provider-vllm`](https://github.com/trussiumhq/trussium-provider-vllm).
 It connects to a separately operated self-hosted vLLM deployment through its
