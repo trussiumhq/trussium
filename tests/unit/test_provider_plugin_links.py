@@ -9,3 +9,6 @@ def test_provider_guide_links_first_community_adapter() -> None:
     assert "trussium-provider-vllm" in document
     assert "self-hosted vLLM" in document
     assert "does not install, configure, or manage vLLM" in document
+    assert "trussium-provider-anthropic" in document
+    assert "managed-provider adapter" in document
+    assert "does not store credentials" in document
