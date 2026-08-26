@@ -749,7 +749,7 @@ Make Trussium easy to install, integrate, extend, and operate.
 - Dedicated Go SDK repository and module ✅
 - Dedicated TypeScript SDK repository and package ✅
 - Example applications
-- Project templates
+- Project templates ✅ (self-hosted Docker Compose starter)
 - Provider development guide
 - Capability development guide
 - Plugin development kit
@@ -761,10 +761,11 @@ Make Trussium easy to install, integrate, extend, and operate.
 
 SDK development should follow a stable HTTP API rather than preceding it.
 
-The dedicated SDK repositories now provide runnable self-hosted examples for
+The repository now includes a copyable self-hosted Docker Compose starter, and
+the dedicated SDK repositories provide runnable self-hosted examples for
 the three supported languages. Remaining Milestone 10 work includes the CLI
-foundation, project templates, developer guides, plugin tooling, and broader
-integration and operations documentation.
+foundation, developer guides, plugin tooling, and broader integration and
+operations documentation.
 
 ---
 

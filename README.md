@@ -196,13 +196,17 @@ Provider-neutral batch-job metadata is available at `POST /v1/batches`,
 [Batch Inference Guide](docs/BATCH_INFERENCE.md).
 
 The runtime CLI provides `trussium serve`, `trussium config validate`,
-`trussium health`, and `trussium version`. See the [CLI Guide](docs/CLI.md).
+`trussium health`, `trussium capabilities`, and `trussium version`. See the
+[CLI Guide](docs/CLI.md).
 
 The [Python SDK Guide](docs/PYTHON_SDK.md) links to the independently published
 `trussium-sdk` package for calling a local, private, or public runtime.
 
 The [Go SDK Guide](docs/GO_SDK.md) links to the independently published
 `github.com/trussiumhq/trussium-go` module for Go applications.
+
+The [Project Templates Guide](docs/PROJECT_TEMPLATES.md) provides a copyable
+self-hosted Docker Compose starter.
 
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.

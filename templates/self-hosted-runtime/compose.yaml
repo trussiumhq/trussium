@@ -1,0 +1,26 @@
+services:
+  trussium:
+    image: ${TRUSSIUM_IMAGE:-ghcr.io/trussiumhq/trussium:latest}
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:9000/health/live')
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
