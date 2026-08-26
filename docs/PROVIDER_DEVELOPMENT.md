@@ -10,6 +10,15 @@ This guide describes the current in-repository extension boundary. Provider
 registries, dynamic plugin loading, and automatic model discovery are future
 work and are not required to add a test-backed adapter today.
 
+## Provider contract
+
+Providers implement the runtime-checkable `Provider` protocol from
+`trussium.providers`. Each provider exposes immutable `ProviderMetadata` with a
+bounded lowercase identity, version, supported capability identities, and an
+optional description. The protocol also exposes capability adapter instances in
+stable order. Applications still construct and register providers explicitly;
+this contract does not enable package scanning or configuration-driven imports.
+
 The first standalone community adapter is
 [`trussium-provider-vllm`](https://github.com/trussiumhq/trussium-provider-vllm).
 It connects to a separately operated self-hosted vLLM deployment through its
