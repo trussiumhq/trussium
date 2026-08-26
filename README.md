@@ -211,6 +211,9 @@ self-hosted Docker Compose starter.
 The [Provider Development Guide](docs/PROVIDER_DEVELOPMENT.md) documents the
 adapter contracts, error boundaries, testing, and self-hosted constraints.
 
+The [Capability Development Guide](docs/CAPABILITY_DEVELOPMENT.md) documents
+provider-neutral contracts, registration, execution, lifecycle, and testing.
+
 The [TypeScript SDK Guide](docs/TYPESCRIPT_SDK.md) links to the independently
 published `@trussium/sdk` package for TypeScript applications.
 
