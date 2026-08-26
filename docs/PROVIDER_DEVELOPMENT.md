@@ -28,6 +28,11 @@ The first standalone translation adapter is
 It connects to a separately operated LibreTranslate deployment and implements
 the `TranslationCapability`; it does not host or manage LibreTranslate.
 
+The first standalone speech adapter is
+[`trussium-provider-piper`](https://github.com/trussiumhq/trussium-provider-piper).
+It connects to a separately operated Piper HTTP service and implements the
+`SpeechCapability`; it supports WAV output and does not install or manage Piper.
+
 ## Choose a capability contract
 
 Start with the provider-neutral protocol for the capability you are adding:
@@ -41,6 +46,7 @@ Start with the provider-neutral protocol for the capability you are adding:
 | Reranking | [`RerankingCapability`](../src/trussium/capabilities/reranking/capability.py) | No |
 | Translation | [`TranslationCapability`](../src/trussium/capabilities/translation/capability.py) | No |
 | Transcription | [`TranscriptionCapability`](../src/trussium/capabilities/transcription/capability.py) | No |
+| Speech | [`SpeechCapability`](../src/trussium/capabilities/speech/capability.py) | No |
 | Video jobs | [`VideoCapability`](../src/trussium/capabilities/videos/capability.py) | No |
 
 Implement the protocol's normalized request and response types. Do not expose
