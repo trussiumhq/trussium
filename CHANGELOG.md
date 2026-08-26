@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.66.0 (2026-08-26)
+
+### Features
+
+- Add provider discovery endpoint ([#211](https://github.com/trussiumhq/trussium/pull/211),
+  [`0eb7fad`](https://github.com/trussiumhq/trussium/commit/0eb7fadfadb61361b5c2cc2d398867c910cbc967))
+
+
 ## v0.65.0 (2026-08-26)
 
 ### Features
