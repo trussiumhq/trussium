@@ -41,6 +41,7 @@ from trussium.observability import (
     get_logger,
     log_startup_configuration,
 )
+from trussium.providers import ProviderRegistry
 from trussium.runtime import (
     DependencyHealthCheck,
     DependencyReadiness,
@@ -57,6 +58,7 @@ def create_application(
     *,
     chat_capability: ChatCapability | None = None,
     capability_registry: CapabilityRegistry | None = None,
+    provider_registry: ProviderRegistry | None = None,
     capability_middleware: Sequence[CapabilityMiddleware] = (),
     tracing: RuntimeTracing | None = None,
     dependency_health_check: DependencyHealthCheck | None = None,
@@ -81,6 +83,8 @@ def create_application(
         Configured FastAPI application.
     """
     resolved_settings = settings or get_settings()
+    resolved_provider_registry = provider_registry or ProviderRegistry()
+    resolved_provider_registry.seal()
 
     if capability_registry is not None and chat_capability is not None:
         raise ValueError("chat_capability and capability_registry are mutually exclusive")
@@ -317,6 +321,7 @@ def create_application(
     application.state.runtime_service_registry = resolved_runtime_service_registry
     application.state.runtime_component_health_reporter = runtime_component_health_reporter
     application.state.capability_registry = resolved_capability_registry
+    application.state.provider_registry = resolved_provider_registry
     application.state.capability_availability_reporter = capability_availability_reporter
     application.state.capability_health_reporter = capability_health_reporter
     application.state.capability_lifecycle = capability_lifecycle

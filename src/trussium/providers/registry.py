@@ -3,7 +3,7 @@
 from collections.abc import Iterator, Sequence
 
 from trussium.errors import ConfigurationError
-from trussium.providers.contracts import Provider, validate_provider_name
+from trussium.providers.contracts import Provider, ProviderMetadata, validate_provider_name
 
 
 class ProviderRegistryError(ConfigurationError):
@@ -70,7 +70,7 @@ class ProviderRegistry:
         return tuple(self._providers.values())
 
     @property
-    def metadata(self) -> tuple[object, ...]:
+    def metadata(self) -> tuple[ProviderMetadata, ...]:
         """Return immutable metadata snapshots in registration order."""
         return tuple(provider.metadata for provider in self._providers.values())
 
