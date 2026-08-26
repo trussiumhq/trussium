@@ -1,6 +1,7 @@
 """Command-line interface for the Trussium runtime."""
 
 import argparse
+import json
 from collections.abc import Sequence
 
 import httpx
@@ -20,6 +21,8 @@ def main(arguments: Sequence[str] | None = None) -> None:
     config.add_subparsers(dest="config_command", required=True).add_parser("validate")
     health = commands.add_parser("health")
     health.add_argument("--url", default="http://127.0.0.1:9000")
+    capabilities = commands.add_parser("capabilities")
+    capabilities.add_argument("--url", default="http://127.0.0.1:9000")
     commands.add_parser("version")
     parsed = parser.parse_args(arguments)
 
@@ -31,6 +34,9 @@ def main(arguments: Sequence[str] | None = None) -> None:
         return
     if parsed.command == "health":
         _health(parsed.url)
+        return
+    if parsed.command == "capabilities":
+        _capabilities(parsed.url)
         return
     print(__version__)
 
@@ -50,3 +56,13 @@ def _health(url: str) -> None:
     except httpx.HTTPError:
         raise SystemExit(1) from None
     print("Runtime is ready.")
+
+
+def _capabilities(url: str) -> None:
+    try:
+        response = httpx.get(f"{url.rstrip('/')}/v1/capabilities", timeout=5)
+        response.raise_for_status()
+        payload = response.json()
+    except (httpx.HTTPError, ValueError):
+        raise SystemExit(1) from None
+    print(json.dumps(payload, sort_keys=True))
