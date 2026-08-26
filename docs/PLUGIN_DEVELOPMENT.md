@@ -1,6 +1,7 @@
 # Plugin Development Kit Guide
 
-ADR-0004 defines Trussium's long-term plugin architecture. This guide turns
+ADR-0004 and [ADR-0008](adr/0008-community-provider-plugin-boundary.md) define
+Trussium's plugin architecture. This guide turns
 that decision into a contributor contract while the runtime still uses explicit
 in-repository composition. Plugins are not dynamically loaded or executed from
 third-party packages yet.
@@ -171,5 +172,5 @@ uv run pytest
 - [ ] No dynamic loading was added without a new architecture decision.
 
 For changes to the loading model, permissions, isolation, or compatibility
-contract, update [ADR-0004](adr/0004-plugin-architecture.md) before changing
-runtime behavior.
+contract, update [ADR-0008](adr/0008-community-provider-plugin-boundary.md)
+before changing runtime behavior.

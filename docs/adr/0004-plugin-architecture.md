@@ -1,6 +1,6 @@
 # ADR-0004: Plugin Architecture
 
-**Status:** Accepted
+**Status:** Superseded
 
 **Date:** 2026-07-23
 
@@ -10,6 +10,8 @@
 - ROADMAP.md
 
 **Supersedes:** None
+
+**Superseded by:** [ADR-0008: Community Provider Plugin Boundary](0008-community-provider-plugin-boundary.md)
 
 ---
 
