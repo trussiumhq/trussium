@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.68.0 (2026-08-27)
+
+### Features
+
+- Add explicit provider plugin loader ([#215](https://github.com/trussiumhq/trussium/pull/215),
+  [`711bbd0`](https://github.com/trussiumhq/trussium/commit/711bbd0670ee84417c9ac5b74ced2734c70b7ae2))
+
+
 ## v0.67.0 (2026-08-26)
 
 ### Features
