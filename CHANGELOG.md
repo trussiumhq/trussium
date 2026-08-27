@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.76.0 (2026-08-27)
+
+### Features
+
+- Add bounded provider retry policy ([#245](https://github.com/trussiumhq/trussium/pull/245),
+  [`6d4c034`](https://github.com/trussiumhq/trussium/commit/6d4c0341f83122ba71e9699f4836d5f8aa2c0b1e))
+
+
 ## v0.75.0 (2026-08-27)
 
 ### Documentation
