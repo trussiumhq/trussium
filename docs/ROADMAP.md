@@ -454,10 +454,10 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Ordered bounded `GET /v1/providers` provider discovery
 - Deterministic provider startup, rollback, reverse shutdown, and bounded cleanup
 - Explicit allowlisted provider plugin loading with compatibility and permission checks
+- Optional bounded provider model-availability discovery with runtime deadlines
 
 ### Remaining
 
-- Model availability discovery
 - At least one additional managed provider
 - Provider health reporting
 - Provider capability reporting
