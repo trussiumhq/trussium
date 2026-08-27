@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.75.0 (2026-08-27)
+
+### Documentation
+
+- Define API versioning policy ([#237](https://github.com/trussiumhq/trussium/pull/237),
+  [`93caf6c`](https://github.com/trussiumhq/trussium/commit/93caf6c6667e2dabc834d0d02b9ae68d68a3bbfa))
+
+- Link runnable client example ([#239](https://github.com/trussiumhq/trussium/pull/239),
+  [`ed18e48`](https://github.com/trussiumhq/trussium/commit/ed18e4881d9dedfe204bf86edd29ae6b23b6517b))
+
+- Publish production API reference ([#241](https://github.com/trussiumhq/trussium/pull/241),
+  [`c44c65f`](https://github.com/trussiumhq/trussium/commit/c44c65f592e5634413f34ea2f0321812e2eeaea9))
+
+### Features
+
+- Add provider priority routing ([#243](https://github.com/trussiumhq/trussium/pull/243),
+  [`602e414`](https://github.com/trussiumhq/trussium/commit/602e41469d88bb98c18cab6321a029312f790ce0))
+
+
 ## v0.74.0 (2026-08-27)
 
 ### Features
