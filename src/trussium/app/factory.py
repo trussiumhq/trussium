@@ -6,8 +6,10 @@ from contextlib import asynccontextmanager
 from time import perf_counter
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
 from trussium.api import api_router
+from trussium.api.errors import request_validation_exception_handler
 from trussium.api.metrics import router as metrics_router
 from trussium.capabilities import (
     CHAT_CAPABILITY_METADATA,
@@ -330,6 +332,7 @@ def create_application(
         title="Trussium",
         debug=resolved_settings.runtime.debug,
         lifespan=lifespan,
+        exception_handlers={RequestValidationError: request_validation_exception_handler},
     )
     if tool_executor is not None:
         application.state.tool_executor = tool_executor

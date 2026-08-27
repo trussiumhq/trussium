@@ -630,6 +630,20 @@ def test_streaming_returns_503_without_provider() -> None:
     }
 
 
+def test_invalid_chat_request_uses_consistent_error_envelope() -> None:
+    """Validation failures should use the same bounded detail envelope as runtime errors."""
+    response = TestClient(create_application()).post("/v1/chat/completions", json={})
+
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.json() == {
+        "detail": {
+            "code": "validation_error",
+            "message": "Request validation failed.",
+            "fields": ["model", "messages"],
+        }
+    }
+
+
 def test_chat_completion_documents_supported_responses() -> None:
     """OpenAPI should describe success and provider error responses."""
     app = create_application(
