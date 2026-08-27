@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.71.0 (2026-08-27)
+
+### Documentation
+
+- Reconcile completed roadmap milestones
+  ([`55938d1`](https://github.com/trussiumhq/trussium/commit/55938d12fe9cb0dafde5b0956c09858e2eaadf4f))
+
+### Features
+
+- Add provider health reporting
+  ([`a9c2fe1`](https://github.com/trussiumhq/trussium/commit/a9c2fe18024bb38bf0a7b3973b7583f4dc5a3ea5))
+
+
 ## v0.70.0 (2026-08-27)
 
 ### Features
