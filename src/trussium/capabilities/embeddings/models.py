@@ -4,6 +4,8 @@ from typing import Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from trussium.capabilities.validation import NonBlankString
+
 
 class _EmbeddingsContract(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -32,8 +34,8 @@ class EmbeddingsUsage(_EmbeddingsContract):
 class EmbeddingsRequest(_EmbeddingsContract):
     """A provider-neutral embeddings request."""
 
-    model: str = Field(min_length=1)
-    input: list[str] = Field(min_length=1)
+    model: NonBlankString
+    input: list[NonBlankString] = Field(min_length=1)
 
 
 class EmbeddingsResponse(_EmbeddingsContract):

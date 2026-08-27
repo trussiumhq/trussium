@@ -2,14 +2,16 @@
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from trussium.capabilities.validation import NonBlankString
+
 
 class _ImageContract(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
 class ImageGenerationRequest(_ImageContract):
-    model: str = Field(min_length=1)
-    prompt: str = Field(min_length=1)
+    model: NonBlankString
+    prompt: NonBlankString
     size: str | None = None
     count: int = Field(default=1, ge=1, le=10)
 

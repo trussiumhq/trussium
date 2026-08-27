@@ -2,18 +2,20 @@
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from trussium.capabilities.validation import NonBlankString
+
 
 class _RerankingContract(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
 class RerankingDocument(_RerankingContract):
-    text: str = Field(min_length=1)
+    text: NonBlankString
 
 
 class RerankingRequest(_RerankingContract):
-    model: str = Field(min_length=1)
-    query: str = Field(min_length=1)
+    model: NonBlankString
+    query: NonBlankString
     documents: list[RerankingDocument] = Field(min_length=1)
     top_n: int | None = Field(default=None, ge=1)
 

@@ -2,14 +2,16 @@
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from trussium.capabilities.validation import NonBlankString
+
 
 class _ModerationContract(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
 class ModerationRequest(_ModerationContract):
-    model: str = Field(min_length=1)
-    input: list[str] = Field(min_length=1)
+    model: NonBlankString
+    input: list[NonBlankString] = Field(min_length=1)
 
 
 class ModerationResult(_ModerationContract):
