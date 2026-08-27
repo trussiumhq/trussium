@@ -29,6 +29,12 @@ from trussium.providers.registry import (
     ProviderRegistryError,
     ProviderRegistrySealedError,
 )
+from trussium.providers.retry import (
+    ProviderFailureClass,
+    RetryDecision,
+    RetryPolicy,
+    classify_failure,
+)
 from trussium.providers.routing import ProviderRouter
 
 __all__ = [
@@ -37,6 +43,7 @@ __all__ = [
     "Provider",
     "ProviderAlreadyRegisteredError",
     "ProviderContractMismatchError",
+    "ProviderFailureClass",
     "ProviderHealth",
     "ProviderHealthCheck",
     "ProviderHealthReport",
@@ -59,6 +66,9 @@ __all__ = [
     "ProviderRegistrySealedError",
     "ProviderRouter",
     "ProviderService",
+    "RetryDecision",
+    "RetryPolicy",
+    "classify_failure",
     "validate_model_id",
     "validate_provider_name",
 ]

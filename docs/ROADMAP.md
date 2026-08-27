@@ -603,6 +603,7 @@ Enable Trussium to select providers and recover from provider failures.
 
 - Deterministic provider-priority routing over the sealed provider registry
 - Explicit provider priority configuration with registration-order fallback
+- Bounded retry policy with stable provider failure classification
 
 Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 
