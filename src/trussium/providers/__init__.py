@@ -29,6 +29,7 @@ from trussium.providers.registry import (
     ProviderRegistryError,
     ProviderRegistrySealedError,
 )
+from trussium.providers.routing import ProviderRouter
 
 __all__ = [
     "PLUGIN_API_VERSION",
@@ -56,6 +57,7 @@ __all__ = [
     "ProviderRegistry",
     "ProviderRegistryError",
     "ProviderRegistrySealedError",
+    "ProviderRouter",
     "ProviderService",
     "validate_model_id",
     "validate_provider_name",

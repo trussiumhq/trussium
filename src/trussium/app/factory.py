@@ -43,7 +43,12 @@ from trussium.observability import (
     get_logger,
     log_startup_configuration,
 )
-from trussium.providers import ProviderHealthReporter, ProviderLifecycle, ProviderRegistry
+from trussium.providers import (
+    ProviderHealthReporter,
+    ProviderLifecycle,
+    ProviderRegistry,
+    ProviderRouter,
+)
 from trussium.runtime import (
     DependencyHealthCheck,
     DependencyReadiness,
@@ -89,6 +94,10 @@ def create_application(
     resolved_provider_registry = provider_registry or ProviderRegistry()
     resolved_provider_registry.seal()
     provider_health_reporter = ProviderHealthReporter(resolved_provider_registry)
+    provider_router = ProviderRouter(
+        resolved_provider_registry,
+        resolved_settings.routing.provider_priority,
+    )
     resolved_provider_lifecycle = provider_lifecycle or ProviderLifecycle()
 
     if capability_registry is not None and chat_capability is not None:
@@ -347,6 +356,7 @@ def create_application(
     application.state.capability_registry = resolved_capability_registry
     application.state.provider_registry = resolved_provider_registry
     application.state.provider_health_reporter = provider_health_reporter
+    application.state.provider_router = provider_router
     application.state.provider_lifecycle = resolved_provider_lifecycle
     application.state.capability_availability_reporter = capability_availability_reporter
     application.state.capability_health_reporter = capability_health_reporter
