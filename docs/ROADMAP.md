@@ -509,6 +509,7 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Consistent non-blank validation across capability request fields
 - Explicit `/v1` HTTP API versioning policy and compatibility rules
 - Runnable Python client application example using the dedicated SDK
+- Production-oriented API reference and operational contract
 - `X-Request-ID` propagation on successful responses
 - `X-Request-ID` propagation on HTTP error responses
 - Request identifiers on health responses
@@ -570,7 +571,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 
 ### Remaining
 
-- Production-oriented API documentation
 
 This milestone represents Trussium’s first usable vertical slice and should be completed before expanding into several additional model capabilities.
 
