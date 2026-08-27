@@ -44,6 +44,23 @@ def test_chat_completion_request_requires_messages() -> None:
         )
 
 
+def test_chat_request_strips_nonblank_model_and_message_content() -> None:
+    """Normalized request strings should reject whitespace-only values and strip padding."""
+    request = ChatCompletionRequest(
+        model="  trussium-default  ",
+        messages=[ChatMessage(role=ChatRole.USER, content="  Hello.  ")],
+    )
+
+    assert request.model == "trussium-default"
+    assert request.messages[0].content == "Hello."
+
+    with pytest.raises(ValidationError):
+        ChatCompletionRequest(model="   ", messages=[ChatMessage(role=ChatRole.USER, content="Hi")])
+
+    with pytest.raises(ValidationError):
+        ChatMessage(role=ChatRole.USER, content="   ")
+
+
 def test_chat_completion_request_rejects_invalid_temperature() -> None:
     """Temperature values outside the supported range should fail."""
     with pytest.raises(ValidationError):

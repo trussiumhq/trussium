@@ -1,8 +1,10 @@
 """Immutable provider-neutral text-to-speech values."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+
+from trussium.capabilities.validation import NonBlankString
 
 
 class _SpeechContract(BaseModel):
@@ -10,9 +12,9 @@ class _SpeechContract(BaseModel):
 
 
 class SpeechRequest(_SpeechContract):
-    model: str = Field(min_length=1)
-    input: str = Field(min_length=1)
-    voice: str = Field(min_length=1, max_length=64)
+    model: NonBlankString
+    input: NonBlankString
+    voice: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=64)]
     response_format: Literal["mp3", "opus", "aac", "flac", "wav", "pcm"] = "mp3"
     speed: float = Field(default=1.0, ge=0.25, le=4.0)
 

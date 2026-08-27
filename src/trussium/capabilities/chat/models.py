@@ -5,6 +5,8 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from trussium.capabilities.validation import NonBlankString
+
 
 class _ChatContract(BaseModel):
     """Base configuration shared by chat contracts."""
@@ -38,13 +40,13 @@ class ChatMessage(_ChatContract):
     """A normalized message in a chat conversation."""
 
     role: ChatRole
-    content: str = Field(min_length=1)
+    content: NonBlankString
 
 
 class ChatCompletionRequest(_ChatContract):
     """A provider-neutral chat-completion request."""
 
-    model: str = Field(min_length=1)
+    model: NonBlankString
     messages: list[ChatMessage] = Field(min_length=1)
     temperature: float | None = Field(
         default=None,
