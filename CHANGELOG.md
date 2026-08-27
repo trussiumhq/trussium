@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.72.0 (2026-08-27)
+
+### Documentation
+
+- Mark managed provider milestone complete ([#229](https://github.com/trussiumhq/trussium/pull/229),
+  [`5274cc9`](https://github.com/trussiumhq/trussium/commit/5274cc9929d6163e1636163f6bb1189f03546379))
+
+- Reconcile provider capability reporting ([#225](https://github.com/trussiumhq/trussium/pull/225),
+  [`54c691e`](https://github.com/trussiumhq/trussium/commit/54c691e2ce30ef741f64e46c90bb46818f91e272))
+
+- Reconcile provider credential validation ([#227](https://github.com/trussiumhq/trussium/pull/227),
+  [`bb26518`](https://github.com/trussiumhq/trussium/commit/bb26518cae4b64e3444c608e1ae7a2c7e16b906a))
+
+### Features
+
+- Standardize HTTP error envelopes ([#231](https://github.com/trussiumhq/trussium/pull/231),
+  [`4869ae5`](https://github.com/trussiumhq/trussium/commit/4869ae59c380b1ed098bec0586406a46b69ebf4b))
+
+
 ## v0.71.0 (2026-08-27)
 
 ### Documentation
