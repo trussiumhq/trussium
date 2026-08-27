@@ -70,3 +70,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.release.outputs.tag }}
         run: gh workflow run container.yml --ref "$RELEASE_TAG"
+
+      - name: Propose operator compatibility review
+        if: steps.release.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          gh api repos/trussiumhq/trussium-operator/dispatches \
+            --method POST \
+            -f event_type=runtime-release \
+            -f "client_payload[runtime_version]=$RELEASE_TAG" \
+            -f "client_payload[runtime_image]=ghcr.io/trussiumhq/trussium:$RELEASE_TAG" \
+            -f "client_payload[release_url]=https://github.com/${{ github.repository }}/releases/tag/$RELEASE_TAG" \
+            -f "client_payload[source_commit]=$SOURCE_COMMIT"
