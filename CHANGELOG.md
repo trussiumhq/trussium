@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.69.0 (2026-08-27)
+
+### Features
+
+- Add provider model discovery ([#217](https://github.com/trussiumhq/trussium/pull/217),
+  [`27c46e4`](https://github.com/trussiumhq/trussium/commit/27c46e46e1c87c3b81d3b3572071af0ce589cd32))
+
+
 ## v0.68.0 (2026-08-27)
 
 ### Features
