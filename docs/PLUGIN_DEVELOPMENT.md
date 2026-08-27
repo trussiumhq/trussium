@@ -14,7 +14,7 @@ registered by an application owner. The runtime does not scan the filesystem,
 install packages, execute package entry points, or load untrusted code based on
 configuration.
 
-This limitation is intentional: a future loader must define trust, version
+This limitation is intentional: the explicit loader defines trust, version
 compatibility, isolation, permissions, lifecycle, failure handling, and
 rollback before it can safely become part of the production entry point.
 
@@ -121,6 +121,15 @@ Plugins must:
 The future loader must add package allowlists, signature/provenance policy,
 dependency isolation, capability permissions, resource limits, and an audit
 trail. A plugin cannot claim those guarantees today.
+
+## Explicit plugin loader
+
+Trusted applications may use `ProviderPluginLoader` with an application-owned
+tuple of `ProviderPluginSpec` values. Each spec declares a provider identity,
+supported Trussium plugin API version, factory, and requested permissions. The
+loader validates the allowlist, compatibility, permissions, provider metadata,
+and registry duplicates before registration. It never scans packages, installs
+dependencies, imports names from configuration, or provides sandboxing.
 
 ## Compatibility and loading roadmap
 

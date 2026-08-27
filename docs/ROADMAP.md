@@ -453,10 +453,10 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Explicit ordered provider registry with typed lookup and sealed composition
 - Ordered bounded `GET /v1/providers` provider discovery
 - Deterministic provider startup, rollback, reverse shutdown, and bounded cleanup
+- Explicit allowlisted provider plugin loading with compatibility and permission checks
 
 ### Remaining
 
-- Plugin loading
 - Model availability discovery
 - At least one additional managed provider
 - Provider health reporting

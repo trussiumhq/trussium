@@ -2,6 +2,17 @@
 
 from trussium.providers.contracts import Provider, ProviderMetadata, validate_provider_name
 from trussium.providers.lifecycle import ProviderLifecycle, ProviderService
+from trussium.providers.plugins import (
+    PLUGIN_API_VERSION,
+    PLUGIN_PERMISSIONS,
+    ProviderPluginCompatibilityError,
+    ProviderPluginError,
+    ProviderPluginLoader,
+    ProviderPluginLoadError,
+    ProviderPluginNotFoundError,
+    ProviderPluginPermissionError,
+    ProviderPluginSpec,
+)
 from trussium.providers.registry import (
     ProviderAlreadyRegisteredError,
     ProviderContractMismatchError,
@@ -12,12 +23,21 @@ from trussium.providers.registry import (
 )
 
 __all__ = [
+    "PLUGIN_API_VERSION",
+    "PLUGIN_PERMISSIONS",
     "Provider",
     "ProviderAlreadyRegisteredError",
     "ProviderContractMismatchError",
     "ProviderLifecycle",
     "ProviderMetadata",
     "ProviderNotFoundError",
+    "ProviderPluginCompatibilityError",
+    "ProviderPluginError",
+    "ProviderPluginLoadError",
+    "ProviderPluginLoader",
+    "ProviderPluginNotFoundError",
+    "ProviderPluginPermissionError",
+    "ProviderPluginSpec",
     "ProviderRegistry",
     "ProviderRegistryError",
     "ProviderRegistrySealedError",
