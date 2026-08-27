@@ -462,10 +462,13 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Optional bounded provider model-availability discovery with runtime deadlines
 - Informational provider health reporting with bounded checks and stable reasons
 - Provider credential validation through opt-in dependency-aware readiness
+- First additional managed provider adapter via `trussium-provider-anthropic`
 
 ### Remaining
 
-- At least one additional managed provider
+No provider-framework deliverables are currently outstanding. Future managed
+providers may be added as separately versioned adapters that implement the
+provider-neutral contracts and register explicitly with the runtime.
 
 Ollama validation demonstrates that Trussium's chat, execution, timeout,
 observability, and HTTP abstractions are independent of a managed OpenAI
