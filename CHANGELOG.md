@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v0.70.0 (2026-08-27)
+
+### Features
+
+- Dispatch runtime releases for compatibility review
+  ([#219](https://github.com/trussiumhq/trussium/pull/219),
+  [`fe18842`](https://github.com/trussiumhq/trussium/commit/fe18842ad0737f0814864b4aabe1397fbac9c5ea))
+
+
 ## v0.69.0 (2026-08-27)
 
 ### Features
