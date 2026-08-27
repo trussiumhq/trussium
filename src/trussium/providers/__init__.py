@@ -1,6 +1,13 @@
 """Trussium provider adapters and provider-neutral contracts."""
 
 from trussium.providers.contracts import Provider, ProviderMetadata, validate_provider_name
+from trussium.providers.health import (
+    ProviderHealth,
+    ProviderHealthCheck,
+    ProviderHealthReport,
+    ProviderHealthReporter,
+    ProviderHealthStatus,
+)
 from trussium.providers.lifecycle import ProviderLifecycle, ProviderService
 from trussium.providers.models import ProviderModel, ProviderModelDiscovery, validate_model_id
 from trussium.providers.plugins import (
@@ -29,6 +36,11 @@ __all__ = [
     "Provider",
     "ProviderAlreadyRegisteredError",
     "ProviderContractMismatchError",
+    "ProviderHealth",
+    "ProviderHealthCheck",
+    "ProviderHealthReport",
+    "ProviderHealthReporter",
+    "ProviderHealthStatus",
     "ProviderLifecycle",
     "ProviderMetadata",
     "ProviderModel",

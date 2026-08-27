@@ -23,6 +23,21 @@ def test_empty_provider_discovery_is_stable() -> None:
     assert response.json() == {"providers": []}
 
 
+def test_provider_health_is_informational_and_ordered() -> None:
+    registry = ProviderRegistry((StubProvider("first", ()), StubProvider("second", ())))
+    response = TestClient(create_application(provider_registry=registry)).get(
+        "/v1/providers/health"
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "unknown",
+        "providers": [
+            {"name": "first", "status": "unknown", "reason": "health_not_reported"},
+            {"name": "second", "status": "unknown", "reason": "health_not_reported"},
+        ],
+    }
+
+
 def test_provider_discovery_preserves_registry_order_and_privacy() -> None:
     registry = ProviderRegistry(
         (

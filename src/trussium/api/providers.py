@@ -7,6 +7,8 @@ from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict, Field
 
 from trussium.providers import (
+    ProviderHealthReport,
+    ProviderHealthReporter,
     ProviderModel,
     ProviderModelDiscovery,
     ProviderRegistry,
@@ -14,6 +16,44 @@ from trussium.providers import (
 )
 
 router = APIRouter(prefix="/v1/providers", tags=["providers"])
+
+
+class ProviderHealthResponse(BaseModel):
+    """Bounded public state for one provider."""
+
+    name: str
+    status: str
+    reason: str | None = None
+
+
+class ProviderHealthReportResponse(BaseModel):
+    """Informational aggregate over registered providers."""
+
+    status: str
+    providers: list[ProviderHealthResponse] = Field(default_factory=list)
+
+
+@router.get(
+    "/health",
+    response_model=ProviderHealthReportResponse,
+    response_model_exclude_none=True,
+)
+async def check_provider_health(request: Request) -> ProviderHealthReportResponse:
+    """Report provider health without changing liveness or readiness."""
+    reporter = cast(
+        ProviderHealthReporter | None,
+        getattr(request.app.state, "provider_health_reporter", None),
+    )
+    if reporter is None:
+        return ProviderHealthReportResponse(status="ok")
+    report: ProviderHealthReport = await reporter.report()
+    return ProviderHealthReportResponse(
+        status=report.status.value,
+        providers=[
+            ProviderHealthResponse(name=item.name, status=item.status.value, reason=item.reason)
+            for item in report.providers
+        ],
+    )
 
 
 class ProviderMetadataResponse(BaseModel):
@@ -142,9 +182,12 @@ async def discover_provider_models(
 
 __all__ = [
     "ProviderDiscoveryResponse",
+    "ProviderHealthReportResponse",
+    "ProviderHealthResponse",
     "ProviderMetadataResponse",
     "ProviderModelDiscoveryResponse",
     "ProviderModelResponse",
+    "check_provider_health",
     "discover_provider_models",
     "discover_providers",
     "router",
