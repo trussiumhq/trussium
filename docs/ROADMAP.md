@@ -456,6 +456,7 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Provider-neutral provider interface and immutable metadata contract
 - Explicit ordered provider registry with typed lookup and sealed composition
 - Ordered bounded `GET /v1/providers` provider discovery
+- Provider capability reporting through immutable metadata and discovery
 - Deterministic provider startup, rollback, reverse shutdown, and bounded cleanup
 - Explicit allowlisted provider plugin loading with compatibility and permission checks
 - Optional bounded provider model-availability discovery with runtime deadlines
@@ -464,7 +465,6 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 ### Remaining
 
 - At least one additional managed provider
-- Provider capability reporting
 - Provider credential validation
 
 Ollama validation demonstrates that Trussium's chat, execution, timeout,
