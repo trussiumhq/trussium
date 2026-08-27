@@ -9,6 +9,7 @@ from trussium.config.settings import (
     Settings,
     TimeoutSettings,
     get_settings,
+    resolve_model_alias,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "Settings",
     "TimeoutSettings",
     "get_settings",
+    "resolve_model_alias",
 ]

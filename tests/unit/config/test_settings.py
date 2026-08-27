@@ -16,6 +16,7 @@ def test_default_settings() -> None:
     assert settings.runtime.component_health_timeout_seconds == 1.0
     assert settings.runtime.capability_availability_timeout_seconds == 1.0
     assert settings.runtime.capability_health_timeout_seconds == 1.0
+    assert settings.runtime.model_aliases == {}
     assert settings.provider.name is ProviderName.OPENAI
     assert settings.provider.base_url is None
     assert settings.provider.api_key is None
@@ -50,6 +51,30 @@ def test_timeout_settings_support_environment_overrides(
 
     assert settings.timeouts.provider_request_seconds == 12.5
     assert settings.timeouts.stream_idle_seconds == 4.25
+
+
+def test_model_aliases_support_typed_environment_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Model aliases should be bounded and loaded from nested runtime settings."""
+    monkeypatch.setenv(
+        "TRUSSIUM_RUNTIME__MODEL_ALIASES",
+        '{"fast":"provider-model-v2"}',
+    )
+
+    settings = Settings()
+
+    assert settings.runtime.model_aliases == {"fast": "provider-model-v2"}
+
+
+@pytest.mark.parametrize(
+    "value",
+    ['{"Fast":"model"}', '{"fast":"   "}', '{"fast":"model\\n"}'],
+)
+def test_model_aliases_reject_invalid_values(monkeypatch: pytest.MonkeyPatch, value: str) -> None:
+    """Unsafe aliases should fail before runtime startup."""
+    monkeypatch.setenv("TRUSSIUM_RUNTIME__MODEL_ALIASES", value)
+
+    with pytest.raises(ValidationError):
+        Settings()
 
 
 def test_readiness_settings_support_typed_environment_overrides(

@@ -338,6 +338,7 @@ def create_application(
         application.state.tool_executor = tool_executor
 
     application.state.settings = resolved_settings
+    application.state.model_aliases = dict(resolved_settings.runtime.model_aliases)
     application.state.runtime_tracing = runtime_tracing
     application.state.dependency_readiness = dependency_readiness
     application.state.runtime_service_lifecycle = runtime_service_lifecycle
