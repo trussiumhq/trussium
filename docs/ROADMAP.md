@@ -504,6 +504,7 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Provider authentication and connection failures mapped to HTTP 502
 - Provider timeouts mapped to HTTP 504
 - Safe API error messages
+- Consistent JSON error envelopes for validation and runtime failures
 - `X-Request-ID` propagation on successful responses
 - `X-Request-ID` propagation on HTTP error responses
 - Request identifiers on health responses
@@ -565,7 +566,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 
 ### Remaining
 
-- Consistent error envelopes across validation and runtime failures
 - Model aliasing
 - Request validation refinements
 - API versioning policy

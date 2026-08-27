@@ -107,6 +107,20 @@ data.
 `CapabilityErrorCategory`. Existing HTTP status mapping, JSON details, SSE
 events, provider codes, and safe messages are unchanged.
 
+## HTTP error envelope
+
+JSON API failures use a stable `detail` object with `code` and `message`:
+
+```json
+{"detail":{"code":"validation_error","message":"Request validation failed.","fields":["model"]}}
+```
+
+Request validation returns HTTP 422 with the `validation_error` code and only
+bounded field paths. It never echoes rejected values, raw Pydantic messages,
+credentials, or request payloads. Runtime-owned failures retain their existing
+codes and messages in the same `detail` shape; `fields` is omitted when it is
+not applicable.
+
 `CapabilityExecutionPipeline` adds no exception type or translation. Missing
 registrations retain `CapabilityNotFoundError`; normalized execution errors,
 native cancellation, generator exit, and unexpected callback failures
