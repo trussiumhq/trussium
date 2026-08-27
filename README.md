@@ -215,6 +215,10 @@ The [Python SDK Guide](docs/PYTHON_SDK.md) links to the independently published
 Configured provider metadata is available through `GET /v1/providers`; see the
 [Provider Discovery Guide](docs/PROVIDER_DISCOVERY.md).
 
+Providers that support model listing expose bounded metadata through
+`GET /v1/providers/{provider}/models`; see the
+[Model Discovery Guide](docs/MODEL_DISCOVERY.md).
+
 Providers that own resources can use the deterministic lifecycle contract
 described in the [Provider Lifecycle Guide](docs/PROVIDER_LIFECYCLE.md).
 

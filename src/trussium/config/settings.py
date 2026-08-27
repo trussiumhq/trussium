@@ -118,6 +118,12 @@ class RuntimeSettings(BaseModel):
         description="Maximum duration of one capability health check.",
     )
 
+    model_discovery_timeout_seconds: FiniteFloat = Field(
+        default=1.0,
+        gt=0.0,
+        description="Maximum duration of one provider model discovery request.",
+    )
+
 
 class TimeoutSettings(BaseModel):
     """Provider execution timeout configuration."""
