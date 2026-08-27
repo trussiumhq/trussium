@@ -507,6 +507,7 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Consistent JSON error envelopes for validation and runtime failures
 - Bounded runtime model aliasing for stable client-facing model names
 - Consistent non-blank validation across capability request fields
+- Explicit `/v1` HTTP API versioning policy and compatibility rules
 - `X-Request-ID` propagation on successful responses
 - `X-Request-ID` propagation on HTTP error responses
 - Request identifiers on health responses
@@ -568,7 +569,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 
 ### Remaining
 
-- API versioning policy
 - Example client application
 - Production-oriented API documentation
 
