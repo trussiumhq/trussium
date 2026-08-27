@@ -505,6 +505,7 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Provider timeouts mapped to HTTP 504
 - Safe API error messages
 - Consistent JSON error envelopes for validation and runtime failures
+- Bounded runtime model aliasing for stable client-facing model names
 - `X-Request-ID` propagation on successful responses
 - `X-Request-ID` propagation on HTTP error responses
 - Request identifiers on health responses
@@ -566,7 +567,6 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 
 ### Remaining
 
-- Model aliasing
 - Request validation refinements
 - API versioning policy
 - Example client application

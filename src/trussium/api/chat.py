@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from starlette.responses import Response
 
@@ -24,6 +24,7 @@ from trussium.capabilities.registry import (
     CapabilityContractMismatchError,
     CapabilityNotFoundError,
 )
+from trussium.config import resolve_model_alias
 
 router = APIRouter(
     prefix="/v1/chat",
@@ -71,6 +72,7 @@ router = APIRouter(
 )
 async def create_chat_completion(
     request: ChatCompletionRequest,
+    http_request: Request,
     pipeline: Annotated[
         CapabilityExecutionPipeline,
         Depends(get_capability_execution_pipeline),
@@ -88,12 +90,18 @@ async def create_chat_completion(
     Raises:
         HTTPException: When non-streaming capability execution fails.
     """
+    model = resolve_model_alias(
+        request.model,
+        getattr(http_request.app.state, "model_aliases", {}),
+    )
+    effective_request = request.model_copy(update={"model": model})
+
     if request.stream:
         try:
             events = pipeline.stream(
                 CHAT_CAPABILITY_NAME,
-                lambda capability: _require_chat_capability(capability).stream(request),
-                model=request.model,
+                lambda capability: _require_chat_capability(capability).stream(effective_request),
+                model=model,
             )
         except CapabilityNotFoundError as error:
             raise _chat_capability_unavailable() from error
@@ -109,8 +117,8 @@ async def create_chat_completion(
     try:
         completion = await pipeline.execute(
             CHAT_CAPABILITY_NAME,
-            lambda capability: _require_chat_capability(capability).complete(request),
-            model=request.model,
+            lambda capability: _require_chat_capability(capability).complete(effective_request),
+            model=model,
         )
     except CapabilityNotFoundError as error:
         raise _chat_capability_unavailable() from error

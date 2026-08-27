@@ -35,6 +35,7 @@ from trussium.capabilities.errors import (
     CapabilityErrorCategory,
     CapabilityExecutionError,
 )
+from trussium.config import RuntimeSettings, Settings
 from trussium.runtime import (
     PROVIDER_REQUEST_TIMEOUT_CODE,
     PROVIDER_REQUEST_TIMEOUT_MESSAGE,
@@ -105,6 +106,22 @@ class StubChatCapability:
                 total_tokens=8,
             ),
         )
+
+
+def test_chat_model_alias_resolves_before_provider_execution() -> None:
+    """Configured aliases reach providers as stable concrete model IDs."""
+    app = create_application(
+        settings=Settings(runtime=RuntimeSettings(model_aliases={"fast": "provider-model-v2"})),
+        chat_capability=StubChatCapability(),
+    )
+
+    response = TestClient(app).post(
+        "/v1/chat/completions",
+        json={"model": "fast", "messages": [{"role": "user", "content": "Hi"}]},
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["model"] == "provider-model-v2"
 
 
 class RecordingCapabilityMiddleware:

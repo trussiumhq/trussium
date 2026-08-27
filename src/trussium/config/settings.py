@@ -1,5 +1,6 @@
 """Application configuration."""
 
+import re
 from enum import StrEnum
 from functools import lru_cache
 from typing import Annotated
@@ -12,6 +13,7 @@ from pydantic import (
     FiniteFloat,
     SecretStr,
     StringConstraints,
+    model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -123,6 +125,26 @@ class RuntimeSettings(BaseModel):
         gt=0.0,
         description="Maximum duration of one provider model discovery request.",
     )
+
+    model_aliases: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional bounded client model aliases mapped to provider model IDs.",
+    )
+
+    @model_validator(mode="after")
+    def validate_model_aliases(self) -> "RuntimeSettings":
+        """Validate aliases without exposing or accepting ambiguous mappings."""
+        if len(self.model_aliases) > 64:
+            raise ValueError("At most 64 model aliases may be configured")
+        pattern = re.compile(r"[a-z][a-z0-9_.:-]{0,63}")
+        for alias, target in self.model_aliases.items():
+            if pattern.fullmatch(alias) is None:
+                raise ValueError("Model aliases must use bounded lowercase names")
+            if not isinstance(target, str) or not target.strip() or len(target) > 128:
+                raise ValueError("Model alias targets must be non-empty and at most 128 characters")
+            if target != target.strip() or any(ord(character) < 32 for character in target):
+                raise ValueError("Model alias targets must be stripped and contain no controls")
+        return self
 
 
 class TimeoutSettings(BaseModel):
@@ -241,6 +263,11 @@ class Settings(BaseSettings):
     timeouts: TimeoutSettings = TimeoutSettings()
     readiness: ReadinessSettings = ReadinessSettings()
     observability: ObservabilitySettings = ObservabilitySettings()
+
+
+def resolve_model_alias(model: str, aliases: dict[str, str]) -> str:
+    """Resolve one client-facing model name through a bounded alias map."""
+    return aliases.get(model, model)
 
 
 @lru_cache
