@@ -38,6 +38,13 @@ configured.
 
 ## Enable dependency-aware readiness
 
+When enabled, dependency-aware readiness is Trussium's provider credential
+validation contract. It validates that the configured provider accepts the
+credential by reading bounded model metadata; it does not perform inference or
+claim that future requests, quota, or model quality will succeed. Keep it
+disabled for deployments that intentionally start without provider
+credentials.
+
 Configure the runtime before startup:
 
 ```text
