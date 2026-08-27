@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.73.0 (2026-08-27)
+
+### Features
+
+- Add bounded model aliasing ([#233](https://github.com/trussiumhq/trussium/pull/233),
+  [`b0a5f84`](https://github.com/trussiumhq/trussium/commit/b0a5f84595db684daeb50cae344915ff34354f49))
+
+
 ## v0.72.0 (2026-08-27)
 
 ### Documentation
