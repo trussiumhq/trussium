@@ -1,5 +1,8 @@
 # API usage examples
 
+For the complete production endpoint and operational contract, see the
+[Production API Reference](API_REFERENCE.md).
+
 These examples call a self-hosted Trussium runtime. Start it locally with
 `trussium serve`; its default address is `http://127.0.0.1:9000`. Replace that
 address with a private service URL when running in your own network.
