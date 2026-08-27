@@ -31,6 +31,11 @@ replace readiness or authorize requests.
 
 ## 2. Choose an integration surface
 
+The repository includes a runnable [Python client application example](../examples/python-app/README.md)
+that uses the dedicated SDK against an already running Trussium runtime. It
+demonstrates readiness, capability discovery, request-ID forwarding, chat, and
+translation without hosting providers or embedding credentials.
+
 All clients call the same JSON and SSE contracts:
 
 | Surface | When to use | Guide |
