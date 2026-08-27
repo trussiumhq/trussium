@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.74.0 (2026-08-27)
+
+### Features
+
+- Refine capability request validation ([#235](https://github.com/trussiumhq/trussium/pull/235),
+  [`68e018f`](https://github.com/trussiumhq/trussium/commit/68e018f7bb9b745a09c6af5bdf428f3c8212f85a))
+
+
 ## v0.73.0 (2026-08-27)
 
 ### Features
