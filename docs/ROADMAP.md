@@ -599,6 +599,11 @@ Enable Trussium to select providers and recover from provider failures.
 - Idempotency considerations
 - Retry budget controls
 
+### Delivered
+
+- Deterministic provider-priority routing over the sealed provider registry
+- Explicit provider priority configuration with registration-order fallback
+
 Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 
 ---

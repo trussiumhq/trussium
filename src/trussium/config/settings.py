@@ -66,6 +66,17 @@ class RerankingSettings(BaseModel):
     api_key: SecretStr | None = Field(default=None, description="Optional TEI credential.")
 
 
+class RoutingSettings(BaseModel):
+    """Deterministic provider selection configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    provider_priority: tuple[str, ...] = Field(
+        default=(),
+        description="Ordered provider names to prefer during capability selection.",
+    )
+
+
 class RuntimeSettings(BaseModel):
     """Runtime configuration."""
 
@@ -260,6 +271,7 @@ class Settings(BaseSettings):
     runtime: RuntimeSettings = RuntimeSettings()
     provider: ProviderSettings = ProviderSettings()
     reranking: RerankingSettings = RerankingSettings()
+    routing: RoutingSettings = RoutingSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
     readiness: ReadinessSettings = ReadinessSettings()
     observability: ObservabilitySettings = ObservabilitySettings()
