@@ -461,11 +461,11 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Explicit allowlisted provider plugin loading with compatibility and permission checks
 - Optional bounded provider model-availability discovery with runtime deadlines
 - Informational provider health reporting with bounded checks and stable reasons
+- Provider credential validation through opt-in dependency-aware readiness
 
 ### Remaining
 
 - At least one additional managed provider
-- Provider credential validation
 
 Ollama validation demonstrates that Trussium's chat, execution, timeout,
 observability, and HTTP abstractions are independent of a managed OpenAI
