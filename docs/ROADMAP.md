@@ -33,6 +33,10 @@ The independently versioned [`trussium` Helm chart](https://github.com/trussiumh
 
 ---
 
+The capability-health reporting work described in the historical Current Focus
+summary is complete. The next priority is selecting a remaining capability or
+provider contract with a concrete compatibility and operational requirement.
+
 ## Status Definitions
 
 - ✅ **Completed** — The milestone’s core completion criteria have been delivered.
@@ -780,14 +784,16 @@ SDK repositories provide runnable self-hosted examples for the three supported
 languages. The community provider plugin boundary is documented in ADR-0008:
 registration remains explicit and application-owned until a separately reviewed
 loader provides trust, compatibility, permissions, isolation, lifecycle, and
-rollback guarantees. Remaining Milestone 10 work is implementation of trusted
-community provider plugins.
+rollback guarantees. Trusted community provider loading is now implemented as
+an explicit, application-owned boundary; broader ecosystem work remains
+subject to those trust, compatibility, permissions, isolation, lifecycle, and
+rollback requirements.
 
 ---
 
 ## Milestone 11 — Additional AI Capabilities
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
 Expand the runtime after the chat execution path, routing, identity, telemetry, and deployment experience are stable.
 
