@@ -83,6 +83,7 @@ class RoutingSettings(BaseModel):
 
     circuit_breaker_failure_threshold: int = Field(default=5, ge=1, le=100)
     circuit_breaker_reset_seconds: FiniteFloat = Field(default=30.0, gt=0.0)
+    retry_budget: int = Field(default=10, ge=1, le=100)
 
     @model_validator(mode="after")
     def validate_model_fallbacks(self) -> "RoutingSettings":

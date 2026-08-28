@@ -33,17 +33,21 @@ class ProviderRouter:
         circuit_breaker: CircuitBreaker | None = None,
         health_reporter: ProviderHealthReporter | None = None,
         decision_handler: Callable[[RoutingDecision], None] | None = None,
+        retry_budget: int = 10,
     ) -> None:
         if not registry.sealed:
             raise ValueError("Provider routing requires a sealed registry")
         normalized = tuple(validate_provider_name(name) for name in priority)
         if len(normalized) != len(set(normalized)):
             raise ValueError("Provider routing priorities must be unique")
+        if retry_budget < 1:
+            raise ValueError("Routing retry budget must be positive")
         self._registry = registry
         self._priority = normalized
         self._circuit_breaker = circuit_breaker
         self._health_reporter = health_reporter
         self._decision_handler = decision_handler
+        self._retry_budget = retry_budget
         self._logger = get_logger("provider.routing")
 
     @property
@@ -87,6 +91,7 @@ class ProviderRouter:
         )
         if not candidates:
             raise LookupError(f"No provider advertises capability '{capability}'")
+        transient_failures = 0
         for index, provider in enumerate(candidates):
             attempt = index + 1
             try:
@@ -122,6 +127,9 @@ class ProviderRouter:
                 ):
                     if self._circuit_breaker is not None:
                         self._circuit_breaker.record_failure(provider.metadata.name)
+                    raise
+                transient_failures += 1
+                if transient_failures >= self._retry_budget:
                     raise
                 if self._circuit_breaker is not None:
                     self._circuit_breaker.record_failure(provider.metadata.name)
