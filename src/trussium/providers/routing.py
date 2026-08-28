@@ -1,11 +1,24 @@
 """Deterministic provider-priority selection and fallback."""
 
 from collections.abc import Awaitable, Callable, Sequence
+from dataclasses import dataclass
 
+from trussium.observability.logging import get_logger
 from trussium.providers.circuit_breaker import CircuitBreaker
 from trussium.providers.contracts import Provider, validate_provider_name
 from trussium.providers.health import ProviderHealthReporter, ProviderHealthStatus
 from trussium.providers.registry import ProviderRegistry
+
+
+@dataclass(frozen=True, slots=True)
+class RoutingDecision:
+    """Immutable metadata for one provider routing attempt."""
+
+    capability: str
+    provider: str
+    attempt: int
+    outcome: str
+    failure_class: str | None = None
 
 
 class ProviderRouter:
@@ -27,6 +40,7 @@ class ProviderRouter:
         self._priority = normalized
         self._circuit_breaker = circuit_breaker
         self._health_reporter = health_reporter
+        self._logger = get_logger("provider.routing")
 
     @property
     def priority(self) -> tuple[str, ...]:
@@ -57,6 +71,7 @@ class ProviderRouter:
         self,
         capability: str,
         operation: Callable[[Provider], Awaitable[object]],
+        decision_handler: Callable[[RoutingDecision], None] | None = None,
     ) -> object:
         """Execute against ordered providers, falling back on transient failures."""
         from trussium.providers.retry import ProviderFailureClass, classify_failure
@@ -69,14 +84,30 @@ class ProviderRouter:
         if not candidates:
             raise LookupError(f"No provider advertises capability '{capability}'")
         for index, provider in enumerate(candidates):
+            attempt = index + 1
             try:
                 result = await operation(provider)
                 if self._circuit_breaker is not None:
                     self._circuit_breaker.record_success(provider.metadata.name)
+                self._emit_decision(
+                    RoutingDecision(capability, provider.metadata.name, attempt, "success"),
+                    decision_handler,
+                )
                 return result
             except BaseException as error:
+                failure_class = classify_failure(error)
+                self._emit_decision(
+                    RoutingDecision(
+                        capability,
+                        provider.metadata.name,
+                        attempt,
+                        "fallback" if index < len(candidates) - 1 else "failed",
+                        failure_class.value,
+                    ),
+                    decision_handler,
+                )
                 if (
-                    classify_failure(error)
+                    failure_class
                     not in {
                         ProviderFailureClass.RATE_LIMITED,
                         ProviderFailureClass.TIMEOUT,
@@ -91,6 +122,29 @@ class ProviderRouter:
                 if self._circuit_breaker is not None:
                     self._circuit_breaker.record_failure(provider.metadata.name)
         raise AssertionError("Provider fallback exhausted without a result")
+
+    def _emit_decision(
+        self,
+        decision: RoutingDecision,
+        handler: Callable[[RoutingDecision], None] | None,
+    ) -> None:
+        self._logger.info(
+            "Provider routing decision",
+            extra={
+                "event": "provider.routing.decision",
+                "capability": decision.capability,
+                "provider": decision.provider,
+                "routing_attempt": decision.attempt,
+                "routing_outcome": decision.outcome,
+                **(
+                    {"failure_class": decision.failure_class}
+                    if decision.failure_class is not None
+                    else {}
+                ),
+            },
+        )
+        if handler is not None:
+            handler(decision)
 
     async def _healthy_candidates(self, capability: str) -> tuple[Provider, ...]:
         assert self._health_reporter is not None
@@ -107,4 +161,4 @@ class ProviderRouter:
         )
 
 
-__all__ = ["ProviderRouter"]
+__all__ = ["ProviderRouter", "RoutingDecision"]
