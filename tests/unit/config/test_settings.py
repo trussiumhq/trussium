@@ -20,6 +20,7 @@ def test_default_settings() -> None:
     assert settings.provider.name is ProviderName.OPENAI
     assert settings.provider.base_url is None
     assert settings.provider.api_key is None
+    assert settings.authentication.api_keys == ()
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
     assert settings.readiness.dependency_checks_enabled is False
@@ -32,6 +33,23 @@ def test_default_settings() -> None:
     assert settings.observability.tracing_sample_ratio == 1.0
     assert str(settings.observability.otlp_traces_endpoint) == "http://127.0.0.1:4318/v1/traces"
     assert settings.observability.otlp_export_timeout_seconds == 10.0
+
+
+def test_authentication_settings_support_bounded_secret_keys(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("TRUSSIUM_AUTHENTICATION__API_KEYS", '["key-one", "key-two"]')
+    settings = Settings()
+    assert [key.get_secret_value() for key in settings.authentication.api_keys] == [
+        "key-one",
+        "key-two",
+    ]
+
+
+def test_authentication_settings_reject_duplicate_keys(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TRUSSIUM_AUTHENTICATION__API_KEYS", '["same", "same"]')
+    with pytest.raises(ValidationError):
+        Settings()
 
 
 def test_timeout_settings_support_environment_overrides(

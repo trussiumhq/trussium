@@ -54,6 +54,28 @@ class ProviderSettings(BaseModel):
     )
 
 
+class AuthenticationSettings(BaseModel):
+    """Runtime API authentication configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    api_keys: tuple[SecretStr, ...] = Field(
+        default=(),
+        description=("Optional bearer API keys. When empty, runtime authentication is disabled."),
+    )
+
+    @model_validator(mode="after")
+    def validate_api_keys(self) -> "AuthenticationSettings":
+        if len(self.api_keys) > 32:
+            raise ValueError("At most 32 runtime API keys may be configured")
+        values = [key.get_secret_value() for key in self.api_keys]
+        if any(not value or value != value.strip() for value in values):
+            raise ValueError("Runtime API keys must be non-empty and stripped")
+        if len(set(values)) != len(values):
+            raise ValueError("Runtime API keys must be unique")
+        return self
+
+
 class RerankingSettings(BaseModel):
     """Dedicated privately hosted reranking provider configuration."""
 
@@ -314,6 +336,7 @@ class Settings(BaseSettings):
 
     runtime: RuntimeSettings = RuntimeSettings()
     provider: ProviderSettings = ProviderSettings()
+    authentication: AuthenticationSettings = AuthenticationSettings()
     reranking: RerankingSettings = RerankingSettings()
     routing: RoutingSettings = RoutingSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
