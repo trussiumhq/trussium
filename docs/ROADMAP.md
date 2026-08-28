@@ -610,6 +610,7 @@ Enable Trussium to select providers and recover from provider failures.
 - Bounded non-streaming chat model fallback within selected providers
 - Bounded provider circuit breaking for repeated transient failures
 - Health-aware provider candidate filtering
+- Bounded routing decision metadata and structured telemetry events
 
 Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 

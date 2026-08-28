@@ -36,7 +36,7 @@ from trussium.providers.retry import (
     RetryPolicy,
     classify_failure,
 )
-from trussium.providers.routing import ProviderRouter
+from trussium.providers.routing import ProviderRouter, RoutingDecision
 
 __all__ = [
     "PLUGIN_API_VERSION",
@@ -70,6 +70,7 @@ __all__ = [
     "ProviderService",
     "RetryDecision",
     "RetryPolicy",
+    "RoutingDecision",
     "classify_failure",
     "validate_model_id",
     "validate_provider_name",
