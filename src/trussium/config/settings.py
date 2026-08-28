@@ -81,6 +81,9 @@ class RoutingSettings(BaseModel):
         description="Ordered fallback model IDs keyed by the requested model name.",
     )
 
+    circuit_breaker_failure_threshold: int = Field(default=5, ge=1, le=100)
+    circuit_breaker_reset_seconds: FiniteFloat = Field(default=30.0, gt=0.0)
+
     @model_validator(mode="after")
     def validate_model_fallbacks(self) -> "RoutingSettings":
         pattern = re.compile(r"[a-z][a-z0-9_.:-]{0,63}")

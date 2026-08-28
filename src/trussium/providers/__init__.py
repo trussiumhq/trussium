@@ -1,5 +1,6 @@
 """Trussium provider adapters and provider-neutral contracts."""
 
+from trussium.providers.circuit_breaker import CircuitBreaker
 from trussium.providers.contracts import Provider, ProviderMetadata, validate_provider_name
 from trussium.providers.health import (
     ProviderHealth,
@@ -40,6 +41,7 @@ from trussium.providers.routing import ProviderRouter
 __all__ = [
     "PLUGIN_API_VERSION",
     "PLUGIN_PERMISSIONS",
+    "CircuitBreaker",
     "Provider",
     "ProviderAlreadyRegisteredError",
     "ProviderContractMismatchError",

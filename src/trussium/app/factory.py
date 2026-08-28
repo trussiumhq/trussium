@@ -44,6 +44,7 @@ from trussium.observability import (
     log_startup_configuration,
 )
 from trussium.providers import (
+    CircuitBreaker,
     ProviderHealthReporter,
     ProviderLifecycle,
     ProviderRegistry,
@@ -98,6 +99,10 @@ def create_application(
     provider_router = ProviderRouter(
         resolved_provider_registry,
         resolved_settings.routing.provider_priority,
+        circuit_breaker=CircuitBreaker(
+            failure_threshold=resolved_settings.routing.circuit_breaker_failure_threshold,
+            reset_seconds=resolved_settings.routing.circuit_breaker_reset_seconds,
+        ),
     )
     resolved_provider_lifecycle = provider_lifecycle or ProviderLifecycle()
 
