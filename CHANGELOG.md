@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.87.0 (2026-08-28)
+
+### Documentation
+
+- Complete routing resilience milestone ([#267](https://github.com/trussiumhq/trussium/pull/267),
+  [`660e012`](https://github.com/trussiumhq/trussium/commit/660e0123589e59a9d48605616a6ae6da2d6a3544))
+
+### Features
+
+- Add runtime API key authentication
+  ([`d78a8c4`](https://github.com/trussiumhq/trussium/commit/d78a8c498078e78ef1b00c24663260a710e4455b))
+
+
 ## v0.86.0 (2026-08-28)
 
 ### Features
