@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.88.0 (2026-08-28)
+
+### Features
+
+- Propagate tenant identity context
+  ([`467d55e`](https://github.com/trussiumhq/trussium/commit/467d55ee94ab870e8cece9381ff2eb7aeeb5ae30))
+
+
 ## v0.87.0 (2026-08-28)
 
 ### Documentation
