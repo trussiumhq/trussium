@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.80.0 (2026-08-28)
+
+### Features
+
+- Add chat model fallback ([#253](https://github.com/trussiumhq/trussium/pull/253),
+  [`4f57620`](https://github.com/trussiumhq/trussium/commit/4f57620d20c0f0a1e722cb98f3367c02acc7f8bd))
+
+
 ## v0.79.0 (2026-08-28)
 
 ### Features
