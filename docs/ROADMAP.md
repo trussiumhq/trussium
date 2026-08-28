@@ -578,7 +578,7 @@ This milestone represents Trussium’s first usable vertical slice and should be
 
 ## Milestone 7 — Routing and Resilience
 
-**Status:** 🚧 In progress
+**Status:** ✅ Complete
 
 Enable Trussium to select providers and recover from provider failures.
 
@@ -615,7 +615,7 @@ Enable Trussium to select providers and recover from provider failures.
 - Bounded non-streaming chat idempotency handling
 - Explicit per-call routing retry-budget enforcement
 
-Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
+Milestone 7 is complete. Routing is intentionally deterministic, bounded, provider-neutral, and process-local. Adaptive weighting, distributed circuit state, durable idempotency, and AI-assisted routing are deferred until operational requirements justify their added complexity.
 
 ---
 

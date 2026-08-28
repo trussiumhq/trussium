@@ -12,7 +12,7 @@ local and deterministic: it performs no network calls, health probes, retries,
 or model inference. `execute_with_fallback` can run an operation against ordered
 candidates and move to the next provider only for transient failures. Circuit
 breaking now temporarily excludes providers after repeated transient failures,
-and re-allows them after the configured reset interval. Model fallback remains a
-separate Milestone 7 feature. A capability
+and re-allows them after the configured reset interval. Model fallback is
+available for non-streaming chat. A capability
 with no matching provider returns no selection so existing unavailable-capability
 handling remains in control.
