@@ -607,6 +607,7 @@ Enable Trussium to select providers and recover from provider failures.
 - Execution-boundary retry attempts and provider request timeout enforcement
 - Deterministic provider fallback for transient execution failures
 - Non-streaming chat execution integration for provider fallback
+- Bounded non-streaming chat model fallback within selected providers
 
 Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 

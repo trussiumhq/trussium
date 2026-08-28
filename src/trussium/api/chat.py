@@ -96,6 +96,7 @@ async def create_chat_completion(
         getattr(http_request.app.state, "model_aliases", {}),
     )
     effective_request = request.model_copy(update={"model": model})
+    model_candidates = getattr(http_request.app.state, "model_fallbacks", {}).get(model, (model,))
 
     if request.stream:
         try:
@@ -126,7 +127,9 @@ async def create_chat_completion(
                 ChatCompletionResponse,
                 await router.execute_with_fallback(
                     CHAT_CAPABILITY_NAME,
-                    lambda provider: _complete_provider(provider, effective_request),
+                    lambda provider: _complete_provider_with_models(
+                        provider, effective_request, model_candidates
+                    ),
                 ),
             )
         else:
@@ -168,6 +171,38 @@ async def _complete_provider(
         if isinstance(capability, ChatCapability):
             return await capability.complete(request)
     raise CapabilityContractMismatchError(CHAT_CAPABILITY_NAME)
+
+
+async def _complete_provider_with_models(
+    provider: Provider,
+    request: ChatCompletionRequest,
+    models: tuple[str, ...],
+) -> ChatCompletionResponse:
+    """Try ordered model IDs for one provider on transient failures."""
+    capability = next(
+        (item for item in provider.capabilities if isinstance(item, ChatCapability)),
+        None,
+    )
+    if capability is None:
+        raise CapabilityContractMismatchError(CHAT_CAPABILITY_NAME)
+    from trussium.providers.retry import ProviderFailureClass, classify_failure
+
+    for index, candidate in enumerate(models):
+        try:
+            return await capability.complete(request.model_copy(update={"model": candidate}))
+        except BaseException as error:
+            if (
+                classify_failure(error)
+                not in {
+                    ProviderFailureClass.RATE_LIMITED,
+                    ProviderFailureClass.TIMEOUT,
+                    ProviderFailureClass.CONNECTION,
+                    ProviderFailureClass.UPSTREAM,
+                }
+                or index == len(models) - 1
+            ):
+                raise
+    raise AssertionError("Model fallback exhausted without a result")
 
 
 def _chat_capability_unavailable() -> HTTPException:
