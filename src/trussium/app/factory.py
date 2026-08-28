@@ -95,6 +95,7 @@ def create_application(
     resolved_settings = settings or get_settings()
     resolved_provider_registry = provider_registry or ProviderRegistry()
     resolved_provider_registry.seal()
+    runtime_metrics = RuntimeMetrics() if resolved_settings.observability.metrics_enabled else None
     provider_health_reporter = ProviderHealthReporter(resolved_provider_registry)
     provider_router = ProviderRouter(
         resolved_provider_registry,
@@ -104,6 +105,17 @@ def create_application(
             reset_seconds=resolved_settings.routing.circuit_breaker_reset_seconds,
         ),
         health_reporter=provider_health_reporter,
+        decision_handler=(
+            (
+                lambda decision: runtime_metrics.routing_decision(
+                    capability=decision.capability,
+                    provider=decision.provider,
+                    outcome=decision.outcome,
+                )
+            )
+            if runtime_metrics is not None
+            else None
+        ),
     )
     resolved_provider_lifecycle = provider_lifecycle or ProviderLifecycle()
 
@@ -380,7 +392,7 @@ def create_application(
     application.state.chat_capability = resolved_chat_capability
 
     if resolved_settings.observability.metrics_enabled:
-        runtime_metrics = RuntimeMetrics()
+        assert runtime_metrics is not None
         application.state.runtime_metrics = runtime_metrics
         application.add_middleware(
             RequestMetricsMiddleware,

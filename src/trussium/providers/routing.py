@@ -3,6 +3,8 @@
 from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass
 
+from opentelemetry import trace
+
 from trussium.observability.logging import get_logger
 from trussium.providers.circuit_breaker import CircuitBreaker
 from trussium.providers.contracts import Provider, validate_provider_name
@@ -30,6 +32,7 @@ class ProviderRouter:
         priority: Sequence[str] = (),
         circuit_breaker: CircuitBreaker | None = None,
         health_reporter: ProviderHealthReporter | None = None,
+        decision_handler: Callable[[RoutingDecision], None] | None = None,
     ) -> None:
         if not registry.sealed:
             raise ValueError("Provider routing requires a sealed registry")
@@ -40,6 +43,7 @@ class ProviderRouter:
         self._priority = normalized
         self._circuit_breaker = circuit_breaker
         self._health_reporter = health_reporter
+        self._decision_handler = decision_handler
         self._logger = get_logger("provider.routing")
 
     @property
@@ -128,6 +132,11 @@ class ProviderRouter:
         decision: RoutingDecision,
         handler: Callable[[RoutingDecision], None] | None,
     ) -> None:
+        span = trace.get_current_span()
+        span.set_attribute("trussium.routing.provider", decision.provider)
+        span.set_attribute("trussium.routing.capability", decision.capability)
+        span.set_attribute("trussium.routing.attempt", decision.attempt)
+        span.set_attribute("trussium.routing.outcome", decision.outcome)
         self._logger.info(
             "Provider routing decision",
             extra={
@@ -145,6 +154,8 @@ class ProviderRouter:
         )
         if handler is not None:
             handler(decision)
+        elif self._decision_handler is not None:
+            self._decision_handler(decision)
 
     async def _healthy_candidates(self, capability: str) -> tuple[Provider, ...]:
         assert self._health_reporter is not None

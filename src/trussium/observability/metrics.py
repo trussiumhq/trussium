@@ -63,6 +63,20 @@ class RuntimeMetrics:
             buckets=_REQUEST_DURATION_BUCKETS,
             registry=self.registry,
         )
+        self.routing_decisions_total = Counter(
+            "trussium_routing_decisions",
+            "Provider routing decisions by outcome.",
+            labelnames=("capability", "provider", "outcome"),
+            registry=self.registry,
+        )
+
+    def routing_decision(self, *, capability: str, provider: str, outcome: str) -> None:
+        """Record one bounded provider routing decision."""
+        self.routing_decisions_total.labels(
+            capability=capability,
+            provider=provider,
+            outcome=outcome,
+        ).inc()
 
     def request_started(self) -> None:
         """Record that a workload request became active."""
