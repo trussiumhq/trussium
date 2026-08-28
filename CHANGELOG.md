@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.86.0 (2026-08-28)
+
+### Features
+
+- Add routing retry budgets ([#265](https://github.com/trussiumhq/trussium/pull/265),
+  [`3c15f19`](https://github.com/trussiumhq/trussium/commit/3c15f19117e2b7a7f5a9cb0fb211ed9d1d4eccd8))
+
+
 ## v0.85.0 (2026-08-28)
 
 ### Features
