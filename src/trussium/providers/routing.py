@@ -2,6 +2,7 @@
 
 from collections.abc import Awaitable, Callable, Sequence
 
+from trussium.providers.circuit_breaker import CircuitBreaker
 from trussium.providers.contracts import Provider, validate_provider_name
 from trussium.providers.registry import ProviderRegistry
 
@@ -9,7 +10,12 @@ from trussium.providers.registry import ProviderRegistry
 class ProviderRouter:
     """Select the first registered provider matching a capability."""
 
-    def __init__(self, registry: ProviderRegistry, priority: Sequence[str] = ()) -> None:
+    def __init__(
+        self,
+        registry: ProviderRegistry,
+        priority: Sequence[str] = (),
+        circuit_breaker: CircuitBreaker | None = None,
+    ) -> None:
         if not registry.sealed:
             raise ValueError("Provider routing requires a sealed registry")
         normalized = tuple(validate_provider_name(name) for name in priority)
@@ -17,6 +23,7 @@ class ProviderRouter:
             raise ValueError("Provider routing priorities must be unique")
         self._registry = registry
         self._priority = normalized
+        self._circuit_breaker = circuit_breaker
 
     @property
     def priority(self) -> tuple[str, ...]:
@@ -40,6 +47,7 @@ class ProviderRouter:
             for name in names
             if (provider := self._registry.get(name)) is not None
             and capability in provider.metadata.capabilities
+            and (self._circuit_breaker is None or self._circuit_breaker.allow(name))
         )
 
     async def execute_with_fallback(
@@ -55,7 +63,10 @@ class ProviderRouter:
             raise LookupError(f"No provider advertises capability '{capability}'")
         for index, provider in enumerate(candidates):
             try:
-                return await operation(provider)
+                result = await operation(provider)
+                if self._circuit_breaker is not None:
+                    self._circuit_breaker.record_success(provider.metadata.name)
+                return result
             except BaseException as error:
                 if (
                     classify_failure(error)
@@ -67,7 +78,11 @@ class ProviderRouter:
                     }
                     or index == len(candidates) - 1
                 ):
+                    if self._circuit_breaker is not None:
+                        self._circuit_breaker.record_failure(provider.metadata.name)
                     raise
+                if self._circuit_breaker is not None:
+                    self._circuit_breaker.record_failure(provider.metadata.name)
         raise AssertionError("Provider fallback exhausted without a result")
 
 
