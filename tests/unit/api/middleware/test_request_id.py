@@ -5,13 +5,14 @@ from collections.abc import AsyncIterator
 from typing import cast
 from uuid import UUID
 
-from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import Response, StreamingResponse
 from fastapi.testclient import TestClient
 
 from trussium.app import create_application
 from trussium.middleware import (
     REQUEST_ID_HEADER,
+    TENANT_ID_HEADER,
     RequestCorrelationMiddleware,
 )
 from trussium.runtime import (
@@ -116,6 +117,26 @@ def test_supplied_request_id_is_preserved() -> None:
     assert response.json() == {
         "request_id": "trussium-test-123",
     }
+
+
+def test_supplied_tenant_id_is_bound_to_execution_context() -> None:
+    """Tenant identity should be available to downstream request execution."""
+    observed: list[str | None] = []
+
+    application = FastAPI()
+
+    @application.get("/")
+    async def endpoint(request: Request) -> Response:
+        del request
+        observed.append(get_execution_context().tenant_id)
+        return Response("ok")
+
+    application.add_middleware(RequestCorrelationMiddleware)
+    client = TestClient(application)
+    response = client.get("/", headers={TENANT_ID_HEADER: "tenant-123"})
+
+    assert response.status_code == 200
+    assert observed == ["tenant-123"]
 
 
 def test_request_id_is_generated_when_missing() -> None:

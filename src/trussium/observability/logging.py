@@ -25,6 +25,7 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "capability",
     "provider",
     "model",
+    "tenant_id",
     "error_code",
     "error_count",
     "error_type",
@@ -82,6 +83,7 @@ class RuntimeContextFilter(logging.Filter):
             "capability": context.capability,
             "provider": context.provider,
             "model": context.model,
+            "tenant_id": context.tenant_id,
         }
 
         for field_name, field_value in context_fields.items():
