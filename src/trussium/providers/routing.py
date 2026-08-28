@@ -1,6 +1,6 @@
-"""Deterministic provider-priority selection."""
+"""Deterministic provider-priority selection and fallback."""
 
-from collections.abc import Sequence
+from collections.abc import Awaitable, Callable, Sequence
 
 from trussium.providers.contracts import Provider, validate_provider_name
 from trussium.providers.registry import ProviderRegistry
@@ -31,6 +31,44 @@ class ProviderRouter:
             if provider is not None and capability in provider.metadata.capabilities:
                 return provider
         return None
+
+    def candidates(self, capability: str) -> tuple[Provider, ...]:
+        """Return all capability-compatible providers in deterministic order."""
+        names = self._priority or self._registry.names
+        return tuple(
+            provider
+            for name in names
+            if (provider := self._registry.get(name)) is not None
+            and capability in provider.metadata.capabilities
+        )
+
+    async def execute_with_fallback(
+        self,
+        capability: str,
+        operation: Callable[[Provider], Awaitable[object]],
+    ) -> object:
+        """Execute against ordered providers, falling back on transient failures."""
+        from trussium.providers.retry import ProviderFailureClass, classify_failure
+
+        candidates = self.candidates(capability)
+        if not candidates:
+            raise LookupError(f"No provider advertises capability '{capability}'")
+        for index, provider in enumerate(candidates):
+            try:
+                return await operation(provider)
+            except BaseException as error:
+                if (
+                    classify_failure(error)
+                    not in {
+                        ProviderFailureClass.RATE_LIMITED,
+                        ProviderFailureClass.TIMEOUT,
+                        ProviderFailureClass.CONNECTION,
+                        ProviderFailureClass.UPSTREAM,
+                    }
+                    or index == len(candidates) - 1
+                ):
+                    raise
+        raise AssertionError("Provider fallback exhausted without a result")
 
 
 __all__ = ["ProviderRouter"]
