@@ -1,6 +1,6 @@
 """Chat-completion API endpoints."""
 
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
@@ -25,6 +25,7 @@ from trussium.capabilities.registry import (
     CapabilityNotFoundError,
 )
 from trussium.config import resolve_model_alias
+from trussium.providers import Provider, ProviderRouter
 
 router = APIRouter(
     prefix="/v1/chat",
@@ -115,11 +116,25 @@ async def create_chat_completion(
         )
 
     try:
-        completion = await pipeline.execute(
-            CHAT_CAPABILITY_NAME,
-            lambda capability: _require_chat_capability(capability).complete(effective_request),
-            model=model,
+        router = cast(
+            ProviderRouter | None,
+            getattr(http_request.app.state, "provider_router", None),
         )
+        candidates = router.candidates(CHAT_CAPABILITY_NAME) if router is not None else ()
+        if router is not None and candidates:
+            completion = cast(
+                ChatCompletionResponse,
+                await router.execute_with_fallback(
+                    CHAT_CAPABILITY_NAME,
+                    lambda provider: _complete_provider(provider, effective_request),
+                ),
+            )
+        else:
+            completion = await pipeline.execute(
+                CHAT_CAPABILITY_NAME,
+                lambda capability: _require_chat_capability(capability).complete(effective_request),
+                model=model,
+            )
     except CapabilityNotFoundError as error:
         raise _chat_capability_unavailable() from error
     except CapabilityExecutionError as error:
@@ -143,6 +158,16 @@ def _require_chat_capability(capability: object) -> ChatCapability:
         raise CapabilityContractMismatchError(CHAT_CAPABILITY_NAME)
 
     return capability
+
+
+async def _complete_provider(
+    provider: Provider, request: ChatCompletionRequest
+) -> ChatCompletionResponse:
+    """Complete a request using the provider's registered chat capability."""
+    for capability in provider.capabilities:
+        if isinstance(capability, ChatCapability):
+            return await capability.complete(request)
+    raise CapabilityContractMismatchError(CHAT_CAPABILITY_NAME)
 
 
 def _chat_capability_unavailable() -> HTTPException:
