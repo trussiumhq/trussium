@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.82.0 (2026-08-28)
+
+### Features
+
+- Add health aware provider routing ([#257](https://github.com/trussiumhq/trussium/pull/257),
+  [`6b664df`](https://github.com/trussiumhq/trussium/commit/6b664df76d6b7c09815455e86380f19e7a30e27b))
+
+
 ## v0.81.0 (2026-08-28)
 
 ### Features
