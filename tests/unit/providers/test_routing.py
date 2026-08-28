@@ -4,7 +4,7 @@ import asyncio
 
 import pytest
 
-from trussium.providers import ProviderMetadata, ProviderRegistry, ProviderRouter
+from trussium.providers import Provider, ProviderMetadata, ProviderRegistry, ProviderRouter
 
 
 class StubProvider:
@@ -56,8 +56,8 @@ def test_fallback_uses_priority_order_for_transient_failures() -> None:
     router = ProviderRouter(registry, priority=("second", "first"))
     attempts: list[str] = []
 
-    async def operation(provider: object) -> str:
-        attempts.append(provider.metadata.name)  # type: ignore[union-attr]
+    async def operation(provider: Provider) -> str:
+        attempts.append(provider.metadata.name)
         if len(attempts) == 1:
             raise ConnectionError("temporary")
         return "ok"
