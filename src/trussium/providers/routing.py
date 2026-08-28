@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable, Sequence
 
 from trussium.providers.circuit_breaker import CircuitBreaker
 from trussium.providers.contracts import Provider, validate_provider_name
+from trussium.providers.health import ProviderHealthReporter, ProviderHealthStatus
 from trussium.providers.registry import ProviderRegistry
 
 
@@ -15,6 +16,7 @@ class ProviderRouter:
         registry: ProviderRegistry,
         priority: Sequence[str] = (),
         circuit_breaker: CircuitBreaker | None = None,
+        health_reporter: ProviderHealthReporter | None = None,
     ) -> None:
         if not registry.sealed:
             raise ValueError("Provider routing requires a sealed registry")
@@ -24,6 +26,7 @@ class ProviderRouter:
         self._registry = registry
         self._priority = normalized
         self._circuit_breaker = circuit_breaker
+        self._health_reporter = health_reporter
 
     @property
     def priority(self) -> tuple[str, ...]:
@@ -58,7 +61,11 @@ class ProviderRouter:
         """Execute against ordered providers, falling back on transient failures."""
         from trussium.providers.retry import ProviderFailureClass, classify_failure
 
-        candidates = self.candidates(capability)
+        candidates = (
+            await self._healthy_candidates(capability)
+            if self._health_reporter is not None
+            else self.candidates(capability)
+        )
         if not candidates:
             raise LookupError(f"No provider advertises capability '{capability}'")
         for index, provider in enumerate(candidates):
@@ -84,6 +91,20 @@ class ProviderRouter:
                 if self._circuit_breaker is not None:
                     self._circuit_breaker.record_failure(provider.metadata.name)
         raise AssertionError("Provider fallback exhausted without a result")
+
+    async def _healthy_candidates(self, capability: str) -> tuple[Provider, ...]:
+        assert self._health_reporter is not None
+        report = await self._health_reporter.report()
+        unavailable = {
+            item.name
+            for item in report.providers
+            if item.status is ProviderHealthStatus.UNAVAILABLE
+        }
+        return tuple(
+            provider
+            for provider in self.candidates(capability)
+            if provider.metadata.name not in unavailable
+        )
 
 
 __all__ = ["ProviderRouter"]
