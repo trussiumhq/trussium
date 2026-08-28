@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.81.0 (2026-08-28)
+
+### Features
+
+- Add provider circuit breaker ([#255](https://github.com/trussiumhq/trussium/pull/255),
+  [`f80bbdb`](https://github.com/trussiumhq/trussium/commit/f80bbdb248af3487969b37e480be8acd4ebd01fa))
+
+
 ## v0.80.0 (2026-08-28)
 
 ### Features
