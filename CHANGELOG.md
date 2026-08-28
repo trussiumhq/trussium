@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v0.77.0 (2026-08-28)
+
+### Bug Fixes
+
+- Avoid retry policy import cycle ([#247](https://github.com/trussiumhq/trussium/pull/247),
+  [`eb573a8`](https://github.com/trussiumhq/trussium/commit/eb573a8137c86958b5619acc2c700e1e3f0cba89))
+
+### Features
+
+- Integrate provider retries into execution
+  ([#247](https://github.com/trussiumhq/trussium/pull/247),
+  [`eb573a8`](https://github.com/trussiumhq/trussium/commit/eb573a8137c86958b5619acc2c700e1e3f0cba89))
+
+
 ## v0.76.0 (2026-08-27)
 
 ### Features
