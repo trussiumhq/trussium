@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.79.0 (2026-08-28)
+
+### Features
+
+- Integrate chat provider fallback ([#251](https://github.com/trussiumhq/trussium/pull/251),
+  [`86492b8`](https://github.com/trussiumhq/trussium/commit/86492b87d889e0310fa3dc5bbfca836854d10de8))
+
+
 ## v0.78.0 (2026-08-28)
 
 ### Bug Fixes
