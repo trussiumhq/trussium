@@ -103,6 +103,7 @@ def create_application(
             failure_threshold=resolved_settings.routing.circuit_breaker_failure_threshold,
             reset_seconds=resolved_settings.routing.circuit_breaker_reset_seconds,
         ),
+        health_reporter=provider_health_reporter,
     )
     resolved_provider_lifecycle = provider_lifecycle or ProviderLifecycle()
 
