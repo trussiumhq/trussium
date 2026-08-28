@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.84.0 (2026-08-28)
+
+### Features
+
+- Add routing metrics and trace linkage ([#261](https://github.com/trussiumhq/trussium/pull/261),
+  [`d4d41ad`](https://github.com/trussiumhq/trussium/commit/d4d41ad620e2e532cc3a81cbe457d4729189b603))
+
+
 ## v0.83.0 (2026-08-28)
 
 ### Features
