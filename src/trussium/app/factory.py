@@ -117,6 +117,7 @@ def create_application(
             if runtime_metrics is not None
             else None
         ),
+        retry_budget=resolved_settings.routing.retry_budget,
     )
     resolved_provider_lifecycle = provider_lifecycle or ProviderLifecycle()
 

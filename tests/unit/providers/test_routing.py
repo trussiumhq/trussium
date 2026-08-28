@@ -64,3 +64,20 @@ def test_fallback_uses_priority_order_for_transient_failures() -> None:
 
     assert asyncio.run(router.execute_with_fallback("chat.completions", operation)) == "ok"
     assert attempts == ["second", "first"]
+
+
+def test_fallback_enforces_retry_budget() -> None:
+    registry = ProviderRegistry(
+        (
+            StubProvider("first", ("chat.completions",)),
+            StubProvider("second", ("chat.completions",)),
+        )
+    )
+    registry.seal()
+    router = ProviderRouter(registry, retry_budget=1)
+
+    async def operation(_: object) -> str:
+        raise ConnectionError("temporary")
+
+    with pytest.raises(ConnectionError):
+        asyncio.run(router.execute_with_fallback("chat.completions", operation))

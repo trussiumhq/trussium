@@ -613,6 +613,7 @@ Enable Trussium to select providers and recover from provider failures.
 - Bounded routing decision metadata and structured telemetry events
 - Routing decision Prometheus metrics and trace-span linkage
 - Bounded non-streaming chat idempotency handling
+- Explicit per-call routing retry-budget enforcement
 
 Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 
