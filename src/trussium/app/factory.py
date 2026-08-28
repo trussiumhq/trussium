@@ -48,6 +48,7 @@ from trussium.providers import (
     ProviderLifecycle,
     ProviderRegistry,
     ProviderRouter,
+    RetryPolicy,
 )
 from trussium.runtime import (
     DependencyHealthCheck,
@@ -166,6 +167,12 @@ def create_application(
     capability_execution_pipeline = CapabilityExecutionPipeline(
         resolved_capability_registry,
         middleware=capability_middleware,
+        retry_policy=RetryPolicy(
+            max_attempts=resolved_settings.retries.max_attempts,
+            base_delay_seconds=resolved_settings.retries.base_delay_seconds,
+            max_delay_seconds=resolved_settings.retries.max_delay_seconds,
+        ),
+        timeout_seconds=resolved_settings.timeouts.provider_request_seconds,
     )
     resolved_chat_capability = resolved_capability_registry.get(CHAT_CAPABILITY_NAME)
     runtime_logger = get_logger("runtime")
