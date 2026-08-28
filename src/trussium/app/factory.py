@@ -364,6 +364,7 @@ def create_application(
     application.state.provider_registry = resolved_provider_registry
     application.state.provider_health_reporter = provider_health_reporter
     application.state.provider_router = provider_router
+    application.state.provider_fallback = provider_router.execute_with_fallback
     application.state.provider_lifecycle = resolved_provider_lifecycle
     application.state.capability_availability_reporter = capability_availability_reporter
     application.state.capability_health_reporter = capability_health_reporter

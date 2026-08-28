@@ -1,5 +1,7 @@
 """Tests for deterministic provider-priority routing."""
 
+import asyncio
+
 import pytest
 
 from trussium.providers import ProviderMetadata, ProviderRegistry, ProviderRouter
@@ -44,3 +46,21 @@ def test_router_requires_sealed_registry_and_unique_priority() -> None:
     registry.seal()
     with pytest.raises(ValueError, match="unique"):
         ProviderRouter(registry, priority=("first", "first"))
+
+
+def test_fallback_uses_priority_order_for_transient_failures() -> None:
+    first = StubProvider("first", ("chat.completions",))
+    second = StubProvider("second", ("chat.completions",))
+    registry = ProviderRegistry((first, second))
+    registry.seal()
+    router = ProviderRouter(registry, priority=("second", "first"))
+    attempts: list[str] = []
+
+    async def operation(provider: object) -> str:
+        attempts.append(provider.metadata.name)  # type: ignore[union-attr]
+        if len(attempts) == 1:
+            raise ConnectionError("temporary")
+        return "ok"
+
+    assert asyncio.run(router.execute_with_fallback("chat.completions", operation)) == "ok"
+    assert attempts == ["second", "first"]
