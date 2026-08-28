@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.83.0 (2026-08-28)
+
+### Features
+
+- Add routing decision telemetry ([#259](https://github.com/trussiumhq/trussium/pull/259),
+  [`f329e91`](https://github.com/trussiumhq/trussium/commit/f329e91444869c240c44384b6d924f5eb92c4517))
+
+
 ## v0.82.0 (2026-08-28)
 
 ### Features
