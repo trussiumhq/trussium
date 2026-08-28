@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.85.0 (2026-08-28)
+
+### Features
+
+- Add chat idempotency ([#263](https://github.com/trussiumhq/trussium/pull/263),
+  [`cff82d2`](https://github.com/trussiumhq/trussium/commit/cff82d27ef542e4141fcc2874f64acdd2b2bbb52))
+
+
 ## v0.84.0 (2026-08-28)
 
 ### Features
