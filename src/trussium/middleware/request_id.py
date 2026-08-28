@@ -17,6 +17,7 @@ from trussium.runtime import (
 )
 
 REQUEST_ID_HEADER = "X-Request-ID"
+TENANT_ID_HEADER = "X-Tenant-ID"
 
 
 class RequestCorrelationMiddleware:
@@ -51,7 +52,8 @@ class RequestCorrelationMiddleware:
             return
 
         request_id = self._resolve_request_id(scope)
-        context_token = set_request_id(request_id)
+        tenant_id = self._resolve_tenant_id(scope)
+        context_token = set_request_id(request_id, tenant_id=tenant_id)
 
         async def send_with_request_id(
             message: Message,
@@ -93,3 +95,16 @@ class RequestCorrelationMiddleware:
                 return normalized_request_id
 
         return str(uuid4())
+
+    @staticmethod
+    def _resolve_tenant_id(scope: Scope) -> str | None:
+        """Resolve a bounded optional tenant identifier from request headers."""
+        supplied_tenant_id = Headers(scope=scope).get(TENANT_ID_HEADER)
+        if supplied_tenant_id is None:
+            return None
+        normalized = supplied_tenant_id.strip()
+        if not normalized or len(normalized) > 128:
+            return None
+        if any(not (character.isalnum() or character in "-_.:") for character in normalized):
+            return None
+        return normalized

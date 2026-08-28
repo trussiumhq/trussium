@@ -650,6 +650,7 @@ Provide the controls required for secure organizational and enterprise use.
 - Constant-time credential comparison and generic `401` failure responses
 - Public health, readiness, metrics, and API documentation endpoints for operations
 - Secret-safe immutable authentication settings and deployment documentation
+- Optional tenant identity propagation through request context, logs, and traces
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
