@@ -176,6 +176,22 @@ class TimeoutSettings(BaseModel):
     )
 
 
+class RetrySettings(BaseModel):
+    """Bounded provider retry configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    max_attempts: int = Field(default=1, ge=1, le=10)
+    base_delay_seconds: FiniteFloat = Field(default=0.25, ge=0.0)
+    max_delay_seconds: FiniteFloat = Field(default=10.0, ge=0.0)
+
+    @model_validator(mode="after")
+    def validate_delays(self) -> "RetrySettings":
+        if self.max_delay_seconds < self.base_delay_seconds:
+            raise ValueError("Retry maximum delay must be at least the base delay")
+        return self
+
+
 class ReadinessSettings(BaseModel):
     """Dependency-aware readiness configuration."""
 
@@ -273,6 +289,7 @@ class Settings(BaseSettings):
     reranking: RerankingSettings = RerankingSettings()
     routing: RoutingSettings = RoutingSettings()
     timeouts: TimeoutSettings = TimeoutSettings()
+    retries: RetrySettings = RetrySettings()
     readiness: ReadinessSettings = ReadinessSettings()
     observability: ObservabilitySettings = ObservabilitySettings()
 

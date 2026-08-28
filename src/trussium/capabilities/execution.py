@@ -1,6 +1,8 @@
 """Provider-neutral capability execution pipeline."""
 
+import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
+from math import isfinite
 from typing import Self, TypeVar, cast
 
 from trussium.capabilities.middleware import (
@@ -10,6 +12,7 @@ from trussium.capabilities.middleware import (
     CapabilityStreamNext,
 )
 from trussium.capabilities.registry import CapabilityRegistry
+from trussium.providers.retry import RetryPolicy
 from trussium.runtime.context import bind_execution_context
 from trussium.runtime.streaming import close_async_resource
 
@@ -136,13 +139,15 @@ class _StreamNext:
 class CapabilityExecutionPipeline:
     """Resolve and execute capabilities through one application-owned boundary."""
 
-    __slots__ = ("_middleware", "_registry")
+    __slots__ = ("_middleware", "_registry", "_retry_policy", "_timeout_seconds")
 
     def __init__(
         self,
         registry: CapabilityRegistry,
         *,
         middleware: Sequence[CapabilityMiddleware] = (),
+        retry_policy: RetryPolicy | None = None,
+        timeout_seconds: float | None = None,
     ) -> None:
         """Bind execution to an immutable application capability composition.
 
@@ -160,9 +165,13 @@ class CapabilityExecutionPipeline:
         resolved_middleware = tuple(middleware)
         if not all(isinstance(item, CapabilityMiddleware) for item in resolved_middleware):
             raise TypeError("Capability middleware must implement execute() and stream()")
+        if timeout_seconds is not None and (not isfinite(timeout_seconds) or timeout_seconds <= 0):
+            raise ValueError("Capability execution timeout must be finite and positive")
 
         self._registry = registry
         self._middleware = resolved_middleware
+        self._retry_policy = retry_policy
+        self._timeout_seconds = timeout_seconds
 
     @property
     def registry(self) -> CapabilityRegistry:
@@ -212,7 +221,28 @@ class CapabilityExecutionPipeline:
                 call_next = _ExecuteNext(lambda: invoke(index + 1))
                 return await middleware.execute(invocation, call_next)
 
-            return cast(CapabilityResultT, await invoke(0))
+            if self._retry_policy is None:
+                result = await self._invoke_with_timeout(invoke)
+            else:
+                result = None
+                for attempt in range(1, self._retry_policy.max_attempts + 1):
+                    try:
+                        result = await self._invoke_with_timeout(invoke)
+                        break
+                    except asyncio.CancelledError:
+                        raise
+                    except BaseException as error:
+                        decision = self._retry_policy.decide(attempt, error)
+                        if not decision.retry:
+                            raise
+                        await asyncio.sleep(decision.delay_seconds)
+            return cast(CapabilityResultT, result)
+
+    async def _invoke_with_timeout(self, invoke: Callable[[int], Awaitable[object]]) -> object:
+        if self._timeout_seconds is None:
+            return await invoke(0)
+        async with asyncio.timeout(self._timeout_seconds):
+            return await invoke(0)
 
     def stream(
         self,
