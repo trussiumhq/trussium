@@ -1,9 +1,11 @@
 """Provider-neutral capability execution pipeline."""
 
+from __future__ import annotations
+
 import asyncio
 from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
 from math import isfinite
-from typing import Self, TypeVar, cast
+from typing import TYPE_CHECKING, Self, TypeVar, cast
 
 from trussium.capabilities.middleware import (
     CapabilityExecuteNext,
@@ -12,12 +14,14 @@ from trussium.capabilities.middleware import (
     CapabilityStreamNext,
 )
 from trussium.capabilities.registry import CapabilityRegistry
-from trussium.providers.retry import RetryPolicy
 from trussium.runtime.context import bind_execution_context
 from trussium.runtime.streaming import close_async_resource
 
 CapabilityResultT = TypeVar("CapabilityResultT")
 CapabilityEventT = TypeVar("CapabilityEventT")
+
+if TYPE_CHECKING:
+    from trussium.providers.retry import RetryPolicy
 
 _NEXT_ALREADY_CALLED_MESSAGE = "Capability middleware next callable can only be invoked once"
 
@@ -170,6 +174,11 @@ class CapabilityExecutionPipeline:
 
         self._registry = registry
         self._middleware = resolved_middleware
+        if retry_policy is not None:
+            from trussium.providers.retry import RetryPolicy as _RetryPolicy
+
+            if not isinstance(retry_policy, _RetryPolicy):
+                raise TypeError("Retry policy must implement the provider retry policy contract")
         self._retry_policy = retry_policy
         self._timeout_seconds = timeout_seconds
 
