@@ -76,6 +76,27 @@ class RoutingSettings(BaseModel):
         description="Ordered provider names to prefer during capability selection.",
     )
 
+    model_fallbacks: dict[str, tuple[str, ...]] = Field(
+        default_factory=dict,
+        description="Ordered fallback model IDs keyed by the requested model name.",
+    )
+
+    @model_validator(mode="after")
+    def validate_model_fallbacks(self) -> "RoutingSettings":
+        pattern = re.compile(r"[a-z][a-z0-9_.:-]{0,63}")
+        if len(self.model_fallbacks) > 64:
+            raise ValueError("At most 64 model fallback policies may be configured")
+        for name, models in self.model_fallbacks.items():
+            if pattern.fullmatch(name) is None or not models or len(models) > 10:
+                raise ValueError("Model fallback names and lists must be bounded")
+            if any(
+                not model.strip() or len(model) > 128 or model != model.strip() for model in models
+            ):
+                raise ValueError("Model fallback IDs must be non-empty and stripped")
+            if len(set(models)) != len(models):
+                raise ValueError("Model fallback IDs must be unique")
+        return self
+
 
 class RuntimeSettings(BaseModel):
     """Runtime configuration."""

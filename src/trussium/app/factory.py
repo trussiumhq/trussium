@@ -355,6 +355,7 @@ def create_application(
 
     application.state.settings = resolved_settings
     application.state.model_aliases = dict(resolved_settings.runtime.model_aliases)
+    application.state.model_fallbacks = dict(resolved_settings.routing.model_fallbacks)
     application.state.runtime_tracing = runtime_tracing
     application.state.dependency_readiness = dependency_readiness
     application.state.runtime_service_lifecycle = runtime_service_lifecycle
