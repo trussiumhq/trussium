@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.78.0 (2026-08-28)
+
+### Bug Fixes
+
+- Type provider fallback test ([#249](https://github.com/trussiumhq/trussium/pull/249),
+  [`ebed652`](https://github.com/trussiumhq/trussium/commit/ebed6520d2616d0fa2bae56a8d426a57460cbe07))
+
+### Features
+
+- Add deterministic provider fallback ([#249](https://github.com/trussiumhq/trussium/pull/249),
+  [`ebed652`](https://github.com/trussiumhq/trussium/commit/ebed6520d2616d0fa2bae56a8d426a57460cbe07))
+
+
 ## v0.77.0 (2026-08-28)
 
 ### Bug Fixes
