@@ -2,6 +2,7 @@
 
 from trussium.middleware.authentication import APIKeyAuthenticationMiddleware
 from trussium.middleware.request_id import (
+    PROJECT_ID_HEADER,
     REQUEST_ID_HEADER,
     TENANT_ID_HEADER,
     RequestCorrelationMiddleware,
@@ -15,6 +16,7 @@ from trussium.middleware.request_metrics import (
 from trussium.middleware.request_tracing import RequestTracingMiddleware
 
 __all__ = [
+    "PROJECT_ID_HEADER",
     "REQUEST_ID_HEADER",
     "TENANT_ID_HEADER",
     "APIKeyAuthenticationMiddleware",

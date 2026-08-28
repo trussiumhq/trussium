@@ -104,6 +104,15 @@ def test_set_request_id_accepts_tenant_id() -> None:
         reset_request_id(token)
 
 
+def test_set_request_id_accepts_project_id() -> None:
+    """Request context should carry an optional project identifier."""
+    token = set_request_id("request-123", project_id="project-123")
+    try:
+        assert get_execution_context().project_id == "project-123"
+    finally:
+        reset_request_id(token)
+
+
 def test_set_request_id_preserves_bound_metadata() -> None:
     """Setting a request ID should retain metadata from the parent context."""
     with bind_execution_context(
