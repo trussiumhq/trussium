@@ -644,6 +644,13 @@ Provide the controls required for secure organizational and enterprise use.
 - Tenant-aware provider policies
 - Usage export interfaces
 
+### Delivered
+
+- Opt-in bearer API-key authentication for `/v1/*` routes
+- Constant-time credential comparison and generic `401` failure responses
+- Public health, readiness, metrics, and API documentation endpoints for operations
+- Secret-safe immutable authentication settings and deployment documentation
+
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
 ---

@@ -25,6 +25,7 @@ from trussium.capabilities import (
 from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
 from trussium.middleware import (
+    APIKeyAuthenticationMiddleware,
     RequestCorrelationMiddleware,
     RequestLoggingMiddleware,
     RequestMetricsMiddleware,
@@ -408,6 +409,11 @@ def create_application(
 
     application.add_middleware(
         RequestLoggingMiddleware,
+    )
+
+    application.add_middleware(
+        APIKeyAuthenticationMiddleware,
+        api_keys=resolved_settings.authentication.api_keys,
     )
 
     if runtime_tracing.enabled:
