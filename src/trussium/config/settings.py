@@ -161,6 +161,9 @@ class RuntimeSettings(BaseModel):
         description="Maximum duration of one provider model discovery request.",
     )
 
+    idempotency_ttl_seconds: FiniteFloat = Field(default=300.0, gt=0.0)
+    idempotency_max_entries: int = Field(default=1024, ge=1, le=100_000)
+
     model_aliases: dict[str, str] = Field(
         default_factory=dict,
         description="Optional bounded client model aliases mapped to provider model IDs.",

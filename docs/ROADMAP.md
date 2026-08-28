@@ -612,6 +612,7 @@ Enable Trussium to select providers and recover from provider failures.
 - Health-aware provider candidate filtering
 - Bounded routing decision metadata and structured telemetry events
 - Routing decision Prometheus metrics and trace-span linkage
+- Bounded non-streaming chat idempotency handling
 
 Deterministic routing should be implemented and measured before introducing advanced or AI-assisted routing strategies.
 

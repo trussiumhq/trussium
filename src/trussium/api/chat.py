@@ -26,6 +26,7 @@ from trussium.capabilities.registry import (
 )
 from trussium.config import resolve_model_alias
 from trussium.providers import Provider, ProviderRouter
+from trussium.runtime.idempotency import IdempotencyConflictError, IdempotencyStore
 
 router = APIRouter(
     prefix="/v1/chat",
@@ -122,22 +123,34 @@ async def create_chat_completion(
             getattr(http_request.app.state, "provider_router", None),
         )
         candidates = router.candidates(CHAT_CAPABILITY_NAME) if router is not None else ()
-        if router is not None and candidates:
-            completion = cast(
-                ChatCompletionResponse,
-                await router.execute_with_fallback(
-                    CHAT_CAPABILITY_NAME,
-                    lambda provider: _complete_provider_with_models(
-                        provider, effective_request, model_candidates
+
+        async def execute() -> ChatCompletionResponse:
+            if router is not None and candidates:
+                return cast(
+                    ChatCompletionResponse,
+                    await router.execute_with_fallback(
+                        CHAT_CAPABILITY_NAME,
+                        lambda provider: _complete_provider_with_models(
+                            provider, effective_request, model_candidates
+                        ),
                     ),
-                ),
-            )
-        else:
-            completion = await pipeline.execute(
+                )
+            return await pipeline.execute(
                 CHAT_CAPABILITY_NAME,
                 lambda capability: _require_chat_capability(capability).complete(effective_request),
                 model=model,
             )
+
+        key = http_request.headers.get("idempotency-key")
+        store = cast(
+            IdempotencyStore | None,
+            getattr(http_request.app.state, "idempotency_store", None),
+        )
+        completion = (
+            await store.execute(key, effective_request.model_dump(mode="json"), execute)
+            if key and store is not None
+            else await execute()
+        )
     except CapabilityNotFoundError as error:
         raise _chat_capability_unavailable() from error
     except CapabilityExecutionError as error:
@@ -148,6 +161,8 @@ async def create_chat_completion(
                 "message": error.message,
             },
         ) from error
+    except IdempotencyConflictError as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
