@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.93.0 (2026-08-29)
+
+### Features
+
+- Add identity-aware rate limiting
+  ([`7493455`](https://github.com/trussiumhq/trussium/commit/7493455b0ec74d9042c9dbd2fa5c6b1feebd7d3e))
+
+
 ## v0.92.0 (2026-08-29)
 
 ### Features
