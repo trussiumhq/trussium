@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.97.0 (2026-08-29)
+
+### Features
+
+- Add bounded audit events
+  ([`3c55753`](https://github.com/trussiumhq/trussium/commit/3c55753f0edbee4184e8dbbd57e8d72dff875b66))
+
+
 ## v0.96.0 (2026-08-29)
 
 ### Features
