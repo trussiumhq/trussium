@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.95.0 (2026-08-29)
+
+### Features
+
+- Enforce identity usage quotas
+  ([`7be1e5b`](https://github.com/trussiumhq/trussium/commit/7be1e5b67dbb222265e0d2fd48a5b03557aa3050))
+
+
 ## v0.94.0 (2026-08-29)
 
 ### Features
