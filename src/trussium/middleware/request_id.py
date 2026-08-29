@@ -19,6 +19,7 @@ from trussium.runtime import (
 REQUEST_ID_HEADER = "X-Request-ID"
 TENANT_ID_HEADER = "X-Tenant-ID"
 PROJECT_ID_HEADER = "X-Project-ID"
+APPLICATION_ID_HEADER = "X-Application-ID"
 
 
 class RequestCorrelationMiddleware:
@@ -55,10 +56,12 @@ class RequestCorrelationMiddleware:
         request_id = self._resolve_request_id(scope)
         tenant_id = self._resolve_tenant_id(scope)
         project_id = self._resolve_identity_id(scope, PROJECT_ID_HEADER)
+        application_id = self._resolve_identity_id(scope, APPLICATION_ID_HEADER)
         context_token = set_request_id(
             request_id,
             tenant_id=tenant_id,
             project_id=project_id,
+            application_id=application_id,
         )
 
         async def send_with_request_id(
