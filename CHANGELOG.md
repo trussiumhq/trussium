@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.91.0 (2026-08-29)
+
+### Features
+
+- Bind API keys to runtime identities
+  ([`a152761`](https://github.com/trussiumhq/trussium/commit/a1527610f54cb7f7a592baacdc0eefb01597c6bd))
+
+
 ## v0.90.0 (2026-08-29)
 
 ### Features
