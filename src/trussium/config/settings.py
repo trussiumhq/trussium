@@ -94,6 +94,7 @@ class APIKeyIdentity(BaseModel):
     tenant_id: str | None = None
     project_id: str | None = None
     application_id: str | None = None
+    capabilities: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def validate_identity(self) -> "APIKeyIdentity":
@@ -109,6 +110,13 @@ class APIKeyIdentity(BaseModel):
                 or any(not (character.isalnum() or character in "-_.:") for character in value)
             ):
                 raise ValueError("Identity claims must use bounded identifier characters")
+        if len(self.capabilities) > 32:
+            raise ValueError("At most 32 capabilities may be bound to one API key")
+        pattern = re.compile(r"[a-z][a-z0-9_.:-]{0,63}")
+        if any(pattern.fullmatch(capability) is None for capability in self.capabilities):
+            raise ValueError("Bound capabilities must use lowercase identifier names")
+        if len(set(self.capabilities)) != len(self.capabilities):
+            raise ValueError("Bound capabilities must be unique")
         return self
 
 

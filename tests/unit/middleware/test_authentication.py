@@ -92,3 +92,42 @@ def test_identity_binding_overrides_untrusted_context() -> None:
     assert messages[0]["status"] == 200
     assert context.tenant_id == "tenant-1"
     assert context.project_id == "project-1"
+
+
+def test_identity_binding_denies_unlisted_capability() -> None:
+    messages = asyncio.run(
+        _call_with_binding(
+            path="/v1/embeddings",
+            capabilities=("chat",),
+        )
+    )
+    assert messages[0]["status"] == 403
+
+
+async def _call_with_binding(*, path: str, capabilities: tuple[str, ...]) -> list[Message]:
+    messages: list[Message] = []
+    scope: Scope = {
+        "type": "http",
+        "path": path,
+        "method": "GET",
+        "headers": [(b"authorization", b"Bearer bound-key")],
+    }
+
+    async def receive() -> Message:
+        return {"type": "http.request", "body": b"", "more_body": False}
+
+    async def send(message: Message) -> None:
+        messages.append(message)
+
+    await APIKeyAuthenticationMiddleware(
+        _app,
+        (),
+        (
+            APIKeyIdentity(
+                key=SecretStr("bound-key"),
+                tenant_id="tenant-1",
+                capabilities=capabilities,
+            ),
+        ),
+    )(scope, receive, send)
+    return messages
