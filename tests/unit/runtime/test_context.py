@@ -113,6 +113,15 @@ def test_set_request_id_accepts_project_id() -> None:
         reset_request_id(token)
 
 
+def test_set_request_id_accepts_application_id() -> None:
+    """Request context should carry an optional application identifier."""
+    token = set_request_id("request-123", application_id="application-123")
+    try:
+        assert get_execution_context().application_id == "application-123"
+    finally:
+        reset_request_id(token)
+
+
 def test_set_request_id_preserves_bound_metadata() -> None:
     """Setting a request ID should retain metadata from the parent context."""
     with bind_execution_context(

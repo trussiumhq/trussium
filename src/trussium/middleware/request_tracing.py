@@ -65,6 +65,9 @@ class RequestTracingMiddleware:
         if execution_context.project_id is not None:
             attributes["trussium.project_id"] = execution_context.project_id
 
+        if execution_context.application_id is not None:
+            attributes["trussium.application_id"] = execution_context.application_id
+
         with self._tracer.start_as_current_span(
             f"HTTP {method}",
             context=parent_context,

@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 
 from trussium.app import create_application
 from trussium.middleware import (
+    APPLICATION_ID_HEADER,
     PROJECT_ID_HEADER,
     REQUEST_ID_HEADER,
     TENANT_ID_HEADER,
@@ -156,6 +157,27 @@ def test_supplied_project_id_is_bound_to_execution_context() -> None:
 
     assert response.status_code == 200
     assert observed == ["project-123"]
+
+
+def test_supplied_application_id_is_bound_to_execution_context() -> None:
+    """Application identity should be available to downstream execution."""
+    observed: list[str | None] = []
+    application = FastAPI()
+
+    @application.get("/")
+    async def endpoint(request: Request) -> Response:
+        del request
+        observed.append(get_execution_context().application_id)
+        return Response("ok")
+
+    application.add_middleware(RequestCorrelationMiddleware)
+    response = TestClient(application).get(
+        "/",
+        headers={APPLICATION_ID_HEADER: "application-123"},
+    )
+
+    assert response.status_code == 200
+    assert observed == ["application-123"]
 
 
 def test_request_id_is_generated_when_missing() -> None:
