@@ -274,7 +274,7 @@ Build the foundational runtime components required by capabilities, providers, A
 
 ## Milestone 4 — Capability Framework
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
 Define provider-neutral contracts through which AI functionality is exposed.
 
@@ -386,19 +386,14 @@ Define provider-neutral contracts through which AI functionality is exposed.
 - Provider-neutral non-streaming translation and `POST /v1/translations`
 - Provider-neutral non-streaming text-to-speech and `POST /v1/audio/speech`
 
-### Remaining
-
-- Additional capability interfaces beyond embeddings, moderation, image generation,
-  audio transcription, and reranking
-
-The capability framework remains in progress until additional capability
-interfaces are delivered.
+The capability framework is complete. Future interfaces may extend the
+provider-neutral contracts through separately reviewed changes.
 
 ---
 
 ## Milestone 5 — Provider Framework
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
 Enable AI providers to implement Trussium capabilities through isolated adapters.
 
@@ -476,7 +471,7 @@ provider-specific runtime paths.
 
 ## Milestone 6 — Chat Runtime and HTTP API
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
 Deliver the first complete, customer-testable Trussium runtime workflow.
 
@@ -565,10 +560,7 @@ Deliver the first complete, customer-testable Trussium runtime workflow.
 - Provider-aware response, execution-context, and lifecycle metadata
 - Live self-hosted model compatibility validation
 
-### Remaining
-
-
-This milestone represents Trussium’s first usable vertical slice and should be completed before expanding into several additional model capabilities.
+This milestone represents Trussium’s first usable vertical slice and is complete; additional model capabilities are now layered on the stable API.
 
 ---
 
@@ -778,7 +770,7 @@ Health checks and structured HTTP lifecycle logs have already been delivered as 
 
 ## Milestone 10 — Developer Experience and Ecosystem
 
-**Status:** 🚧 In progress
+**Status:** ✅ Completed
 
 Make Trussium easy to install, integrate, extend, and operate.
 
