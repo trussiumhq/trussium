@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.90.0 (2026-08-29)
+
+### Features
+
+- Propagate application identity context
+  ([`8e9f410`](https://github.com/trussiumhq/trussium/commit/8e9f41092d3846fde24891f7d29711167a0b8ea9))
+
+
 ## v0.89.0 (2026-08-29)
 
 ### Features
