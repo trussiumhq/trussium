@@ -21,6 +21,7 @@ def test_default_settings() -> None:
     assert settings.provider.base_url is None
     assert settings.provider.api_key is None
     assert settings.authentication.api_keys == ()
+    assert settings.authentication.identity_bindings == ()
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
     assert settings.readiness.dependency_checks_enabled is False
@@ -50,6 +51,20 @@ def test_authentication_settings_reject_duplicate_keys(monkeypatch: pytest.Monke
     monkeypatch.setenv("TRUSSIUM_AUTHENTICATION__API_KEYS", '["same", "same"]')
     with pytest.raises(ValidationError):
         Settings()
+
+
+def test_authentication_settings_load_identity_bindings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(
+        "TRUSSIUM_AUTHENTICATION__IDENTITY_BINDINGS",
+        '[{"key":"bound-key","tenant_id":"tenant-1","project_id":"project-1"}]',
+    )
+    settings = Settings()
+    binding = settings.authentication.identity_bindings[0]
+    assert binding.key.get_secret_value() == "bound-key"
+    assert binding.tenant_id == "tenant-1"
+    assert binding.project_id == "project-1"
 
 
 def test_timeout_settings_support_environment_overrides(

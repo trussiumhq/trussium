@@ -653,6 +653,7 @@ Provide the controls required for secure organizational and enterprise use.
 - Optional tenant identity propagation through request context, logs, and traces
 - Optional project identity propagation through request context, logs, and traces
 - Optional application identity propagation through request context, logs, and traces
+- API-key bindings to trusted tenant, project, and application identities
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 

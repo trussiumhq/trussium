@@ -414,6 +414,7 @@ def create_application(
     application.add_middleware(
         APIKeyAuthenticationMiddleware,
         api_keys=resolved_settings.authentication.api_keys,
+        identity_bindings=resolved_settings.authentication.identity_bindings,
     )
 
     if runtime_tracing.enabled:

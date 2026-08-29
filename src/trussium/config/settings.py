@@ -63,6 +63,10 @@ class AuthenticationSettings(BaseModel):
         default=(),
         description=("Optional bearer API keys. When empty, runtime authentication is disabled."),
     )
+    identity_bindings: tuple["APIKeyIdentity", ...] = Field(
+        default=(),
+        description="Optional API-key bindings to trusted tenant, project, and application IDs.",
+    )
 
     @model_validator(mode="after")
     def validate_api_keys(self) -> "AuthenticationSettings":
@@ -73,7 +77,42 @@ class AuthenticationSettings(BaseModel):
             raise ValueError("Runtime API keys must be non-empty and stripped")
         if len(set(values)) != len(values):
             raise ValueError("Runtime API keys must be unique")
+        binding_keys = [binding.key.get_secret_value() for binding in self.identity_bindings]
+        if len(self.identity_bindings) > 32 or len(set(binding_keys)) != len(binding_keys):
+            raise ValueError("API-key identity bindings must be bounded and unique")
+        if set(values).intersection(binding_keys):
+            raise ValueError("API keys cannot be duplicated across authentication modes")
         return self
+
+
+class APIKeyIdentity(BaseModel):
+    """Trusted identity claims associated with one API key."""
+
+    model_config = ConfigDict(frozen=True)
+
+    key: SecretStr
+    tenant_id: str | None = None
+    project_id: str | None = None
+    application_id: str | None = None
+
+    @model_validator(mode="after")
+    def validate_identity(self) -> "APIKeyIdentity":
+        if not self.key.get_secret_value().strip():
+            raise ValueError("API-key identity binding keys must be non-empty")
+        values = (self.tenant_id, self.project_id, self.application_id)
+        if all(value is None for value in values):
+            raise ValueError("API-key identity bindings require at least one identity claim")
+        for value in values:
+            if value is not None and (
+                not value
+                or len(value) > 128
+                or any(not (character.isalnum() or character in "-_.:") for character in value)
+            ):
+                raise ValueError("Identity claims must use bounded identifier characters")
+        return self
+
+
+AuthenticationSettings.model_rebuild()
 
 
 class RerankingSettings(BaseModel):
