@@ -621,7 +621,7 @@ Milestone 7 is complete. Routing is intentionally deterministic, bounded, provid
 
 ## Milestone 8 — Identity, Governance, and Usage Controls
 
-**Status:** 🚧 In progress
+**Status:** ✅ Completed
 
 Provide the controls required for secure organizational and enterprise use.
 
@@ -662,7 +662,7 @@ Provide the controls required for secure organizational and enterprise use.
 - Bounded privacy-safe audit events with request attribution
 - Tenant-aware provider allow-lists with process-owned credential isolation
 
-This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
+This milestone establishes open-source governance primitives. Hosted governance, commercial billing, durable compliance storage, and distributed control-plane enforcement remain outside this repository.
 
 ---
 

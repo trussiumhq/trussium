@@ -280,17 +280,19 @@ The open-source runtime provides:
 - SDKs
 - CLI
 
-Enterprise features remain in separate private repositories.
+Enterprise services remain in separate private repositories. The OSS runtime may provide
+small, process-local primitives (such as identity attribution, quotas, audit snapshots,
+and provider policies), but it does not provide the hosted enterprise service around them.
 
 Examples include:
 
-- Multi-tenancy
+- Hosted multi-tenancy and organization management
 - Organizations
 - RBAC
 - SSO
-- Governance
+- Hosted governance and compliance workflows
 - Billing
-- Analytics
+- Hosted analytics
 
 Enterprise functionality builds upon the open-source runtime without modifying its core architecture.
 
