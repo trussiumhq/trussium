@@ -1,9 +1,12 @@
+from collections.abc import Mapping
+
 import pytest
 
 from trussium.runtime import (
     ExecutionContext,
     UsageMeter,
     UsageQuotaExceededError,
+    UsageSnapshot,
     reset_execution_context,
     set_execution_context,
 )
@@ -48,3 +51,22 @@ def test_usage_meter_enforces_token_quota() -> None:
     meter.record(input_tokens=4, output_tokens=5, total_tokens=9)
     with pytest.raises(UsageQuotaExceededError):
         meter.record(total_tokens=2)
+
+
+def test_usage_exporter_receives_immutable_snapshots_and_failures_are_isolated() -> None:
+    class Exporter:
+        def __init__(self) -> None:
+            self.snapshots: list[Mapping[str, UsageSnapshot]] = []
+
+        def export(self, snapshot: Mapping[str, UsageSnapshot]) -> None:
+            self.snapshots.append(snapshot)
+            if len(self.snapshots) == 2:
+                raise RuntimeError("export unavailable")
+
+    exporter = Exporter()
+    meter = UsageMeter(exporter=exporter)
+    meter.record()
+    meter.record()
+
+    assert len(exporter.snapshots) == 2
+    assert dict(exporter.snapshots[0]) == {"-:-:-": UsageSnapshot(requests=1)}
