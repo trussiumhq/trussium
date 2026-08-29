@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.98.0 (2026-08-29)
+
+### Features
+
+- Add provider policy isolation
+  ([`6e23d8e`](https://github.com/trussiumhq/trussium/commit/6e23d8ec793314229204b30491b4af990a8ee50f))
+
+
 ## v0.97.0 (2026-08-29)
 
 ### Features
