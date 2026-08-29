@@ -26,6 +26,7 @@ from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
 from trussium.middleware import (
     APIKeyAuthenticationMiddleware,
+    AuditMiddleware,
     RateLimitMiddleware,
     RequestCorrelationMiddleware,
     RequestLoggingMiddleware,
@@ -55,6 +56,7 @@ from trussium.providers import (
     RetryPolicy,
 )
 from trussium.runtime import (
+    AuditTrail,
     DependencyHealthCheck,
     DependencyReadiness,
     RuntimeComponentHealthReporter,
@@ -382,6 +384,7 @@ def create_application(
         max_requests=resolved_settings.quota.requests,
         max_tokens=resolved_settings.quota.tokens,
     )
+    application.state.audit_trail = AuditTrail()
     application.state.idempotency_store = IdempotencyStore(
         ttl_seconds=resolved_settings.runtime.idempotency_ttl_seconds,
         max_entries=resolved_settings.runtime.idempotency_max_entries,
@@ -427,6 +430,11 @@ def create_application(
     application.add_middleware(
         UsageQuotaMiddleware,
         usage_meter=application.state.usage_meter,
+    )
+
+    application.add_middleware(
+        AuditMiddleware,
+        audit_trail=application.state.audit_trail,
     )
 
     application.add_middleware(

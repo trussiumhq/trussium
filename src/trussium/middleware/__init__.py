@@ -1,5 +1,6 @@
 """Trussium application middleware."""
 
+from trussium.middleware.audit import AuditMiddleware
 from trussium.middleware.authentication import APIKeyAuthenticationMiddleware
 from trussium.middleware.rate_limit import RateLimitMiddleware
 from trussium.middleware.request_id import (
@@ -24,6 +25,7 @@ __all__ = [
     "REQUEST_ID_HEADER",
     "TENANT_ID_HEADER",
     "APIKeyAuthenticationMiddleware",
+    "AuditMiddleware",
     "RateLimitMiddleware",
     "RequestCorrelationMiddleware",
     "RequestLoggingMiddleware",

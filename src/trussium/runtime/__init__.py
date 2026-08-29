@@ -1,5 +1,6 @@
 """Core runtime utilities."""
 
+from trussium.runtime.audit import AuditEvent, AuditTrail
 from trussium.runtime.context import (
     ExecutionContext,
     bind_execution_context,
@@ -62,6 +63,8 @@ __all__ = [
     "PROVIDER_REQUEST_TIMEOUT_MESSAGE",
     "PROVIDER_STREAM_TIMEOUT_CODE",
     "PROVIDER_STREAM_TIMEOUT_MESSAGE",
+    "AuditEvent",
+    "AuditTrail",
     "DependencyFailureReason",
     "DependencyHealth",
     "DependencyHealthCheck",
