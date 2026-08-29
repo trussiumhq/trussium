@@ -474,6 +474,16 @@ Releases are generated automatically through GitHub Actions.
 
 Version numbers are determined from Conventional Commit messages.
 
+## Release recovery
+
+If semantic release creates a commit or tag but a later publication step fails,
+do not create a second version commit or rebuild the artifact. Inspect the
+existing tag and GitHub release, then rerun only the failed publication job or
+`uv run semantic-release publish --tag v<version>` after validating the
+generated distributions. If version calculation fails before a tag is created,
+fix the underlying CI or configuration issue and rerun the original workflow.
+Keep the release commit and tag as the single source of truth.
+
 ---
 
 # Architecture Decisions
