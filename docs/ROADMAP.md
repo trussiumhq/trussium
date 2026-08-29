@@ -659,6 +659,7 @@ Provide the controls required for secure organizational and enterprise use.
 - Bounded identity-scoped usage metering and normalized token accounting
 - Optional process-local identity-scoped request quotas and token budget enforcement
 - Provider-neutral usage exporter protocol for private and operational integrations
+- Bounded privacy-safe audit events with request attribution
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
