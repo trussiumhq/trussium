@@ -5,6 +5,7 @@ import asyncio
 import pytest
 
 from trussium.providers import Provider, ProviderMetadata, ProviderRegistry, ProviderRouter
+from trussium.runtime import ExecutionContext, reset_execution_context, set_execution_context
 
 
 class StubProvider:
@@ -36,6 +37,20 @@ def test_router_falls_back_to_registry_order_without_priority() -> None:
 
     assert ProviderRouter(registry).select("chat.completions") is first
     assert ProviderRouter(registry).select("embeddings") is None
+
+
+def test_router_filters_providers_by_active_identity_policy() -> None:
+    first = StubProvider("first", ("chat.completions",))
+    second = StubProvider("second", ("chat.completions",))
+    registry = ProviderRegistry()
+    registry.register(first)
+    registry.register(second)
+    registry.seal()
+    token = set_execution_context(ExecutionContext(allowed_providers=("second",)))
+    try:
+        assert ProviderRouter(registry).select("chat.completions") is second
+    finally:
+        reset_execution_context(token)
 
 
 def test_router_requires_sealed_registry_and_unique_priority() -> None:

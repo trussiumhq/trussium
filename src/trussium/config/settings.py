@@ -95,6 +95,7 @@ class APIKeyIdentity(BaseModel):
     project_id: str | None = None
     application_id: str | None = None
     capabilities: tuple[str, ...] = ()
+    allowed_providers: tuple[str, ...] = ()
 
     @model_validator(mode="after")
     def validate_identity(self) -> "APIKeyIdentity":
@@ -117,6 +118,12 @@ class APIKeyIdentity(BaseModel):
             raise ValueError("Bound capabilities must use lowercase identifier names")
         if len(set(self.capabilities)) != len(self.capabilities):
             raise ValueError("Bound capabilities must be unique")
+        if len(self.allowed_providers) > 16:
+            raise ValueError("At most 16 providers may be bound to one API key")
+        if any(pattern.fullmatch(provider) is None for provider in self.allowed_providers):
+            raise ValueError("Allowed providers must use lowercase identifier names")
+        if len(set(self.allowed_providers)) != len(self.allowed_providers):
+            raise ValueError("Allowed providers must be unique")
         return self
 
 

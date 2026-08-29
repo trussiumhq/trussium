@@ -82,6 +82,17 @@ def test_authentication_settings_load_identity_bindings(
     assert binding.capabilities == ("chat",)
 
 
+def test_authentication_settings_load_allowed_provider_policy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv(
+        "TRUSSIUM_AUTHENTICATION__IDENTITY_BINDINGS",
+        '[{"key":"bound-key","tenant_id":"tenant-1","allowed_providers":["ollama"]}]',
+    )
+    settings = Settings()
+    assert settings.authentication.identity_bindings[0].allowed_providers == ("ollama",)
+
+
 def test_timeout_settings_support_environment_overrides(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

@@ -72,6 +72,9 @@ class APIKeyAuthenticationMiddleware:
                         tenant_id=binding.tenant_id if binding is not None else None,
                         project_id=binding.project_id if binding is not None else None,
                         application_id=binding.application_id if binding is not None else None,
+                        allowed_providers=(
+                            binding.allowed_providers if binding is not None else ()
+                        ),
                     )
                 )
                 try:
