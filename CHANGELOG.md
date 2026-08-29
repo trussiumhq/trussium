@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.96.0 (2026-08-29)
+
+### Features
+
+- Add provider-neutral usage export interface
+  ([`a7e161e`](https://github.com/trussiumhq/trussium/commit/a7e161e5a7e4c87afb823f60bafb2cb8279b3798))
+
+
 ## v0.95.0 (2026-08-29)
 
 ### Features
