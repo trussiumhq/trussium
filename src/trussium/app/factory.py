@@ -31,6 +31,7 @@ from trussium.middleware import (
     RequestLoggingMiddleware,
     RequestMetricsMiddleware,
     RequestTracingMiddleware,
+    UsageQuotaMiddleware,
 )
 from trussium.observability import (
     RUNTIME_STARTED,
@@ -377,7 +378,10 @@ def create_application(
         application.state.tool_executor = tool_executor
 
     application.state.settings = resolved_settings
-    application.state.usage_meter = UsageMeter()
+    application.state.usage_meter = UsageMeter(
+        max_requests=resolved_settings.quota.requests,
+        max_tokens=resolved_settings.quota.tokens,
+    )
     application.state.idempotency_store = IdempotencyStore(
         ttl_seconds=resolved_settings.runtime.idempotency_ttl_seconds,
         max_entries=resolved_settings.runtime.idempotency_max_entries,
@@ -418,6 +422,11 @@ def create_application(
         RateLimitMiddleware,
         max_requests=resolved_settings.rate_limit.requests_per_window,
         window_seconds=resolved_settings.rate_limit.window_seconds,
+    )
+
+    application.add_middleware(
+        UsageQuotaMiddleware,
+        usage_meter=application.state.usage_meter,
     )
 
     application.add_middleware(

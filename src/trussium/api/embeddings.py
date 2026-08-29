@@ -16,7 +16,7 @@ from trussium.capabilities.embeddings import (
 from trussium.capabilities.errors import CapabilityExecutionError
 from trussium.capabilities.execution import CapabilityExecutionPipeline
 from trussium.capabilities.registry import CapabilityContractMismatchError, CapabilityNotFoundError
-from trussium.runtime import UsageMeter
+from trussium.runtime import UsageMeter, UsageQuotaExceededError
 
 router = APIRouter(prefix="/v1", tags=["embeddings"])
 
@@ -50,10 +50,16 @@ async def create_embeddings(
 
     usage_meter = getattr(http_request.app.state, "usage_meter", None)
     if isinstance(usage_meter, UsageMeter):
-        usage_meter.record(
-            input_tokens=response.usage.input_tokens,
-            total_tokens=response.usage.total_tokens,
-        )
+        try:
+            usage_meter.record(
+                input_tokens=response.usage.input_tokens,
+                total_tokens=response.usage.total_tokens,
+            )
+        except UsageQuotaExceededError as error:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail={"code": "usage_quota_exceeded", "message": "Usage quota exceeded."},
+            ) from error
 
     return JSONResponse(status_code=status.HTTP_200_OK, content=response.model_dump(mode="json"))
 

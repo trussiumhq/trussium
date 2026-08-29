@@ -52,7 +52,7 @@ from trussium.runtime.timeouts import (
     PROVIDER_STREAM_TIMEOUT_MESSAGE,
     TimeoutChatCapability,
 )
-from trussium.runtime.usage import UsageMeter, UsageSnapshot
+from trussium.runtime.usage import UsageMeter, UsageQuotaExceededError, UsageSnapshot
 
 __all__ = [
     "COMPONENT_HEALTH_CHECK_FAILED",
@@ -88,6 +88,7 @@ __all__ = [
     "TimeoutChatCapability",
     "UnavailableDependencyHealthCheck",
     "UsageMeter",
+    "UsageQuotaExceededError",
     "UsageSnapshot",
     "bind_execution_context",
     "generate_execution_id",
