@@ -123,6 +123,15 @@ class APIKeyIdentity(BaseModel):
 AuthenticationSettings.model_rebuild()
 
 
+class RateLimitSettings(BaseModel):
+    """Process-local fixed-window request limiting configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    requests_per_window: int = Field(default=0, ge=0, le=100_000)
+    window_seconds: FiniteFloat = Field(default=60.0, gt=0.0, le=86_400.0)
+
+
 class RerankingSettings(BaseModel):
     """Dedicated privately hosted reranking provider configuration."""
 
@@ -384,6 +393,7 @@ class Settings(BaseSettings):
     runtime: RuntimeSettings = RuntimeSettings()
     provider: ProviderSettings = ProviderSettings()
     authentication: AuthenticationSettings = AuthenticationSettings()
+    rate_limit: RateLimitSettings = RateLimitSettings()
     reranking: RerankingSettings = RerankingSettings()
     routing: RoutingSettings = RoutingSettings()
     timeouts: TimeoutSettings = TimeoutSettings()

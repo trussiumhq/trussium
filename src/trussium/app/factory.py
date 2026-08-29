@@ -26,6 +26,7 @@ from trussium.capabilities.chat import ChatCapability
 from trussium.config.settings import Settings, get_settings
 from trussium.middleware import (
     APIKeyAuthenticationMiddleware,
+    RateLimitMiddleware,
     RequestCorrelationMiddleware,
     RequestLoggingMiddleware,
     RequestMetricsMiddleware,
@@ -409,6 +410,12 @@ def create_application(
 
     application.add_middleware(
         RequestLoggingMiddleware,
+    )
+
+    application.add_middleware(
+        RateLimitMiddleware,
+        max_requests=resolved_settings.rate_limit.requests_per_window,
+        window_seconds=resolved_settings.rate_limit.window_seconds,
     )
 
     application.add_middleware(

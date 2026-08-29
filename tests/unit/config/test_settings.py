@@ -21,6 +21,8 @@ def test_default_settings() -> None:
     assert settings.provider.base_url is None
     assert settings.provider.api_key is None
     assert settings.authentication.api_keys == ()
+    assert settings.rate_limit.requests_per_window == 0
+    assert settings.rate_limit.window_seconds == 60.0
     assert settings.authentication.identity_bindings == ()
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0
@@ -45,6 +47,16 @@ def test_authentication_settings_support_bounded_secret_keys(
         "key-one",
         "key-two",
     ]
+
+
+def test_rate_limit_settings_support_environment_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("TRUSSIUM_RATE_LIMIT__REQUESTS_PER_WINDOW", "25")
+    monkeypatch.setenv("TRUSSIUM_RATE_LIMIT__WINDOW_SECONDS", "30")
+    settings = Settings()
+    assert settings.rate_limit.requests_per_window == 25
+    assert settings.rate_limit.window_seconds == 30.0
 
 
 def test_authentication_settings_reject_duplicate_keys(monkeypatch: pytest.MonkeyPatch) -> None:
