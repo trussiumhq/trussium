@@ -70,7 +70,7 @@ Establish the project’s vision, architecture, documentation, and contribution 
 
 ## Milestone 2 — Engineering Platform
 
-**Status:** 🚧 In Progress
+**Status:** ✅ Completed
 
 Establish a dependable engineering workflow for local development, continuous integration, security, and releases.
 
@@ -108,16 +108,12 @@ Establish a dependable engineering workflow for local development, continuous in
 - Wheel and source-distribution assets attached to GitHub releases
 - Dedicated package build and installation CI stage
 - Dedicated Kubernetes render and real-cluster smoke-test CI stage
+- CodeQL Python coverage workflow on pull requests, main pushes, and weekly schedule
+- Locked dependency vulnerability scanning with `pip-audit`
+- Pull-request, main, and scheduled secret scanning with Gitleaks
+- Release recovery procedures for version, tag, asset, and publication failures
 
-### Remaining
-
-- Verify complete CodeQL coverage
-- Verify dependency vulnerability scanning
-- Verify secret-scanning configuration
-- Verify release automation across supported release scenarios
-- Document release recovery procedures
-
-This milestone can be marked completed once every listed automation is active, verified, and documented in the repository.
+Milestone 2 is complete: the listed automation is active, verified, and documented in the repository.
 
 ---
 
