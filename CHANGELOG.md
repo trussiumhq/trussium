@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.92.0 (2026-08-29)
+
+### Features
+
+- Enforce capability authorization
+  ([`b94ef58`](https://github.com/trussiumhq/trussium/commit/b94ef587d5d1496d86bc895d178469bddcd7752b))
+
+
 ## v0.91.0 (2026-08-29)
 
 ### Features
