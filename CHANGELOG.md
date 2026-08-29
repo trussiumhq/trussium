@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.89.0 (2026-08-29)
+
+### Features
+
+- Propagate project identity context
+  ([`467cce6`](https://github.com/trussiumhq/trussium/commit/467cce665438cae294426338a582fa3e1c22e384))
+
+
 ## v0.88.0 (2026-08-28)
 
 ### Features
