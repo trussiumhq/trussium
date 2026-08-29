@@ -16,6 +16,7 @@ from trussium.middleware.request_metrics import (
     RequestMetricsMiddleware,
 )
 from trussium.middleware.request_tracing import RequestTracingMiddleware
+from trussium.middleware.usage_quota import UsageQuotaMiddleware
 
 __all__ = [
     "APPLICATION_ID_HEADER",
@@ -28,4 +29,5 @@ __all__ = [
     "RequestLoggingMiddleware",
     "RequestMetricsMiddleware",
     "RequestTracingMiddleware",
+    "UsageQuotaMiddleware",
 ]

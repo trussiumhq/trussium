@@ -132,6 +132,15 @@ class RateLimitSettings(BaseModel):
     window_seconds: FiniteFloat = Field(default=60.0, gt=0.0, le=86_400.0)
 
 
+class UsageQuotaSettings(BaseModel):
+    """Process-local identity-scoped usage quota configuration."""
+
+    model_config = ConfigDict(frozen=True)
+
+    requests: int = Field(default=0, ge=0, le=10_000_000)
+    tokens: int = Field(default=0, ge=0, le=10_000_000_000)
+
+
 class RerankingSettings(BaseModel):
     """Dedicated privately hosted reranking provider configuration."""
 
@@ -394,6 +403,7 @@ class Settings(BaseSettings):
     provider: ProviderSettings = ProviderSettings()
     authentication: AuthenticationSettings = AuthenticationSettings()
     rate_limit: RateLimitSettings = RateLimitSettings()
+    quota: UsageQuotaSettings = UsageQuotaSettings()
     reranking: RerankingSettings = RerankingSettings()
     routing: RoutingSettings = RoutingSettings()
     timeouts: TimeoutSettings = TimeoutSettings()

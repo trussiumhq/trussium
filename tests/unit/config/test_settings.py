@@ -23,6 +23,8 @@ def test_default_settings() -> None:
     assert settings.authentication.api_keys == ()
     assert settings.rate_limit.requests_per_window == 0
     assert settings.rate_limit.window_seconds == 60.0
+    assert settings.quota.requests == 0
+    assert settings.quota.tokens == 0
     assert settings.authentication.identity_bindings == ()
     assert settings.timeouts.provider_request_seconds == 60.0
     assert settings.timeouts.stream_idle_seconds == 30.0

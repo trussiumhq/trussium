@@ -1,6 +1,9 @@
+import pytest
+
 from trussium.runtime import (
     ExecutionContext,
     UsageMeter,
+    UsageQuotaExceededError,
     reset_execution_context,
     set_execution_context,
 )
@@ -38,3 +41,10 @@ def test_usage_meter_bounds_identity_cardinality() -> None:
         reset_execution_context(token)
 
     assert set(meter.snapshot()) == {"tenant-1:-:-"}
+
+
+def test_usage_meter_enforces_token_quota() -> None:
+    meter = UsageMeter(max_tokens=10)
+    meter.record(input_tokens=4, output_tokens=5, total_tokens=9)
+    with pytest.raises(UsageQuotaExceededError):
+        meter.record(total_tokens=2)

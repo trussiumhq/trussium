@@ -26,7 +26,7 @@ from trussium.capabilities.registry import (
 )
 from trussium.config import resolve_model_alias
 from trussium.providers import Provider, ProviderRouter
-from trussium.runtime import UsageMeter
+from trussium.runtime import UsageMeter, UsageQuotaExceededError
 from trussium.runtime.idempotency import IdempotencyConflictError, IdempotencyStore
 
 router = APIRouter(
@@ -171,11 +171,17 @@ async def create_chat_completion(
 
     usage_meter = getattr(http_request.app.state, "usage_meter", None)
     if isinstance(usage_meter, UsageMeter):
-        usage_meter.record(
-            input_tokens=completion.usage.input_tokens,
-            output_tokens=completion.usage.output_tokens,
-            total_tokens=completion.usage.total_tokens,
-        )
+        try:
+            usage_meter.record(
+                input_tokens=completion.usage.input_tokens,
+                output_tokens=completion.usage.output_tokens,
+                total_tokens=completion.usage.total_tokens,
+            )
+        except UsageQuotaExceededError as error:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail={"code": "usage_quota_exceeded", "message": "Usage quota exceeded."},
+            ) from error
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,
