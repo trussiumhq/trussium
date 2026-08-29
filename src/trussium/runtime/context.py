@@ -17,6 +17,7 @@ class ExecutionContext:
     provider: str | None = None
     model: str | None = None
     tenant_id: str | None = None
+    project_id: str | None = None
 
 
 _execution_context: ContextVar[ExecutionContext | None] = ContextVar(
@@ -83,6 +84,7 @@ def set_request_id(
     *,
     execution_id: str | None = None,
     tenant_id: str | None = None,
+    project_id: str | None = None,
 ) -> Token[ExecutionContext | None]:
     """Set request-level runtime context.
 
@@ -101,6 +103,7 @@ def set_request_id(
         request_id=request_id,
         execution_id=execution_id or generate_execution_id(),
         tenant_id=tenant_id if tenant_id is not None else current_context.tenant_id,
+        project_id=project_id if project_id is not None else current_context.project_id,
     )
 
     return set_execution_context(context)
@@ -125,6 +128,7 @@ def bind_execution_context(
     model: str | None = None,
     execution_id: str | None = None,
     tenant_id: str | None = None,
+    project_id: str | None = None,
 ) -> Iterator[ExecutionContext]:
     """Temporarily enrich the active execution context.
 
@@ -146,6 +150,7 @@ def bind_execution_context(
         provider=(provider if provider is not None else current_context.provider),
         model=(model if model is not None else current_context.model),
         tenant_id=(tenant_id if tenant_id is not None else current_context.tenant_id),
+        project_id=(project_id if project_id is not None else current_context.project_id),
     )
 
     token = set_execution_context(bound_context)

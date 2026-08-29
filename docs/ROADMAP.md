@@ -651,6 +651,7 @@ Provide the controls required for secure organizational and enterprise use.
 - Public health, readiness, metrics, and API documentation endpoints for operations
 - Secret-safe immutable authentication settings and deployment documentation
 - Optional tenant identity propagation through request context, logs, and traces
+- Optional project identity propagation through request context, logs, and traces
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
