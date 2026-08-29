@@ -10,6 +10,7 @@ from trussium.providers.circuit_breaker import CircuitBreaker
 from trussium.providers.contracts import Provider, validate_provider_name
 from trussium.providers.health import ProviderHealthReporter, ProviderHealthStatus
 from trussium.providers.registry import ProviderRegistry
+from trussium.runtime import get_execution_context
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +60,8 @@ class ProviderRouter:
         """Return the highest-priority provider advertising a capability."""
         candidates = self._priority or self._registry.names
         for name in candidates:
+            if not self._provider_allowed(name):
+                continue
             provider = self._registry.get(name)
             if provider is not None and capability in provider.metadata.capabilities:
                 return provider
@@ -70,10 +73,16 @@ class ProviderRouter:
         return tuple(
             provider
             for name in names
+            if self._provider_allowed(name)
             if (provider := self._registry.get(name)) is not None
             and capability in provider.metadata.capabilities
             and (self._circuit_breaker is None or self._circuit_breaker.allow(name))
         )
+
+    @staticmethod
+    def _provider_allowed(name: str) -> bool:
+        allowed = get_execution_context().allowed_providers
+        return not allowed or name in allowed
 
     async def execute_with_fallback(
         self,

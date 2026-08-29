@@ -19,6 +19,7 @@ class ExecutionContext:
     tenant_id: str | None = None
     project_id: str | None = None
     application_id: str | None = None
+    allowed_providers: tuple[str, ...] = ()
 
 
 _execution_context: ContextVar[ExecutionContext | None] = ContextVar(
