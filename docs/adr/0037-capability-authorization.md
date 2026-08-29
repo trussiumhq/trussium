@@ -16,4 +16,4 @@ Add an optional bounded `capabilities` allow-list to each API-key identity bindi
 
 - Operators can apply simple capability-level least privilege without provider coupling.
 - Authorization failures have a stable response and do not disclose policy details or credentials.
-- Roles, dynamic policy stores, tenant/project relationship checks, quotas, and audit persistence remain future work.
+- Roles, dynamic policy stores, tenant/project relationship checks, and audit persistence remain outside this local runtime policy. Quotas, token budgets, provider allow-lists, and bounded audit snapshots are now separate completed controls.
