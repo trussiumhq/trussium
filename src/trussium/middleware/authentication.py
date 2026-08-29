@@ -48,6 +48,19 @@ class APIKeyAuthenticationMiddleware:
         if scheme.lower() == "bearer" and credential:
             binding = self._matching_binding(credential)
             if binding is not None or self._matches(credential):
+                capability = self._capability_from_path(str(scope.get("path", "")))
+                if (
+                    binding is not None
+                    and binding.capabilities
+                    and capability not in binding.capabilities
+                ):
+                    await self._send_error(
+                        send,
+                        status=403,
+                        code="authorization_denied",
+                        message="The authenticated identity is not authorized for this capability.",
+                    )
+                    return
                 context = get_execution_context()
                 token = set_execution_context(
                     ExecutionContext(
@@ -67,11 +80,26 @@ class APIKeyAuthenticationMiddleware:
                     reset_execution_context(token)
                 return
 
+        await self._send_error(
+            send,
+            status=401,
+            code="authentication_required",
+            message="A valid API key is required.",
+        )
+
+    @staticmethod
+    async def _send_error(
+        send: Send,
+        *,
+        status: int,
+        code: str,
+        message: str,
+    ) -> None:
         body = json.dumps(
             {
                 "detail": {
-                    "code": "authentication_required",
-                    "message": "A valid API key is required.",
+                    "code": code,
+                    "message": message,
                 }
             },
             separators=(",", ":"),
@@ -81,7 +109,7 @@ class APIKeyAuthenticationMiddleware:
             (b"content-length", str(len(body)).encode()),
             (b"www-authenticate", b"Bearer"),
         ]
-        await send({"type": "http.response.start", "status": 401, "headers": headers})
+        await send({"type": "http.response.start", "status": status, "headers": headers})
         await send({"type": "http.response.body", "body": body})
 
     def _matches(self, credential: str) -> bool:
@@ -92,3 +120,8 @@ class APIKeyAuthenticationMiddleware:
             if hmac.compare_digest(credential, key):
                 return binding
         return None
+
+    @staticmethod
+    def _capability_from_path(path: str) -> str:
+        """Resolve the stable capability segment from a versioned API path."""
+        return path.removeprefix("/v1/").split("/", 1)[0]

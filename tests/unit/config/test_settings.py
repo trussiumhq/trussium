@@ -58,13 +58,14 @@ def test_authentication_settings_load_identity_bindings(
 ) -> None:
     monkeypatch.setenv(
         "TRUSSIUM_AUTHENTICATION__IDENTITY_BINDINGS",
-        '[{"key":"bound-key","tenant_id":"tenant-1","project_id":"project-1"}]',
+        '[{"key":"bound-key","tenant_id":"tenant-1","project_id":"project-1","capabilities":["chat"]}]',
     )
     settings = Settings()
     binding = settings.authentication.identity_bindings[0]
     assert binding.key.get_secret_value() == "bound-key"
     assert binding.tenant_id == "tenant-1"
     assert binding.project_id == "project-1"
+    assert binding.capabilities == ("chat",)
 
 
 def test_timeout_settings_support_environment_overrides(
