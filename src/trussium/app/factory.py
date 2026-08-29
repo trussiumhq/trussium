@@ -60,6 +60,7 @@ from trussium.runtime import (
     RuntimeService,
     RuntimeServiceLifecycle,
     RuntimeServiceRegistry,
+    UsageMeter,
 )
 from trussium.runtime.idempotency import IdempotencyStore
 from trussium.tools import ToolExecutor
@@ -376,6 +377,7 @@ def create_application(
         application.state.tool_executor = tool_executor
 
     application.state.settings = resolved_settings
+    application.state.usage_meter = UsageMeter()
     application.state.idempotency_store = IdempotencyStore(
         ttl_seconds=resolved_settings.runtime.idempotency_ttl_seconds,
         max_entries=resolved_settings.runtime.idempotency_max_entries,

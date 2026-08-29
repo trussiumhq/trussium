@@ -26,6 +26,7 @@ from trussium.capabilities.registry import (
 )
 from trussium.config import resolve_model_alias
 from trussium.providers import Provider, ProviderRouter
+from trussium.runtime import UsageMeter
 from trussium.runtime.idempotency import IdempotencyConflictError, IdempotencyStore
 
 router = APIRouter(
@@ -109,6 +110,10 @@ async def create_chat_completion(
         except CapabilityNotFoundError as error:
             raise _chat_capability_unavailable() from error
 
+        usage_meter = getattr(http_request.app.state, "usage_meter", None)
+        if isinstance(usage_meter, UsageMeter):
+            usage_meter.record()
+
         return ClosableStreamingResponse(
             content=stream_encoded_chat_events(events),
             media_type="text/event-stream",
@@ -163,6 +168,14 @@ async def create_chat_completion(
         ) from error
     except IdempotencyConflictError as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
+
+    usage_meter = getattr(http_request.app.state, "usage_meter", None)
+    if isinstance(usage_meter, UsageMeter):
+        usage_meter.record(
+            input_tokens=completion.usage.input_tokens,
+            output_tokens=completion.usage.output_tokens,
+            total_tokens=completion.usage.total_tokens,
+        )
 
     return JSONResponse(
         status_code=status.HTTP_200_OK,

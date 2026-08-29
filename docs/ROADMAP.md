@@ -656,6 +656,7 @@ Provide the controls required for secure organizational and enterprise use.
 - API-key bindings to trusted tenant, project, and application identities
 - Bounded capability allow-lists for authenticated API-key identities
 - Optional identity-aware process-local rate limiting with `429` retry guidance
+- Bounded identity-scoped usage metering and normalized token accounting
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 

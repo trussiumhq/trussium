@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 
 from trussium.api.dependencies import get_capability_execution_pipeline
@@ -16,6 +16,7 @@ from trussium.capabilities.embeddings import (
 from trussium.capabilities.errors import CapabilityExecutionError
 from trussium.capabilities.execution import CapabilityExecutionPipeline
 from trussium.capabilities.registry import CapabilityContractMismatchError, CapabilityNotFoundError
+from trussium.runtime import UsageMeter
 
 router = APIRouter(prefix="/v1", tags=["embeddings"])
 
@@ -23,6 +24,7 @@ router = APIRouter(prefix="/v1", tags=["embeddings"])
 @router.post("/embeddings", response_model=EmbeddingsResponse, status_code=status.HTTP_200_OK)
 async def create_embeddings(
     request: EmbeddingsRequest,
+    http_request: Request,
     pipeline: Annotated[CapabilityExecutionPipeline, Depends(get_capability_execution_pipeline)],
 ) -> JSONResponse:
     """Create normalized text embeddings."""
@@ -45,6 +47,13 @@ async def create_embeddings(
             status_code=capability_error_status_code(error.category),
             detail={"code": error.code, "message": error.message},
         ) from error
+
+    usage_meter = getattr(http_request.app.state, "usage_meter", None)
+    if isinstance(usage_meter, UsageMeter):
+        usage_meter.record(
+            input_tokens=response.usage.input_tokens,
+            total_tokens=response.usage.total_tokens,
+        )
 
     return JSONResponse(status_code=status.HTTP_200_OK, content=response.model_dump(mode="json"))
 
