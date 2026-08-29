@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.94.0 (2026-08-29)
+
+### Features
+
+- Add usage metering and token accounting
+  ([`6c127d2`](https://github.com/trussiumhq/trussium/commit/6c127d2503ca5461728228dd8143aabf736ab0e9))
+
+
 ## v0.93.0 (2026-08-29)
 
 ### Features
