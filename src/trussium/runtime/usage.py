@@ -1,6 +1,10 @@
 """Bounded process-local usage metering and token accounting."""
 
+from collections.abc import Mapping
+from contextlib import suppress
 from dataclasses import dataclass
+from types import MappingProxyType
+from typing import Protocol
 
 from trussium.runtime.context import get_execution_context
 
@@ -19,6 +23,13 @@ class UsageQuotaExceededError(Exception):
     """Raised when an identity would exceed its configured usage quota."""
 
 
+class UsageExporter(Protocol):
+    """Provider-neutral sink for bounded usage snapshots."""
+
+    def export(self, snapshot: Mapping[str, UsageSnapshot]) -> None:
+        """Consume one immutable usage snapshot."""
+
+
 class UsageMeter:
     """Keep bounded process-local request and token aggregates."""
 
@@ -28,10 +39,12 @@ class UsageMeter:
         max_identities: int = 10_000,
         max_requests: int = 0,
         max_tokens: int = 0,
+        exporter: UsageExporter | None = None,
     ) -> None:
         self._max_identities = max_identities
         self._max_requests = max_requests
         self._max_tokens = max_tokens
+        self._exporter = exporter
         self._usage: dict[str, UsageSnapshot] = {}
 
     def request_allowed(self) -> bool:
@@ -61,6 +74,11 @@ class UsageMeter:
             output_tokens=previous.output_tokens + output_tokens,
             total_tokens=previous.total_tokens + total_tokens,
         )
+        if self._exporter is not None:
+            with suppress(Exception):
+                self._exporter.export(MappingProxyType(dict(self._usage)))
+                # Export integrations are operationally optional and must not
+                # affect provider execution or request completion.
 
     def snapshot(self) -> dict[str, UsageSnapshot]:
         """Return a copy of all bounded usage aggregates."""

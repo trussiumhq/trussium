@@ -658,6 +658,7 @@ Provide the controls required for secure organizational and enterprise use.
 - Optional identity-aware process-local rate limiting with `429` retry guidance
 - Bounded identity-scoped usage metering and normalized token accounting
 - Optional process-local identity-scoped request quotas and token budget enforcement
+- Provider-neutral usage exporter protocol for private and operational integrations
 
 This milestone is required before positioning Trussium as a production governance or multi-tenant AI platform.
 
