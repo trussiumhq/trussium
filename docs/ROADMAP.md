@@ -944,6 +944,9 @@ Future release improvements should include:
 
 Public interface stability should be clearly documented before the first stable release.
 
+See the [Trussium 1.0 Stability Contract](RELEASE_1_0_CONTRACT.md) for the
+reviewed public compatibility boundary and change requirements.
+
 ### 1.0 release-readiness baseline
 
 The current OSS release baseline is reviewed across the independently versioned
