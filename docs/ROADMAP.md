@@ -949,9 +949,9 @@ Public interface stability should be clearly documented before the first stable 
 The current OSS release baseline is reviewed across the independently versioned
 repositories:
 
-- Runtime `v0.98.0` is the validated HTTP and container baseline.
-- Helm chart `v0.10.0` targets runtime `v0.98.0`.
-- Trussium Operator `v0.13.1` is validated against runtime `v0.98.0` and
+- Runtime `v0.98.1` is the validated HTTP and container baseline.
+- Helm chart `v0.10.0` targets runtime `v0.98.1`.
+- Trussium Operator `v0.13.2` is validated against runtime `v0.98.1` and
   chart `v0.10.0`.
 - SDKs and provider adapters remain separately versioned and released.
 - The deferred Agent Runtime milestone is outside the first stable OSS release
