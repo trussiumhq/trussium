@@ -6,7 +6,7 @@ This roadmap outlines the long-term direction of Trussium.
 
 It communicates the major product and engineering milestones guiding the project. Individual implementation tasks, bugs, and feature requests are tracked separately through GitHub Issues and Projects.
 
-The roadmap is intentionally high level and may evolve as the project, community, and commercial use cases mature.
+The roadmap is intentionally high level and may evolve as the project and community mature.
 
 ---
 
@@ -650,7 +650,9 @@ Provide the controls required for secure organizational and enterprise use.
 - Bounded privacy-safe audit events with request attribution
 - Tenant-aware provider allow-lists with process-owned credential isolation
 
-This milestone establishes open-source governance primitives. Hosted governance, commercial billing, durable compliance storage, and distributed control-plane enforcement remain outside this repository.
+This milestone establishes open-source governance primitives. Hosted governance,
+durable compliance storage, and distributed control-plane enforcement remain
+outside this repository.
 
 ---
 
@@ -952,8 +954,8 @@ repositories:
 - Trussium Operator `v0.13.1` is validated against runtime `v0.98.0` and
   chart `v0.10.0`.
 - SDKs and provider adapters remain separately versioned and released.
-- Commercialization work and the deferred Agent Runtime milestone are outside
-  the first stable OSS release scope.
+- The deferred Agent Runtime milestone is outside the first stable OSS release
+  scope.
 
 The first major release requires a reviewed breaking-change report, explicit
 version decisions for each selected repository, passing repository CI, and
