@@ -29,4 +29,8 @@ Before a breaking change is accepted, its proposal must include affected
 contracts, migration guidance, compatibility tests, rollback steps, and release
 notes. Undocumented breaking changes are not permitted in the stable line.
 
+The runtime release configuration permits a reviewed breaking change to advance
+the 0.x line to `1.0.0`; this setting does not publish or tag a release by
+itself.
+
 The Agent Runtime milestone is deferred and is not part of this contract.
