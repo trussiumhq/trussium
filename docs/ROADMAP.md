@@ -942,6 +942,24 @@ Future release improvements should include:
 
 Public interface stability should be clearly documented before the first stable release.
 
+### 1.0 release-readiness baseline
+
+The current OSS release baseline is reviewed across the independently versioned
+repositories:
+
+- Runtime `v0.98.0` is the validated HTTP and container baseline.
+- Helm chart `v0.10.0` targets runtime `v0.98.0`.
+- Trussium Operator `v0.13.1` is validated against runtime `v0.98.0` and
+  chart `v0.10.0`.
+- SDKs and provider adapters remain separately versioned and released.
+- Commercialization work and the deferred Agent Runtime milestone are outside
+  the first stable OSS release scope.
+
+The first major release requires a reviewed breaking-change report, explicit
+version decisions for each selected repository, passing repository CI, and
+post-release verification of GitHub, OCI, and package artifacts. No repository
+should be tagged or published until that checklist is complete.
+
 ---
 
 ## Immediate Priorities
