@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v0.98.1 (2026-08-30)
+
+### Bug Fixes
+
+- Remediate dependency vulnerabilities
+  ([`dc08a2c`](https://github.com/trussiumhq/trussium/commit/dc08a2c5ba47583a22b2c6e1905314a9ab11117f))
+
+### Continuous Integration
+
+- Complete security and release verification
+  ([`a9adfef`](https://github.com/trussiumhq/trussium/commit/a9adfefdcb9068e0cb15640e2906203a34283c69))
+
+### Documentation
+
+- Close identity governance milestone
+  ([`86096ec`](https://github.com/trussiumhq/trussium/commit/86096ec708b3f3dcf2514ec238e6bc1601ef05a2))
+
+- Reconcile completed milestones
+  ([`748ac4e`](https://github.com/trussiumhq/trussium/commit/748ac4e70cbf11e4870532f71eb67bdaab57761d))
+
+- Synchronize governance references
+  ([`9f7acd1`](https://github.com/trussiumhq/trussium/commit/9f7acd185139d85864d8cdda2c5410dfbe876fac))
+
+
 ## v0.98.0 (2026-08-29)
 
 ### Features
