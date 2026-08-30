@@ -36,10 +36,12 @@ from trussium_sdk import TrussiumClient
 with TrussiumClient("http://127.0.0.1:9000") as client:
     print(client.readiness())
     print(client.capabilities())
-    completion = client.complete({
-        "model": "gpt-4.1-mini",
-        "messages": [{"role": "user", "content": "Hello from Trussium"}],
-    })
+    completion = client.complete(
+        {
+            "model": "gpt-4.1-mini",
+            "messages": [{"role": "user", "content": "Hello from Trussium"}],
+        }
+    )
 ```
 
 Install with `pip install trussium-sdk`; the independent package calls the
