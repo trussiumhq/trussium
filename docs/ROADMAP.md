@@ -947,6 +947,9 @@ Public interface stability should be clearly documented before the first stable 
 See the [Trussium 1.0 Stability Contract](RELEASE_1_0_CONTRACT.md) for the
 reviewed public compatibility boundary and change requirements.
 
+The proposed release set and approval gates are recorded in the
+[1.0.0 Release Candidate manifest](RELEASE_1_0_CANDIDATE.md).
+
 ### 1.0 release-readiness baseline
 
 The current OSS release baseline is reviewed across the independently versioned
