@@ -30,9 +30,7 @@ async def echo(arguments: BaseModel) -> dict[str, object]:
 
 
 app = create_application(
-    tool_executor=ToolExecutor(
-        ToolRegistry((RegisteredTool("echo", EchoArguments, echo),))
-    )
+    tool_executor=ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, echo),)))
 )
 ```
 
