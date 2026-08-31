@@ -25,6 +25,22 @@ def test_tools_are_unavailable_without_application_registration() -> None:
     assert response.json()["detail"]["code"] == "tools_unavailable"
 
 
+def test_registered_tools_expose_only_safe_ordered_metadata() -> None:
+    executor = ToolExecutor(
+        ToolRegistry(
+            (
+                RegisteredTool(
+                    "echo", EchoArguments, _echo, version="1.2.0", description="Echo a value."
+                ),
+            )
+        )
+    )
+    response = TestClient(create_application(tool_executor=executor)).get("/v1/tools")
+
+    assert response.status_code == 200
+    assert response.json() == [{"name": "echo", "version": "1.2.0", "description": "Echo a value."}]
+
+
 def test_declared_tool_validates_and_executes() -> None:
     executor = ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
     client = TestClient(create_application(tool_executor=executor))

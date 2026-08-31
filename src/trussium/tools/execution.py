@@ -23,6 +23,11 @@ class ToolExecutor:
         self._timeout_seconds = timeout_seconds
         self._logger = get_logger("tools.execution")
 
+    @property
+    def registry(self) -> ToolRegistry:
+        """Return the application-owned tool registry."""
+        return self._registry
+
     async def execute(self, invocation: ToolInvocation) -> ToolExecutionResult:
         tool = self._registry.require(invocation.name)
         with bind_execution_context(capability="tools.executions"):

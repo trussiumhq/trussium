@@ -1,6 +1,6 @@
 """Application-owned allowlist for controlled in-process tools."""
 
-from trussium.tools.contracts import RegisteredTool
+from trussium.tools.contracts import RegisteredTool, ToolMetadata
 
 
 class ToolNotFoundError(ValueError):
@@ -17,6 +17,10 @@ class ToolRegistry:
                 raise ValueError(f"Tool '{tool.name}' is registered more than once.")
             registered_tools[tool.name] = tool
         self._tools = registered_tools
+
+    def discover(self) -> tuple[ToolMetadata, ...]:
+        """Return an immutable insertion-ordered discovery snapshot."""
+        return tuple(tool.metadata() for tool in self._tools.values())
 
     def require(self, name: str) -> RegisteredTool:
         try:

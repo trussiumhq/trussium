@@ -24,8 +24,23 @@ class ToolExecutionResult(BaseModel):
 ToolHandler = Callable[[BaseModel], Awaitable[dict[str, Any]]]
 
 
+class ToolMetadata(BaseModel):
+    """Bounded informational metadata safe for discovery responses."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: str = Field(min_length=1)
+    version: str = Field(default="1.0.0", min_length=1, max_length=32)
+    description: str = Field(default="", max_length=256)
+
+
 @dataclass(frozen=True, slots=True)
 class RegisteredTool:
     name: str
     arguments_model: type[BaseModel]
     handler: ToolHandler
+    version: str = "1.0.0"
+    description: str = ""
+
+    def metadata(self) -> ToolMetadata:
+        return ToolMetadata(name=self.name, version=self.version, description=self.description)

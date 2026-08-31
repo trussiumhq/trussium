@@ -5,7 +5,8 @@ deferred Agent Runtime described in [ADR 0044](adr/0044-agent-runtime-boundary.m
 
 Trussium already provides the first controlled tool-execution foundation:
 `ToolRegistry`, immutable tool contracts, a bounded `ToolExecutor`, structured
-lifecycle events, and `POST /v1/tools/executions`. This document describes the
+lifecycle events, and `POST /v1/tools/executions`. Registered tools expose
+bounded version and description metadata through `GET /v1/tools`. This document describes the
 contract boundary and the additional workflow/agent orchestration that remains
 deferred.
 
