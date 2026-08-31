@@ -34,8 +34,12 @@ The independently versioned [`trussium` Helm chart](https://github.com/trussiumh
 ---
 
 The capability-health reporting work described in the historical Current Focus
-summary is complete. The next priority is selecting a remaining capability or
-provider contract with a concrete compatibility and operational requirement.
+summary is complete. The documented capability catalog is also complete,
+including embeddings, moderation, image generation, transcription, reranking,
+translation, text-to-speech, video jobs, and batch inference. There is no
+remaining capability implementation gap in the current roadmap. The next
+potential milestone is Agent Runtime, which remains deferred until its
+workflow, tool-execution, policy, and audit contracts are explicitly planned.
 
 ## Status Definitions
 
