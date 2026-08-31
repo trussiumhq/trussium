@@ -253,48 +253,25 @@ The Trussium project consists of multiple repositories.
 ```text
 Trussium
 │
-├── trussium-runtime
-├── trussium-cli
+├── trussium
+├── trussium-helm
 ├── trussium-operator
+├── trussiumhq.github.io
 ├── trussium-sdk-python
 ├── trussium-sdk-go
 ├── trussium-sdk-typescript
-├── trussium-examples
-├── trussium-docs
-└── trussium-helm
+├── trussium-provider-vllm
+├── trussium-provider-anthropic
+├── trussium-provider-libretranslate
+└── trussium-provider-piper
 ```
 
-Each repository has a clearly defined responsibility.
-
----
-
-# Open Source and Enterprise
-
-The open-source runtime provides:
-
-- Runtime
-- Capability framework
-- Provider framework
-- APIs
-- Kubernetes support
-- SDKs
-- CLI
-
-Enterprise services remain in separate private repositories. The OSS runtime may provide
-small, process-local primitives (such as identity attribution, quotas, audit snapshots,
-and provider policies), but it does not provide the hosted enterprise service around them.
-
-Examples include:
-
-- Hosted multi-tenancy and organization management
-- Organizations
-- RBAC
-- SSO
-- Hosted governance and compliance workflows
-- Billing
-- Hosted analytics
-
-Enterprise functionality builds upon the open-source runtime without modifying its core architecture.
+Each repository has a clearly defined responsibility and independent release
+cadence. The runtime is the core Python platform; Helm and the operator own
+Kubernetes packaging and lifecycle management; the documentation site publishes
+assembled project docs; SDKs provide language-specific clients; and provider
+repositories contain optional adapters that translate external APIs into the
+runtime's provider-neutral contracts.
 
 ---
 
