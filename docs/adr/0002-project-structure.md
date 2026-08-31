@@ -30,19 +30,21 @@ Trussium adopts a multi-repository strategy.
 
 Each major component is maintained in its own repository with independent development, release, and versioning lifecycles.
 
-Initial repositories include:
+The current repository set includes:
 
 | Repository | Responsibility |
 |------------|----------------|
-| trussium-runtime | Core runtime platform |
-| trussium-cli | Command-line interface |
-| trussium-operator | Kubernetes Operator |
+| [trussium](https://github.com/trussiumhq/trussium) | Core runtime platform |
+| [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart distribution |
+| [trussium-operator](https://github.com/trussiumhq/trussium-operator) | Kubernetes operator |
+| [trussiumhq.github.io](https://github.com/trussiumhq/trussiumhq.github.io) | Published documentation site |
 | trussium-sdk-python | Python SDK |
 | trussium-sdk-go | Go SDK |
 | trussium-sdk-typescript | TypeScript SDK |
-| trussium-examples | Example applications |
-| trussium-docs | Documentation site |
-| trussium-helm | Helm charts |
+| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | vLLM provider adapter |
+| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Anthropic provider adapter |
+| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | LibreTranslate provider adapter |
+| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Piper speech provider adapter |
 
 Each repository owns its own codebase, issue tracking, release cadence, and semantic versioning.
 
