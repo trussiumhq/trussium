@@ -853,7 +853,7 @@ slice with contracts, provider adapters, APIs, telemetry, tests, and documentati
 
 ## Milestone 12 — Agent Runtime
 
-**Status:** ⏸ Deferred
+**Status:** 🚧 In Progress (architecture planning)
 
 Extend Trussium beyond model inference into controlled workflow and agent execution.
 
@@ -872,7 +872,9 @@ Extend Trussium beyond model inference into controlled workflow and agent execut
 - Execution limits
 - Agent policy enforcement
 
-Agent functionality should not be prioritized until the underlying runtime, governance, routing, and observability layers are production-ready.
+Architecture planning has started in [ADR 0044](adr/0044-agent-runtime-boundary.md).
+Implementation remains deferred until the tool, workflow, policy, approval,
+limit, cancellation, and audit contracts are reviewed and accepted.
 
 ---
 
