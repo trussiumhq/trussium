@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-08-31)
+
+### Documentation
+
+- Clarify post-capability roadmap ([#320](https://github.com/trussiumhq/trussium/pull/320),
+  [`7d8238a`](https://github.com/trussiumhq/trussium/commit/7d8238a5b6eaa60666503b0d45eab7f67923d3c8))
+
+- Clarify tool runtime foundation ([#326](https://github.com/trussiumhq/trussium/pull/326),
+  [`b555601`](https://github.com/trussiumhq/trussium/commit/b5556011b2328a690b7c6178dcaba507b35c48e7))
+
+- Define agent runtime tool contract ([#324](https://github.com/trussiumhq/trussium/pull/324),
+  [`4775fb2`](https://github.com/trussiumhq/trussium/commit/4775fb229c0e814143948491608c8ff781c302cd))
+
+- Define post-1.0 maintenance priority
+  ([`fd87b67`](https://github.com/trussiumhq/trussium/commit/fd87b676379f54594a8c2faec6e502881588a6f4))
+
+- Propose agent runtime boundary ([#322](https://github.com/trussiumhq/trussium/pull/322),
+  [`df59f4c`](https://github.com/trussiumhq/trussium/commit/df59f4c8b9f379748ee75bce43a71cb7a1e30830))
+
+### Features
+
+- Add tool metadata discovery ([#328](https://github.com/trussiumhq/trussium/pull/328),
+  [`4ef0a48`](https://github.com/trussiumhq/trussium/commit/4ef0a48b142cc4c752c66c42336f3dabdfc9f8f6))
+
+
 ## v1.0.0 (2026-08-31)
 
 ### Chores
