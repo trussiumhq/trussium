@@ -957,8 +957,8 @@ repositories:
 
 - Runtime `v0.98.1` is the validated HTTP and container baseline.
 - Helm chart `v0.10.0` targets runtime `v0.98.1`.
-- Trussium Operator `v0.13.2` is validated against runtime `v0.98.1` and
-  chart `v0.10.0`.
+- Trussium Operator `v1.0.0` is validated against runtime `v1.0.0` and
+  chart `v1.0.0`.
 - SDKs and provider adapters remain separately versioned and released.
 - The deferred Agent Runtime milestone is outside the first stable OSS release
   scope.
@@ -972,14 +972,14 @@ should be tagged or published until that checklist is complete.
 
 ## Immediate Priorities
 
-The next priority is:
+The first post-1.0 priority is maintenance and release health:
 
-1. Add additional capability interfaces beyond embeddings, moderation, image generation,
-   audio transcription, and reranking
+1. Monitor dependency and vulnerability alerts across all public repositories.
+2. Keep release, container, compatibility, and documentation workflows healthy.
+3. Review historical compatibility proposals and track operational fixes.
 
-This priority will extend the established provider-neutral capability boundary.
-Routing, retry, provider registration, model discovery, dynamic plugins, and
-execution gating remain separate milestones.
+Additional capability interfaces and the deferred Agent Runtime remain separate
+future milestones and require their own compatibility and operational reviews.
 
 ---
 
