@@ -56,6 +56,9 @@ Human approval is an explicit asynchronous policy extension. It must have a
 bounded wait, a stable decision, and an auditable outcome; approval is never
 implicit because a tool is registered.
 
+Detailed composition with identity bindings is defined in [Agent Runtime tool
+authorization and policy](AGENT_RUNTIME_POLICY.md).
+
 ## Audit and privacy
 
 The runtime emits bounded structured events for accepted, started, completed,

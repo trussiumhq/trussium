@@ -33,6 +33,8 @@ The initial design requires additional state and policy boundaries, and agent
 features remain opt-in until deterministic limits, cancellation, and audit
 behavior are validated. The initial tool and invocation contract is documented
 in [Agent Runtime tool and invocation contract](../AGENT_RUNTIME.md).
+Tool authorization and approval boundaries are documented in [Agent Runtime
+tool authorization and policy](../AGENT_RUNTIME_POLICY.md).
 
 ## Alternatives Considered
 
