@@ -5,7 +5,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
 
-from trussium.tools import ToolExecutionResult, ToolExecutor, ToolInvocation, ToolNotFoundError
+from trussium.tools import (
+    ToolExecutionResult,
+    ToolExecutor,
+    ToolInvocation,
+    ToolMetadata,
+    ToolNotFoundError,
+)
 
 router = APIRouter(prefix="/v1", tags=["tools"])
 
@@ -18,6 +24,14 @@ def get_tool_executor(request: Request) -> ToolExecutor:
             detail={"code": "tools_unavailable", "message": "No tools are configured."},
         )
     return executor
+
+
+@router.get("/tools", response_model=tuple[ToolMetadata, ...])
+async def list_tools(
+    executor: Annotated[ToolExecutor, Depends(get_tool_executor)],
+) -> tuple[ToolMetadata, ...]:
+    """List safe metadata for explicitly registered tools."""
+    return executor.registry.discover()
 
 
 @router.post("/tools/executions", response_model=ToolExecutionResult)
