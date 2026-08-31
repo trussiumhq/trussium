@@ -2,6 +2,36 @@
 
 <!-- version list -->
 
+## v1.0.0 (2026-08-31)
+
+### Chores
+
+- Enable reviewed major releases
+  ([`7f7191c`](https://github.com/trussiumhq/trussium/commit/7f7191cba4566da42a39539822ba11816ca26746))
+
+- **release**: Prepare 1.0.0
+  ([`2d34899`](https://github.com/trussiumhq/trussium/commit/2d3489965532f42bc28bb0ebe0f1e147441915fa))
+
+### Documentation
+
+- Define 1.0 release readiness baseline
+  ([`286ee43`](https://github.com/trussiumhq/trussium/commit/286ee435dd4dcade44abfafff5ffcf3c7373ed6d))
+
+- Define 1.0 stability contract
+  ([`d15ece8`](https://github.com/trussiumhq/trussium/commit/d15ece840f0c368324ac92464b2da5b481a64122))
+
+- Prepare 1.0 release candidate manifest
+  ([`a6b489c`](https://github.com/trussiumhq/trussium/commit/a6b489c152a8266a24644636d83daae8a13594d1))
+
+- Refresh release baseline versions
+  ([`9e16183`](https://github.com/trussiumhq/trussium/commit/9e16183d856180cf5bf1b3b2c2afd4f07fdb190a))
+
+### Features
+
+- Declare stable 1.0.0 runtime contract
+  ([`fc705b7`](https://github.com/trussiumhq/trussium/commit/fc705b7a6dbaf171c1072f465d58756780c601f6))
+
+
 ## v0.98.1 (2026-08-30)
 
 ### Bug Fixes
