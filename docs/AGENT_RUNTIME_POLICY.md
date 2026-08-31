@@ -35,6 +35,9 @@ adapter must obey the runtime deadline and return a stable decision. External
 policy services, credential stores, and approval UIs remain deployment-owned
 integrations.
 
+The bounded approval request and decision contract is documented in [Agent
+Runtime human-approval contract](AGENT_RUNTIME_APPROVAL.md).
+
 ## Privacy and audit
 
 Policy and audit events include correlation identifiers, identity and tool
