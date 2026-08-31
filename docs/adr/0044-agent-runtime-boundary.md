@@ -31,7 +31,8 @@ Existing capability and provider APIs remain unchanged. Agent workflows can
 reuse execution correlation, lifecycle, error, tracing, and audit contracts.
 The initial design requires additional state and policy boundaries, and agent
 features remain opt-in until deterministic limits, cancellation, and audit
-behavior are validated.
+behavior are validated. The initial tool and invocation contract is documented
+in [Agent Runtime tool and invocation contract](../AGENT_RUNTIME.md).
 
 ## Alternatives Considered
 

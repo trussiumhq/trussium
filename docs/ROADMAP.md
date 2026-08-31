@@ -873,6 +873,8 @@ Extend Trussium beyond model inference into controlled workflow and agent execut
 - Agent policy enforcement
 
 Architecture planning has started in [ADR 0044](adr/0044-agent-runtime-boundary.md).
+The initial tool and invocation contract is captured in
+[Agent Runtime tool and invocation contract](AGENT_RUNTIME.md).
 Implementation remains deferred until the tool, workflow, policy, approval,
 limit, cancellation, and audit contracts are reviewed and accepted.
 
