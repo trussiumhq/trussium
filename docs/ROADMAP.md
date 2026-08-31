@@ -875,6 +875,9 @@ Extend Trussium beyond model inference into controlled workflow and agent execut
 Architecture planning has started in [ADR 0044](adr/0044-agent-runtime-boundary.md).
 The initial tool and invocation contract is captured in
 [Agent Runtime tool and invocation contract](AGENT_RUNTIME.md).
+The controlled tool foundation (`ToolRegistry`, bounded `ToolExecutor`, and
+`POST /v1/tools/executions`) is already delivered; workflow orchestration and
+agent state remain deferred.
 Implementation remains deferred until the tool, workflow, policy, approval,
 limit, cancellation, and audit contracts are reviewed and accepted.
 
