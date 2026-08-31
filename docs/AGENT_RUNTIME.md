@@ -2,7 +2,12 @@
 
 This document defines the first implementation-independent contract for the
 deferred Agent Runtime described in [ADR 0044](adr/0044-agent-runtime-boundary.md).
-It does not add agent execution to the runtime.
+
+Trussium already provides the first controlled tool-execution foundation:
+`ToolRegistry`, immutable tool contracts, a bounded `ToolExecutor`, structured
+lifecycle events, and `POST /v1/tools/executions`. This document describes the
+contract boundary and the additional workflow/agent orchestration that remains
+deferred.
 
 ## Tool registration
 
@@ -66,3 +71,7 @@ provider payloads, and exception text.
 - unbounded retries, recursion, or fan-out;
 - a hosted policy or approval service; and
 - a second execution path that bypasses capability and provider contracts.
+
+Workflow orchestration, multi-step agent state, memory, multi-agent
+communication, and human-approval integrations remain deferred until their
+contracts are separately reviewed.
