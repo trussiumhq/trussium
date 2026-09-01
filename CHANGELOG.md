@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.13.0 (2026-09-01)
+
+### Features
+
+- Add workflow lifecycle metrics ([#372](https://github.com/trussiumhq/trussium/pull/372),
+  [`3fcdf41`](https://github.com/trussiumhq/trussium/commit/3fcdf4160d587af9c13484839683d751c1dffb36))
+
+
 ## v1.12.0 (2026-09-01)
 
 ### Features
