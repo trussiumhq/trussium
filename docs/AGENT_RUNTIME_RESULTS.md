@@ -49,3 +49,7 @@ audit consumers. It contains the event, timestamp, request/execution identity,
 optional status and reason code, and bounded step/group counts. It deliberately
 has no payload fields. Persistence, retention, export, and external audit
 services remain deployment-owned follow-up work.
+
+Applications may inject an asynchronous `WorkflowAuditSink` to receive records.
+The default sink discards them, and sink failures are isolated from workflow
+execution so observability cannot change the execution outcome.
