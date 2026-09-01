@@ -5,7 +5,13 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
 
-from trussium.tools import ToolExecutor, ToolInvocation
+from trussium.tools import (
+    ToolApprovalTimeoutError,
+    ToolAuthorizationError,
+    ToolExecutor,
+    ToolInvocation,
+    ToolNotFoundError,
+)
 
 router = APIRouter(prefix="/v1/mcp", tags=["mcp"])
 
@@ -68,11 +74,35 @@ async def mcp_json_rpc(message: MCPRequest, request: Request) -> dict[str, Any]:
             }
         try:
             result = await executor.execute(ToolInvocation(name=name, arguments=arguments))
-        except Exception as error:
+        except ToolNotFoundError:
             return {
                 "jsonrpc": "2.0",
                 "id": message.id,
-                "error": {"code": -32000, "message": type(error).__name__},
+                "error": {"code": -32004, "message": "Tool not found."},
+            }
+        except ToolAuthorizationError:
+            return {
+                "jsonrpc": "2.0",
+                "id": message.id,
+                "error": {"code": -32003, "message": "Tool authorization denied."},
+            }
+        except ToolApprovalTimeoutError:
+            return {
+                "jsonrpc": "2.0",
+                "id": message.id,
+                "error": {"code": -32002, "message": "Tool approval timed out."},
+            }
+        except TimeoutError:
+            return {
+                "jsonrpc": "2.0",
+                "id": message.id,
+                "error": {"code": -32001, "message": "Tool execution timed out."},
+            }
+        except Exception:
+            return {
+                "jsonrpc": "2.0",
+                "id": message.id,
+                "error": {"code": -32000, "message": "Tool execution failed."},
             }
         return {
             "jsonrpc": "2.0",

@@ -53,6 +53,20 @@ def test_mcp_lists_and_executes_registered_tools() -> None:
     assert called.json()["result"]["content"] == [{"type": "json", "json": {"value": "ok"}}]
 
 
+def test_mcp_returns_stable_errors_for_unknown_methods_and_tools() -> None:
+    executor = ToolExecutor(ToolRegistry())
+    client = TestClient(create_application(tool_executor=executor, mcp_enabled=True))
+
+    method = client.post("/v1/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "resources/list"})
+    tool = client.post(
+        "/v1/mcp",
+        json={"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "shell"}},
+    )
+
+    assert method.json()["error"] == {"code": -32601, "message": "Method not supported."}
+    assert tool.json()["error"] == {"code": -32004, "message": "Tool not found."}
+
+
 def test_registered_tools_expose_only_safe_ordered_metadata() -> None:
     executor = ToolExecutor(
         ToolRegistry(
