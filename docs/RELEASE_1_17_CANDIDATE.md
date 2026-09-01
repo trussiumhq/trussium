@@ -1,7 +1,7 @@
-# Trussium 2.0.0 Release Candidate
+# Trussium 1.17.0 Release Candidate
 
 > **Review artifact — no tags or publication.** This manifest proposes a
-> coordinated major-release baseline for explicit review and approval.
+> coordinated minor-release baseline for explicit review and approval.
 
 This candidate is tracked by issue
 [#393](https://github.com/trussiumhq/trussium/issues/393). It does not create
@@ -11,9 +11,9 @@ tags, publish packages, or authorize a release.
 
 | Repository | Current | Candidate | Compatibility target |
 | --- | --- | --- | --- |
-| `trussium` runtime | `v1.16.0` | `v2.0.0` | `/v1` API and bounded Agent Runtime slice |
-| `trussium-helm` | `v1.0.0` | `v2.0.0` | Runtime `v2.0.0` |
-| `trussium-operator` | `v1.0.0` | `v2.0.0` | Runtime and chart `v2.0.0` |
+| `trussium` runtime | `v1.16.0` | `v1.17.0` | `/v1` API and bounded Agent Runtime slice |
+| `trussium-helm` | `v1.0.0` | `v1.1.0` | Runtime `v1.17.0` |
+| `trussium-operator` | `v1.0.0` | `v1.1.0` | Runtime and chart `v1.1.0` |
 
 SDKs and provider adapters remain independently versioned and optional. They
 are not prerequisites for this coordinated runtime, chart, and operator
@@ -36,8 +36,8 @@ and are not implied by this candidate.
 
 ## Publication order after approval
 
-1. Publish runtime `v2.0.0` and verify package and container artifacts.
-2. Update and publish Helm chart `v2.0.0` against the verified runtime.
-3. Update and publish operator `v2.0.0` against the verified runtime/chart pair.
+1. Publish runtime `v1.17.0` and verify package and container artifacts.
+2. Update and publish Helm chart `v1.1.0` against the verified runtime.
+3. Update and publish operator `v1.1.0` against the verified runtime/chart pair.
 4. Verify release assets, OCI artifacts, package metadata, and compatibility
    documentation in each repository.
