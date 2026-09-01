@@ -23,6 +23,7 @@ are explicitly accepted.
 ### Open implementation gates
 
 - [ ] Approve the first workflow orchestration scope and bounded fan-out model.
+- [ ] Review [Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
 - [ ] Approve concrete policy and approval adapter interfaces.
 - [ ] Define persistence requirements, if any, without making storage mandatory.
 - [ ] Add deterministic workflow and child-cancellation test fixtures.
