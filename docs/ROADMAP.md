@@ -992,7 +992,8 @@ The historical release proposals and approval gates remain recorded in the
 The current OSS release baseline is reviewed across the independently versioned
 repositories:
 
-- Runtime `v1.17.0` is the validated HTTP and container baseline.
+- Runtime `v1.17.1` is the current validated HTTP and container baseline; the
+  Operator compatibility matrix records the tested `v1.17.0` patch line.
 - Helm chart `v0.10.0` targets runtime `v0.98.1`.
 - Trussium Operator `v1.0.0` is validated against runtime `v1.0.0` and
   chart `v1.0.0`.
