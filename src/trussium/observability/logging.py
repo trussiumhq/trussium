@@ -60,6 +60,7 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "workflow_parallel_group_count",
     "workflow_status",
     "workflow_admission_code",
+    "audit_delivery_timeout_seconds",
 )
 
 

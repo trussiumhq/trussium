@@ -311,6 +311,37 @@ async def test_workflow_audit_sink_failure_does_not_fail_execution() -> None:
     assert result.status == WorkflowStatus.COMPLETED
 
 
+@pytest.mark.anyio
+async def test_slow_workflow_audit_sink_is_bounded() -> None:
+    class SlowSink:
+        async def emit(self, record: WorkflowAuditRecord) -> None:
+            await asyncio.sleep(1)
+
+    executor = WorkflowExecutor(
+        ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),))),
+        audit_sink=SlowSink(),
+        audit_delivery_timeout_seconds=0.001,
+    )
+    result = await executor.execute(
+        WorkflowRequest(
+            steps=(
+                WorkflowStep(
+                    id="one", invocation=ToolInvocation(name="echo", arguments={"value": "ok"})
+                ),
+            )
+        )
+    )
+    assert result.status == WorkflowStatus.COMPLETED
+
+
+def test_audit_delivery_timeout_must_be_positive() -> None:
+    with pytest.raises(ValueError, match="Audit delivery timeout"):
+        WorkflowExecutor(
+            ToolExecutor(ToolRegistry()),
+            audit_delivery_timeout_seconds=0,
+        )
+
+
 def test_workflow_audit_record_is_immutable_and_payload_free() -> None:
     record = WorkflowAuditRecord(
         event=WorkflowAuditEvent.COMPLETED,

@@ -85,6 +85,7 @@ def create_application(
     tool_executor: ToolExecutor | None = None,
     workflow_admission_policy: WorkflowAdmissionPolicy | None = None,
     workflow_audit_sink: WorkflowAuditSink | None = None,
+    workflow_audit_delivery_timeout_seconds: float = 0.25,
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -385,6 +386,7 @@ def create_application(
             tool_executor,
             admission_policy=workflow_admission_policy,
             audit_sink=workflow_audit_sink,
+            audit_delivery_timeout_seconds=workflow_audit_delivery_timeout_seconds,
         )
         if tool_executor is not None
         else None

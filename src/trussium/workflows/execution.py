@@ -2,9 +2,11 @@
 
 import asyncio
 from asyncio import timeout
+from math import isfinite
 
 from trussium.observability import (
     WORKFLOW_ADMISSION_REJECTED,
+    WORKFLOW_AUDIT_DELIVERY_TIMEOUT,
     WORKFLOW_EXECUTION_CANCELLED,
     WORKFLOW_EXECUTION_COMPLETED,
     WORKFLOW_EXECUTION_STARTED,
@@ -32,15 +34,28 @@ class WorkflowExecutor:
         *,
         admission_policy: WorkflowAdmissionPolicy | None = None,
         audit_sink: WorkflowAuditSink | None = None,
+        audit_delivery_timeout_seconds: float = 0.25,
     ) -> None:
         self._tool_executor = tool_executor
         self._admission_policy = admission_policy or WorkflowAdmissionPolicy()
         self._audit_sink = audit_sink or NullWorkflowAuditSink()
+        if not isfinite(audit_delivery_timeout_seconds) or audit_delivery_timeout_seconds <= 0:
+            raise ValueError("Audit delivery timeout must be finite and positive")
+        self._audit_delivery_timeout_seconds = audit_delivery_timeout_seconds
         self._logger = get_logger("workflows.execution")
 
     async def _emit_audit(self, record: WorkflowAuditRecord) -> None:
         try:
-            await self._audit_sink.emit(record)
+            async with timeout(self._audit_delivery_timeout_seconds):
+                await self._audit_sink.emit(record)
+        except TimeoutError:
+            self._logger.warning(
+                "Workflow audit sink timed out",
+                extra={
+                    "event": WORKFLOW_AUDIT_DELIVERY_TIMEOUT,
+                    "audit_delivery_timeout_seconds": self._audit_delivery_timeout_seconds,
+                },
+            )
         except Exception:
             self._logger.warning("Workflow audit sink failed", exc_info=True)
 
