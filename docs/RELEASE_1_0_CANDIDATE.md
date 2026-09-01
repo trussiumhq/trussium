@@ -3,7 +3,8 @@
 > **Historical manifest — superseded.** The version table below reflects the
 > original 1.0.0 proposal and must not be used to tag or publish releases.
 > Repository versions have since advanced; use a newly approved candidate
-> manifest before beginning major-release publication.
+> manifest before beginning major-release publication. The current review
+> proposal is [`RELEASE_2_0_CANDIDATE.md`](RELEASE_2_0_CANDIDATE.md).
 
 This historical manifest was a review artifact for change-management issue
 [#307](https://github.com/trussiumhq/trussium/issues/307). It does not create

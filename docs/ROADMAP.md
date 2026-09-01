@@ -41,7 +41,10 @@ remaining capability implementation gap in the current roadmap. The next
 The bounded Agent Runtime slice is now delivered, including workflow,
 tool-execution, policy, approval, audit, observability, and security contracts.
 Durable persistence, replay, distributed orchestration, and hosted authorization
-remain separately deferred expansions.
+remain separately deferred expansions. A proposed coordinated `v2.0.0`
+runtime/chart/operator baseline is documented in the
+[`2.0.0 release-candidate manifest`](RELEASE_2_0_CANDIDATE.md); it is a review
+artifact only and does not authorize tagging or publication.
 
 ## Status Definitions
 
