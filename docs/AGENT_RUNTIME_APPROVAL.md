@@ -42,3 +42,6 @@ The public integration point is the asynchronous `ToolApprovalAdapter` protocol,
 which accepts an immutable `ToolApprovalRequest` and returns a
 `ToolApprovalResult`. The request carries only correlation, tool, identity,
 expiry, and stable reason metadata.
+When policy returns `approval_required`, `ToolExecutor` waits for the configured
+finite approval bound before starting the handler; a missing adapter or timeout
+prevents invocation.

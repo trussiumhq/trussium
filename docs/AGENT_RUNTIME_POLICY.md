@@ -39,6 +39,8 @@ The runtime exposes immutable `ToolAuthorizationRequest` and
 `ToolAuthorizationResult` models plus the asynchronous `ToolPolicyAdapter`
 protocol. Requests contain identity, tool metadata, execution context, and
 bounded budgets only; adapters must not receive invocation arguments.
+When configured on `ToolExecutor`, the policy adapter runs before argument
+validation and handler invocation; omitted adapters preserve legacy execution.
 
 The bounded approval request and decision contract is documented in [Agent
 Runtime human-approval contract](AGENT_RUNTIME_APPROVAL.md).

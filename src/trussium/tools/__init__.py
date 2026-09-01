@@ -7,6 +7,7 @@ from trussium.tools.contracts import (
 from trussium.tools.execution import ToolExecutor
 from trussium.tools.policy import (
     ToolAuthorizationDecision,
+    ToolAuthorizationError,
     ToolAuthorizationRequest,
     ToolAuthorizationResult,
     ToolPolicyAdapter,
@@ -19,7 +20,9 @@ __all__ = [
     "ToolApprovalDecision",
     "ToolApprovalRequest",
     "ToolApprovalResult",
+    "ToolApprovalTimeoutError",
     "ToolAuthorizationDecision",
+    "ToolAuthorizationError",
     "ToolAuthorizationRequest",
     "ToolAuthorizationResult",
     "ToolExecutionResult",
@@ -35,4 +38,5 @@ from trussium.tools.approval import (
     ToolApprovalDecision,
     ToolApprovalRequest,
     ToolApprovalResult,
+    ToolApprovalTimeoutError,
 )

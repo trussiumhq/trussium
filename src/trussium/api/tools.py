@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
 
 from trussium.tools import (
+    ToolApprovalTimeoutError,
+    ToolAuthorizationError,
     ToolExecutionResult,
     ToolExecutor,
     ToolInvocation,
@@ -46,10 +48,20 @@ async def execute_tool(
             status_code=404,
             detail={"code": "tool_not_found", "message": str(error)},
         ) from error
+    except ToolAuthorizationError as error:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": error.reason_code, "message": "Tool authorization was denied."},
+        ) from error
     except ValidationError as error:
         raise HTTPException(
             status_code=422,
             detail={"code": "invalid_tool_arguments", "message": "Tool arguments are invalid."},
+        ) from error
+    except ToolApprovalTimeoutError as error:
+        raise HTTPException(
+            status_code=504,
+            detail={"code": "approval_timed_out", "message": "Tool approval timed out."},
         ) from error
     except TimeoutError as error:
         raise HTTPException(

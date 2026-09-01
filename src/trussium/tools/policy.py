@@ -41,6 +41,14 @@ class ToolAuthorizationResult(BaseModel):
     reason_code: str = Field(min_length=1, max_length=64)
 
 
+class ToolAuthorizationError(Exception):
+    """Raised when policy prevents a tool handler from starting."""
+
+    def __init__(self, reason_code: str = "tool_not_authorized") -> None:
+        self.reason_code = reason_code
+        super().__init__("Tool authorization was denied.")
+
+
 @runtime_checkable
 class ToolPolicyAdapter(Protocol):
     """Application-owned asynchronous policy integration point."""
@@ -51,6 +59,7 @@ class ToolPolicyAdapter(Protocol):
 
 __all__ = [
     "ToolAuthorizationDecision",
+    "ToolAuthorizationError",
     "ToolAuthorizationRequest",
     "ToolAuthorizationResult",
     "ToolPolicyAdapter",
