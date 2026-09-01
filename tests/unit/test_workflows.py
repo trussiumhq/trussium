@@ -4,14 +4,17 @@ import asyncio
 import logging
 
 import pytest
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from trussium.tools import RegisteredTool, ToolExecutor, ToolInvocation, ToolRegistry
 from trussium.workflows import (
     WorkflowAdmissionError,
     WorkflowAdmissionPolicy,
+    WorkflowAuditEvent,
+    WorkflowAuditRecord,
     WorkflowExecutor,
     WorkflowRequest,
+    WorkflowStatus,
     WorkflowStep,
 )
 
@@ -253,3 +256,19 @@ async def test_workflow_logs_lifecycle_without_tool_payloads(
     ]
     assert events == ["workflow.execution.started", "workflow.execution.completed"]
     assert all("sensitive-input" not in record.getMessage() for record in caplog.records)
+
+
+def test_workflow_audit_record_is_immutable_and_payload_free() -> None:
+    record = WorkflowAuditRecord(
+        event=WorkflowAuditEvent.COMPLETED,
+        request_id="request-1",
+        execution_id="execution-1",
+        status=WorkflowStatus.COMPLETED,
+        step_count=2,
+        parallel_group_count=1,
+    )
+
+    assert record.contains_payload is False
+    assert record.model_dump(mode="json")["event"] == "workflow.execution.completed"
+    with pytest.raises(ValidationError):
+        record.step_count = 3

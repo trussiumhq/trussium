@@ -1,8 +1,7 @@
 # Agent Runtime workflow results and errors
 
 This contract defines deterministic aggregation of child capability and tool
-outcomes. It applies to future workflow orchestration and does not change the
-existing HTTP or tool execution APIs.
+outcomes for the bounded workflow API.
 
 ## Result aggregation
 
@@ -42,3 +41,11 @@ Terminal workflow events include workflow and child execution identifiers,
 status, primary reason code, duration, and bounded child counts. They exclude
 prompts, tool arguments or outputs, credentials, provider payloads, and raw
 exception text.
+
+## Audit record
+
+`WorkflowAuditRecord` is the storage-neutral immutable envelope for downstream
+audit consumers. It contains the event, timestamp, request/execution identity,
+optional status and reason code, and bounded step/group counts. It deliberately
+has no payload fields. Persistence, retention, export, and external audit
+services remain deployment-owned follow-up work.
