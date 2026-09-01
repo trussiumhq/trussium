@@ -1,15 +1,15 @@
 # Agent Runtime implementation-readiness checklist
 
-Implementation of workflow orchestration may begin only after this checklist
-is reviewed against [ADR 0044](adr/0044-agent-runtime-boundary.md) and the
-linked contracts.
+The first bounded workflow slice is approved and implemented. This checklist
+records the delivered scope and keeps optional policy, persistence, and security
+expansion explicitly gated. It is reviewed against [ADR 0044](adr/0044-agent-runtime-boundary.md)
+and the linked contracts.
 
 ## Review outcome — 1 September 2026
 
-The review confirms that the controlled tool foundation is delivered and the
-tool, policy, approval, workflow, and result contracts are documented. Workflow
-orchestration remains **not approved to implement** until the open gates below
-are explicitly accepted.
+The review confirms that the controlled tool foundation and bounded workflow
+slice are delivered. Policy and approval adapters, persistence, and broader
+security expansion remain deployment-owned follow-up work.
 
 ### Delivered and documented
 
@@ -22,41 +22,41 @@ are explicitly accepted.
 
 ### Open implementation gates
 
-- [ ] Approve the first workflow orchestration scope and bounded fan-out model.
-- [ ] Review [Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
+- [x] Approve the first workflow orchestration scope and bounded fan-out model.
+- [x] Review [Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
 - [ ] Approve concrete policy and approval adapter interfaces.
 - [ ] Define persistence requirements, if any, without making storage mandatory.
-- [ ] Add deterministic workflow and child-cancellation test fixtures.
+- [x] Add deterministic workflow and child-cancellation test fixtures.
 - [ ] Complete a security review of limits, side effects, and audit events.
 
 ## Contract coverage
 
-- [ ] Tool registration, immutable metadata, discovery, and bounded execution
+- [x] Tool registration, immutable metadata, discovery, and bounded execution
       match [AGENT_RUNTIME.md](AGENT_RUNTIME.md).
 - [ ] Authorization, allow-list composition, and approval decisions match
       [AGENT_RUNTIME_POLICY.md](AGENT_RUNTIME_POLICY.md) and
       [AGENT_RUNTIME_APPROVAL.md](AGENT_RUNTIME_APPROVAL.md).
-- [ ] Workflow states, deadlines, cancellation, and shutdown match
+- [x] Workflow states, deadlines, cancellation, and shutdown match
       [AGENT_RUNTIME_WORKFLOWS.md](AGENT_RUNTIME_WORKFLOWS.md).
-- [ ] Result aggregation and error precedence match
+- [x] Result aggregation and error precedence match
       [AGENT_RUNTIME_RESULTS.md](AGENT_RUNTIME_RESULTS.md).
 
 ## Safety and compatibility gates
 
-- [ ] No unrestricted code, filesystem, network, or credential access is added.
-- [ ] Existing capability, provider, request-correlation, and error APIs remain
+- [x] No unrestricted code, filesystem, network, or credential access is added.
+- [x] Existing capability, provider, request-correlation, and error APIs remain
       backward compatible.
-- [ ] Every new boundary has finite deadlines, bounded fan-out, and explicit
+- [x] Every new boundary has finite deadlines, bounded fan-out, and explicit
       cancellation cleanup.
-- [ ] Operational events exclude prompts, arguments, outputs, credentials,
+- [x] Operational events exclude prompts, arguments, outputs, credentials,
       provider payloads, and exception text.
-- [ ] Policy and approval integrations remain opt-in and deployment-owned.
+- [x] Policy and approval integrations remain opt-in and deployment-owned.
 
 ## Validation gates
 
-- [ ] Deterministic unit and API tests cover happy paths and terminal-state
+- [x] Deterministic unit and API tests cover happy paths and terminal-state
       precedence.
-- [ ] Real-process and streaming cancellation tests cover child cleanup.
-- [ ] Ruff, strict MyPy, Pytest, package, container, and Kubernetes validation
+- [x] Real-process and streaming cancellation tests cover child cleanup.
+- [x] Ruff, strict MyPy, Pytest, package, container, and Kubernetes validation
       pass.
-- [ ] Runtime docs and `trussiumhq.github.io` are updated in the same change.
+- [x] Runtime docs and `trussiumhq.github.io` are updated in the same change.
