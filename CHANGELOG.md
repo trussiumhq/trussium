@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.14.0 (2026-09-01)
+
+### Documentation
+
+- Reconcile agent runtime readiness ([#374](https://github.com/trussiumhq/trussium/pull/374),
+  [`3ea8bbd`](https://github.com/trussiumhq/trussium/commit/3ea8bbd409b2aa0b5a37e257893feba7df6fd49d))
+
+### Features
+
+- Add agent runtime policy adapters ([#376](https://github.com/trussiumhq/trussium/pull/376),
+  [`a675787`](https://github.com/trussiumhq/trussium/commit/a675787f3d37f723f4671a2f25fbcf2ed7617e25))
+
+
 ## v1.13.0 (2026-09-01)
 
 ### Features
