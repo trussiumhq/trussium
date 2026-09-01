@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.7.0 (2026-09-01)
+
+### Features
+
+- Add workflow lifecycle events ([#360](https://github.com/trussiumhq/trussium/pull/360),
+  [`865e6b2`](https://github.com/trussiumhq/trussium/commit/865e6b2d348c44e5973aebad0bde7b95a6429b68))
+
+### Testing
+
+- Type workflow lifecycle log assertion ([#360](https://github.com/trussiumhq/trussium/pull/360),
+  [`865e6b2`](https://github.com/trussiumhq/trussium/commit/865e6b2d348c44e5973aebad0bde7b95a6429b68))
+
+
 ## v1.6.0 (2026-09-01)
 
 ### Features
