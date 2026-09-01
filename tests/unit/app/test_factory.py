@@ -41,6 +41,7 @@ from trussium.runtime import (
     RuntimeServiceRegistry,
     RuntimeServiceRegistrySealedError,
 )
+from trussium.workflows import WorkflowLifecycle, WorkflowLifecycleState
 
 
 class StubRuntimeService:
@@ -214,6 +215,17 @@ def test_application_lifespan_manages_ordered_runtime_services() -> None:
 
     assert app.state.runtime_service_lifecycle.state.value == "stopped"
     assert events == ["start:first", "start:second", "stop:second", "stop:first"]
+
+
+def test_application_drains_workflows_before_lifespan_shutdown() -> None:
+    workflow_lifecycle = WorkflowLifecycle()
+    app = create_application(workflow_lifecycle=workflow_lifecycle)
+
+    assert app.state.workflow_lifecycle is workflow_lifecycle
+    assert workflow_lifecycle.state is WorkflowLifecycleState.RUNNING
+    with TestClient(app):
+        assert workflow_lifecycle.state is WorkflowLifecycleState.RUNNING
+    assert workflow_lifecycle.state.value == WorkflowLifecycleState.STOPPED.value
 
 
 def test_application_uses_injected_runtime_service_registry() -> None:

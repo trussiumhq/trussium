@@ -60,6 +60,11 @@ The local `WorkflowLifecycle` coordinator exposes this contract directly:
 The coordinator transitions from `running` to `draining` to `stopped`; it does
 not coordinate across processes or clusters.
 
+The FastAPI application invokes this drain during lifespan shutdown using the
+runtime graceful-shutdown budget, before capability, provider, and service
+teardown. A drain timeout is logged as an operational event and does not expose
+tool payloads or raw exception text.
+
 ## Observability and privacy
 
 Workflow lifecycle events include request and execution identifiers, bounded
