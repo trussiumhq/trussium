@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.9.0 (2026-09-01)
+
+### Features
+
+- Add injectable workflow audit sink ([#364](https://github.com/trussiumhq/trussium/pull/364),
+  [`6f4927a`](https://github.com/trussiumhq/trussium/commit/6f4927a664cedaf99904e194c40c5b8aafcdbc33))
+
+
 ## v1.8.0 (2026-09-01)
 
 ### Features
