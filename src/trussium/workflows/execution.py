@@ -11,6 +11,7 @@ from trussium.observability import (
     WORKFLOW_EXECUTION_COMPLETED,
     WORKFLOW_EXECUTION_STARTED,
     WORKFLOW_EXECUTION_TIMEOUT,
+    RuntimeMetrics,
     get_logger,
 )
 from trussium.runtime import bind_execution_context, generate_execution_id, get_execution_context
@@ -37,6 +38,7 @@ class WorkflowExecutor:
         audit_sink: WorkflowAuditSink | None = None,
         audit_delivery_timeout_seconds: float = 0.25,
         lifecycle: WorkflowLifecycle | None = None,
+        metrics: RuntimeMetrics | None = None,
     ) -> None:
         self._tool_executor = tool_executor
         self._admission_policy = admission_policy or WorkflowAdmissionPolicy()
@@ -46,6 +48,7 @@ class WorkflowExecutor:
         self._audit_delivery_timeout_seconds = audit_delivery_timeout_seconds
         self._logger = get_logger("workflows.execution")
         self._lifecycle = lifecycle or WorkflowLifecycle()
+        self._metrics = metrics
 
     async def _emit_audit(self, record: WorkflowAuditRecord) -> None:
         try:
@@ -64,9 +67,24 @@ class WorkflowExecutor:
 
     async def execute(self, request: WorkflowRequest) -> WorkflowResult:
         await self._lifecycle.admit()
+        if self._metrics is not None:
+            self._metrics.workflow_started()
         try:
-            return await self._execute_admitted(request)
+            result = await self._execute_admitted(request)
+            if self._metrics is not None:
+                self._metrics.workflow_finished(outcome=result.status.value)
+            return result
+        except WorkflowAdmissionError as error:
+            if self._metrics is not None:
+                self._metrics.workflow_admission_rejected(code=error.code)
+            raise
+        except asyncio.CancelledError:
+            if self._metrics is not None:
+                self._metrics.workflow_finished(outcome="cancelled")
+            raise
         finally:
+            if self._metrics is not None:
+                self._metrics.workflow_released()
             await self._lifecycle.release()
 
     async def _execute_admitted(self, request: WorkflowRequest) -> WorkflowResult:

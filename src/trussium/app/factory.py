@@ -312,6 +312,10 @@ def create_application(
                         "outcome": "completed" if drained else "timed_out",
                     },
                 )
+                if runtime_metrics is not None:
+                    runtime_metrics.workflow_shutdown_drain(
+                        outcome="completed" if drained else "timed_out"
+                    )
 
             capability_shutdown_error: BaseException | None = None
             provider_shutdown_error: BaseException | None = None
@@ -425,6 +429,7 @@ def create_application(
             audit_sink=workflow_audit_sink,
             audit_delivery_timeout_seconds=workflow_audit_delivery_timeout_seconds,
             lifecycle=resolved_workflow_lifecycle,
+            metrics=runtime_metrics,
         )
         if tool_executor is not None
         else None
