@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.6.0 (2026-09-01)
+
+### Features
+
+- Add workflow admission policy ([#358](https://github.com/trussiumhq/trussium/pull/358),
+  [`737768e`](https://github.com/trussiumhq/trussium/commit/737768eb49911655a09afe14c1290c61932c22c6))
+
+
 ## v1.5.0 (2026-09-01)
 
 ### Documentation
