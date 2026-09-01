@@ -92,6 +92,18 @@ class RuntimeMetrics:
             labelnames=("outcome",),
             registry=self.registry,
         )
+        self.tool_authorization_decisions_total = Counter(
+            "trussium_tool_authorization_decisions",
+            "Tool authorization decisions by bounded outcome.",
+            labelnames=("decision",),
+            registry=self.registry,
+        )
+        self.tool_approval_decisions_total = Counter(
+            "trussium_tool_approval_decisions",
+            "Tool approval decisions by bounded outcome.",
+            labelnames=("decision",),
+            registry=self.registry,
+        )
 
     def routing_decision(self, *, capability: str, provider: str, outcome: str) -> None:
         """Record one bounded provider routing decision."""
@@ -139,6 +151,12 @@ class RuntimeMetrics:
 
     def workflow_shutdown_drain(self, *, outcome: str) -> None:
         self.workflow_shutdown_drains_total.labels(outcome=outcome).inc()
+
+    def tool_authorization_decision(self, *, decision: str) -> None:
+        self.tool_authorization_decisions_total.labels(decision=decision).inc()
+
+    def tool_approval_decision(self, *, decision: str) -> None:
+        self.tool_approval_decisions_total.labels(decision=decision).inc()
 
     def render(self) -> bytes:
         """Render the registry in Prometheus text exposition format."""

@@ -45,3 +45,5 @@ expiry, and stable reason metadata.
 When policy returns `approval_required`, `ToolExecutor` waits for the configured
 finite approval bound before starting the handler; a missing adapter or timeout
 prevents invocation.
+The executor emits bounded approval requested, decided, and expired events and
+records terminal decisions in the `trussium_tool_approval_decisions` counter.
