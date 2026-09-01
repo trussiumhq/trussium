@@ -14,6 +14,8 @@ from trussium.workflows import (
     WorkflowAuditRecord,
     WorkflowAuditSink,
     WorkflowExecutor,
+    WorkflowLifecycle,
+    WorkflowLifecycleState,
     WorkflowRequest,
     WorkflowStatus,
     WorkflowStep,
@@ -340,6 +342,30 @@ def test_audit_delivery_timeout_must_be_positive() -> None:
             ToolExecutor(ToolRegistry()),
             audit_delivery_timeout_seconds=0,
         )
+
+
+@pytest.mark.anyio
+async def test_workflow_lifecycle_stops_admission_and_drains() -> None:
+    lifecycle = WorkflowLifecycle()
+    await lifecycle.admit()
+    assert lifecycle.active_count == 1
+    await lifecycle.begin_shutdown()
+    assert lifecycle.state == WorkflowLifecycleState.DRAINING
+    with pytest.raises(WorkflowAdmissionError, match="draining"):
+        await lifecycle.admit()
+    await lifecycle.release()
+    assert await lifecycle.drain(0.1) is True
+    assert lifecycle.state.value == WorkflowLifecycleState.STOPPED.value
+
+
+@pytest.mark.anyio
+async def test_workflow_lifecycle_drain_is_bounded() -> None:
+    lifecycle = WorkflowLifecycle()
+    await lifecycle.admit()
+    assert await lifecycle.drain(0.001) is False
+    assert lifecycle.state == WorkflowLifecycleState.DRAINING
+    await lifecycle.release()
+    assert await lifecycle.drain(0.1) is True
 
 
 def test_workflow_audit_record_is_immutable_and_payload_free() -> None:

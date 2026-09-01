@@ -22,6 +22,7 @@ from trussium.workflows.audit import (
     WorkflowAuditSink,
 )
 from trussium.workflows.contracts import WorkflowRequest, WorkflowResult, WorkflowStatus
+from trussium.workflows.lifecycle import WorkflowLifecycle
 from trussium.workflows.policy import WorkflowAdmissionError, WorkflowAdmissionPolicy
 
 
@@ -35,6 +36,7 @@ class WorkflowExecutor:
         admission_policy: WorkflowAdmissionPolicy | None = None,
         audit_sink: WorkflowAuditSink | None = None,
         audit_delivery_timeout_seconds: float = 0.25,
+        lifecycle: WorkflowLifecycle | None = None,
     ) -> None:
         self._tool_executor = tool_executor
         self._admission_policy = admission_policy or WorkflowAdmissionPolicy()
@@ -43,6 +45,7 @@ class WorkflowExecutor:
             raise ValueError("Audit delivery timeout must be finite and positive")
         self._audit_delivery_timeout_seconds = audit_delivery_timeout_seconds
         self._logger = get_logger("workflows.execution")
+        self._lifecycle = lifecycle or WorkflowLifecycle()
 
     async def _emit_audit(self, record: WorkflowAuditRecord) -> None:
         try:
@@ -60,6 +63,13 @@ class WorkflowExecutor:
             self._logger.warning("Workflow audit sink failed", exc_info=True)
 
     async def execute(self, request: WorkflowRequest) -> WorkflowResult:
+        await self._lifecycle.admit()
+        try:
+            return await self._execute_admitted(request)
+        finally:
+            await self._lifecycle.release()
+
+    async def _execute_admitted(self, request: WorkflowRequest) -> WorkflowResult:
         execution_id = generate_execution_id()
         request_id = get_execution_context().request_id
         try:
