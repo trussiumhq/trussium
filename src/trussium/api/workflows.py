@@ -6,7 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import ValidationError
 
 from trussium.tools import ToolNotFoundError
-from trussium.workflows import WorkflowExecutor, WorkflowRequest, WorkflowResult
+from trussium.workflows import (
+    WorkflowAdmissionError,
+    WorkflowExecutor,
+    WorkflowRequest,
+    WorkflowResult,
+)
 
 router = APIRouter(prefix="/v1", tags=["workflows"])
 
@@ -28,6 +33,11 @@ async def execute_workflow(
 ) -> WorkflowResult:
     try:
         return await executor.execute(workflow)
+    except WorkflowAdmissionError as error:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": error.code, "message": str(error)},
+        ) from error
     except ToolNotFoundError as error:
         raise HTTPException(
             status_code=404,

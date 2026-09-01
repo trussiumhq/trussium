@@ -67,7 +67,7 @@ from trussium.runtime import (
 )
 from trussium.runtime.idempotency import IdempotencyStore
 from trussium.tools import ToolExecutor
-from trussium.workflows import WorkflowExecutor
+from trussium.workflows import WorkflowAdmissionPolicy, WorkflowExecutor
 
 
 def create_application(
@@ -83,6 +83,7 @@ def create_application(
     runtime_services: Sequence[RuntimeService] = (),
     runtime_service_registry: RuntimeServiceRegistry | None = None,
     tool_executor: ToolExecutor | None = None,
+    workflow_admission_policy: WorkflowAdmissionPolicy | None = None,
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -379,7 +380,9 @@ def create_application(
     )
     application.state.tool_executor = tool_executor
     application.state.workflow_executor = (
-        WorkflowExecutor(tool_executor) if tool_executor is not None else None
+        WorkflowExecutor(tool_executor, admission_policy=workflow_admission_policy)
+        if tool_executor is not None
+        else None
     )
 
     application.state.settings = resolved_settings
