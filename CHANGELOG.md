@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.15.0 (2026-09-01)
+
+### Features
+
+- Integrate agent runtime tool authorization
+  ([#380](https://github.com/trussiumhq/trussium/pull/380),
+  [`8db7f5e`](https://github.com/trussiumhq/trussium/commit/8db7f5e2b7f3d27d1a23485e0c31f733e8617c0e))
+
+
 ## v1.14.0 (2026-09-01)
 
 ### Documentation
