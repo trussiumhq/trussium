@@ -93,3 +93,29 @@ async def test_workflow_parallel_group_preserves_declaration_order() -> None:
         {"value": "a"},
         {"value": "b"},
     ]
+
+
+def test_workflow_rejects_duplicate_step_ids_before_execution() -> None:
+    with pytest.raises(ValueError, match="step IDs must be unique"):
+        WorkflowRequest(
+            steps=(WorkflowStep(id="same", invocation=ToolInvocation(name="echo", arguments={})),),
+            parallel_groups=(
+                (WorkflowStep(id="same", invocation=ToolInvocation(name="echo", arguments={})),),
+            ),
+        )
+
+
+def test_workflow_rejects_parallel_groups_over_eight_steps() -> None:
+    with pytest.raises(ValueError, match="one to eight steps"):
+        WorkflowRequest(
+            steps=(WorkflowStep(id="root", invocation=ToolInvocation(name="echo", arguments={})),),
+            parallel_groups=(
+                tuple(
+                    WorkflowStep(
+                        id=f"step-{index}",
+                        invocation=ToolInvocation(name="echo", arguments={}),
+                    )
+                    for index in range(9)
+                ),
+            ),
+        )

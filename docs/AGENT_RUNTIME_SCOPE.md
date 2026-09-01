@@ -10,7 +10,9 @@ below. Persistence and autonomous replanning remain outside this first slice.
 
 Sequential steps and bounded parallel groups are now implemented by the
 workflow coordinator; the limits below remain enforced at the contract
-boundary.
+boundary. Admission validation rejects duplicate step IDs, empty or oversized
+parallel groups, and workflows exceeding sixteen total child steps before any
+handler starts.
 
 ## Allowed execution model
 

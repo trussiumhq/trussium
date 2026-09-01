@@ -2,7 +2,7 @@
 
 from enum import StrEnum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from trussium.tools import ToolExecutionResult, ToolInvocation
 
@@ -28,9 +28,17 @@ class WorkflowRequest(BaseModel):
     deadline_seconds: float = Field(default=30.0, gt=0, le=300)
     depth: int = Field(default=1, ge=1, le=4)
 
-    @property
-    def all_parallel_groups(self) -> tuple[tuple[WorkflowStep, ...], ...]:
-        return self.parallel_groups
+    @model_validator(mode="after")
+    def validate_admission_limits(self) -> "WorkflowRequest":
+        if any(not group or len(group) > 8 for group in self.parallel_groups):
+            raise ValueError("Parallel workflow groups must contain one to eight steps")
+        all_steps = self.steps + tuple(step for group in self.parallel_groups for step in group)
+        if len(all_steps) > 16:
+            raise ValueError("Workflows cannot contain more than sixteen child steps")
+        step_ids = [step.id for step in all_steps]
+        if len(step_ids) != len(set(step_ids)):
+            raise ValueError("Workflow step IDs must be unique")
+        return self
 
 
 class WorkflowResult(BaseModel):
