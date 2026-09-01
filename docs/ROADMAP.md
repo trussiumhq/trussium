@@ -884,6 +884,8 @@ Result aggregation and error propagation are documented in
 [Agent Runtime workflow results and errors](AGENT_RUNTIME_RESULTS.md).
 The implementation gate is consolidated in the
 [Agent Runtime implementation-readiness checklist](AGENT_RUNTIME_REVIEW.md).
+The proposed bounded first workflow scope is documented in
+[Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
 The 1 September 2026 review confirms the contracts are documented while
 workflow orchestration remains gated on scope, adapter, persistence, testing,
 and security decisions.
@@ -1017,8 +1019,6 @@ Future milestones may include:
 - Federated runtimes
 - Private model management
 - Advanced policy engines
-- Enterprise control plane
-- Hosted management plane
 - Community-contributed providers and plugins
 
 These items are exploratory and do not represent committed deliverables.
