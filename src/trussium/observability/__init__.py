@@ -70,6 +70,8 @@ from trussium.observability.operations import (
     WORKFLOW_EXECUTION_COMPLETED,
     WORKFLOW_EXECUTION_STARTED,
     WORKFLOW_EXECUTION_TIMEOUT,
+    WORKFLOW_SHUTDOWN_DRAIN_COMPLETED,
+    WORKFLOW_SHUTDOWN_DRAIN_TIMEOUT,
     log_startup_configuration,
 )
 from trussium.observability.provider import (
@@ -137,6 +139,8 @@ __all__ = [
     "WORKFLOW_EXECUTION_COMPLETED",
     "WORKFLOW_EXECUTION_STARTED",
     "WORKFLOW_EXECUTION_TIMEOUT",
+    "WORKFLOW_SHUTDOWN_DRAIN_COMPLETED",
+    "WORKFLOW_SHUTDOWN_DRAIN_TIMEOUT",
     "LoggingChatCapability",
     "LoggingProviderChatCapability",
     "OperationalSpanExporter",

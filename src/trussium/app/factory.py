@@ -40,6 +40,8 @@ from trussium.observability import (
     RUNTIME_STOPPING,
     TRACING_SHUTDOWN_COMPLETED,
     TRACING_SHUTDOWN_FAILED,
+    WORKFLOW_SHUTDOWN_DRAIN_COMPLETED,
+    WORKFLOW_SHUTDOWN_DRAIN_TIMEOUT,
     LoggingChatCapability,
     RuntimeMetrics,
     RuntimeTracing,
@@ -229,6 +231,7 @@ def create_application(
         resolved_runtime_service_registry,
         timeout_seconds=resolved_settings.runtime.component_health_timeout_seconds,
     )
+    resolved_workflow_lifecycle = workflow_lifecycle or WorkflowLifecycle()
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
@@ -279,6 +282,34 @@ def create_application(
                     "Runtime stopping",
                     extra={
                         "event": RUNTIME_STOPPING,
+                    },
+                )
+
+            try:
+                drained = await resolved_workflow_lifecycle.drain(
+                    resolved_settings.runtime.graceful_shutdown_seconds
+                )
+            except Exception as error:
+                runtime_logger.error(
+                    "Workflow shutdown drain failed",
+                    extra={
+                        "event": WORKFLOW_SHUTDOWN_DRAIN_TIMEOUT,
+                        "error_type": type(error).__name__,
+                    },
+                )
+            else:
+                runtime_logger.info(
+                    "Workflow shutdown drain completed"
+                    if drained
+                    else "Workflow shutdown drain timed out",
+                    extra={
+                        "event": (
+                            WORKFLOW_SHUTDOWN_DRAIN_COMPLETED
+                            if drained
+                            else WORKFLOW_SHUTDOWN_DRAIN_TIMEOUT
+                        ),
+                        "active_workflows": resolved_workflow_lifecycle.active_count,
+                        "outcome": "completed" if drained else "timed_out",
                     },
                 )
 
@@ -393,11 +424,12 @@ def create_application(
             admission_policy=workflow_admission_policy,
             audit_sink=workflow_audit_sink,
             audit_delivery_timeout_seconds=workflow_audit_delivery_timeout_seconds,
-            lifecycle=workflow_lifecycle,
+            lifecycle=resolved_workflow_lifecycle,
         )
         if tool_executor is not None
         else None
     )
+    application.state.workflow_lifecycle = resolved_workflow_lifecycle
 
     application.state.settings = resolved_settings
     application.state.usage_meter = UsageMeter(

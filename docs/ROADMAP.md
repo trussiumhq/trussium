@@ -894,7 +894,8 @@ without tool payloads. A storage-neutral immutable audit-record contract is now
 defined, with an injectable no-op-by-default audit sink; persistence remains
 deferred. Audit delivery is bounded by a finite timeout without retries.
 Workflow shutdown admission and bounded draining are now implemented locally;
-cross-process coordination remains deferred. Policy, approval, limits, and security
+the application lifespan now invokes the drain before resource teardown.
+Cross-process coordination remains deferred. Policy, approval, limits, and security
 expansion remain separately gated.
 
 ---
