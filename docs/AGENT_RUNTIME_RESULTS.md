@@ -53,3 +53,6 @@ services remain deployment-owned follow-up work.
 Applications may inject an asynchronous `WorkflowAuditSink` to receive records.
 The default sink discards them, and sink failures are isolated from workflow
 execution so observability cannot change the execution outcome.
+Each delivery is bounded by a finite timeout (250ms by default); a slow sink is
+cancelled and the record is dropped with a structured timeout warning. The
+runtime does not retry or provide guaranteed delivery.

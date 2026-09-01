@@ -892,7 +892,8 @@ admission limits, timeout and caller-cancellation cleanup, normalized results,
 and HTTP exposure. Workflow lifecycle events now provide bounded audit signals
 without tool payloads. A storage-neutral immutable audit-record contract is now
 defined, with an injectable no-op-by-default audit sink; persistence remains
-deferred. Policy, approval, limits, and security
+deferred. Audit delivery is bounded by a finite timeout without retries.
+Policy, approval, limits, and security
 expansion remain separately gated.
 
 ---
