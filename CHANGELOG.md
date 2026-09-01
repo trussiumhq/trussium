@@ -2,6 +2,43 @@
 
 <!-- version list -->
 
+## v1.2.0 (2026-09-01)
+
+### Documentation
+
+- Add agent runtime review checklist ([#340](https://github.com/trussiumhq/trussium/pull/340),
+  [`2e3d68f`](https://github.com/trussiumhq/trussium/commit/2e3d68f97d89c1d408c9d87653fe6404b1c65880))
+
+- Correct repository architecture map ([#334](https://github.com/trussiumhq/trussium/pull/334),
+  [`4f3130c`](https://github.com/trussiumhq/trussium/commit/4f3130c6eb8aac6fc957e79a2fcb0dfdf1067ea0))
+
+- Define agent approval contract ([#334](https://github.com/trussiumhq/trussium/pull/334),
+  [`4f3130c`](https://github.com/trussiumhq/trussium/commit/4f3130c6eb8aac6fc957e79a2fcb0dfdf1067ea0))
+
+- Define agent approval contract ([#332](https://github.com/trussiumhq/trussium/pull/332),
+  [`5df7f36`](https://github.com/trussiumhq/trussium/commit/5df7f36092791afdfe3d3862b4038d744cf6562a))
+
+- Define agent tool policy ([#330](https://github.com/trussiumhq/trussium/pull/330),
+  [`25dc5e6`](https://github.com/trussiumhq/trussium/commit/25dc5e692b72b8932c8c5a81f539d705653ad87d))
+
+- Define agent workflow lifecycle ([#336](https://github.com/trussiumhq/trussium/pull/336),
+  [`9ec25bf`](https://github.com/trussiumhq/trussium/commit/9ec25bfd79c15b791a88bc73e62675b1a7aa9424))
+
+- Define agent workflow results ([#338](https://github.com/trussiumhq/trussium/pull/338),
+  [`b6e23d0`](https://github.com/trussiumhq/trussium/commit/b6e23d00c427625265c57ff1c7e37b64331b69c0))
+
+- Define agent workflow scope ([#344](https://github.com/trussiumhq/trussium/pull/344),
+  [`af76c6e`](https://github.com/trussiumhq/trussium/commit/af76c6e0a9e48c5647ca6b514856d4ba8498e242))
+
+- Record agent runtime review outcome ([#342](https://github.com/trussiumhq/trussium/pull/342),
+  [`878ee6a`](https://github.com/trussiumhq/trussium/commit/878ee6a9c1d21b0aacaf5813143dece729e3e532))
+
+### Features
+
+- Add bounded workflow coordinator ([#346](https://github.com/trussiumhq/trussium/pull/346),
+  [`a11207b`](https://github.com/trussiumhq/trussium/commit/a11207b02754cb9f090b14ff2bc8987bf69f728a))
+
+
 ## v1.1.0 (2026-08-31)
 
 ### Documentation
