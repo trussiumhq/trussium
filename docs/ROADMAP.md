@@ -884,6 +884,9 @@ Result aggregation and error propagation are documented in
 [Agent Runtime workflow results and errors](AGENT_RUNTIME_RESULTS.md).
 The implementation gate is consolidated in the
 [Agent Runtime implementation-readiness checklist](AGENT_RUNTIME_REVIEW.md).
+The 1 September 2026 review confirms the contracts are documented while
+workflow orchestration remains gated on scope, adapter, persistence, testing,
+and security decisions.
 Implementation remains deferred until the tool, workflow, policy, approval,
 limit, cancellation, and audit contracts are reviewed and accepted.
 
