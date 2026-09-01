@@ -247,7 +247,9 @@ async def test_workflow_logs_lifecycle_without_tool_payloads(
         )
 
     events = [
-        record.event for record in caplog.records if record.name == "trussium.workflows.execution"
+        getattr(record, "event", None)
+        for record in caplog.records
+        if record.name == "trussium.workflows.execution"
     ]
     assert events == ["workflow.execution.started", "workflow.execution.completed"]
     assert all("sensitive-input" not in record.getMessage() for record in caplog.records)
