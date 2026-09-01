@@ -13,6 +13,7 @@ from trussium.workflows.contracts import (
     WorkflowStep,
 )
 from trussium.workflows.execution import WorkflowExecutor
+from trussium.workflows.lifecycle import WorkflowLifecycle, WorkflowLifecycleState
 from trussium.workflows.policy import WorkflowAdmissionError, WorkflowAdmissionPolicy
 
 __all__ = [
@@ -23,6 +24,8 @@ __all__ = [
     "WorkflowAuditRecord",
     "WorkflowAuditSink",
     "WorkflowExecutor",
+    "WorkflowLifecycle",
+    "WorkflowLifecycleState",
     "WorkflowRequest",
     "WorkflowResult",
     "WorkflowStatus",

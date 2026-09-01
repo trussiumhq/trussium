@@ -54,6 +54,12 @@ creation order within the remaining deadline. Graceful application shutdown
 stops admission, drains active workflows, and emits bounded cancellation or
 timeout events for work that exceeds the drain deadline.
 
+The local `WorkflowLifecycle` coordinator exposes this contract directly:
+`begin_shutdown()` stops admission, `active_count` reports in-flight work, and
+`drain(timeout_seconds)` waits for active executions with a finite deadline.
+The coordinator transitions from `running` to `draining` to `stopped`; it does
+not coordinate across processes or clusters.
+
 ## Observability and privacy
 
 Workflow lifecycle events include request and execution identifiers, bounded
