@@ -67,6 +67,7 @@ from trussium.runtime import (
 )
 from trussium.runtime.idempotency import IdempotencyStore
 from trussium.tools import ToolExecutor
+from trussium.workflows import WorkflowExecutor
 
 
 def create_application(
@@ -376,8 +377,10 @@ def create_application(
         lifespan=lifespan,
         exception_handlers={RequestValidationError: request_validation_exception_handler},
     )
-    if tool_executor is not None:
-        application.state.tool_executor = tool_executor
+    application.state.tool_executor = tool_executor
+    application.state.workflow_executor = (
+        WorkflowExecutor(tool_executor) if tool_executor is not None else None
+    )
 
     application.state.settings = resolved_settings
     application.state.usage_meter = UsageMeter(

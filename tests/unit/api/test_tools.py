@@ -4,7 +4,8 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel, ConfigDict
 
 from trussium.app import create_application
-from trussium.tools import RegisteredTool, ToolExecutor, ToolRegistry
+from trussium.tools import RegisteredTool, ToolExecutor, ToolInvocation, ToolRegistry
+from trussium.workflows import WorkflowRequest, WorkflowStep
 
 
 class EchoArguments(BaseModel):
@@ -62,3 +63,33 @@ def test_unknown_tool_is_not_executable() -> None:
 
     assert response.status_code == 404
     assert response.json()["detail"]["code"] == "tool_not_found"
+
+
+def test_workflow_endpoint_executes_bounded_steps() -> None:
+    executor = ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
+    client = TestClient(create_application(tool_executor=executor))
+
+    request = WorkflowRequest(
+        steps=(
+            WorkflowStep(
+                id="first",
+                invocation=ToolInvocation(name="echo", arguments={"value": "ok"}),
+            ),
+        )
+    )
+    response = client.post("/v1/workflows/executions", json=request.model_dump(mode="json"))
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "completed",
+        "steps": [{"tool_name": "echo", "output": {"value": "ok"}}],
+    }
+
+
+def test_workflow_endpoint_requires_configured_tools() -> None:
+    response = TestClient(create_application()).post(
+        "/v1/workflows/executions",
+        json={"steps": [{"id": "first", "invocation": {"name": "echo", "arguments": {}}}]},
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"]["code"] == "workflows_unavailable"
