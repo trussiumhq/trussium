@@ -882,6 +882,8 @@ The bounded workflow lifecycle contract is documented in
 [Agent Runtime workflow lifecycle](AGENT_RUNTIME_WORKFLOWS.md).
 Result aggregation and error propagation are documented in
 [Agent Runtime workflow results and errors](AGENT_RUNTIME_RESULTS.md).
+The implementation gate is consolidated in the
+[Agent Runtime implementation-readiness checklist](AGENT_RUNTIME_REVIEW.md).
 Implementation remains deferred until the tool, workflow, policy, approval,
 limit, cancellation, and audit contracts are reviewed and accepted.
 
