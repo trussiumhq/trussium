@@ -94,6 +94,7 @@ def create_application(
     workflow_audit_sink: WorkflowAuditSink | None = None,
     workflow_audit_delivery_timeout_seconds: float = 0.25,
     workflow_lifecycle: WorkflowLifecycle | None = None,
+    mcp_enabled: bool = False,
 ) -> FastAPI:
     """Create and configure the Trussium application.
 
@@ -422,6 +423,7 @@ def create_application(
         exception_handlers={RequestValidationError: request_validation_exception_handler},
     )
     application.state.tool_executor = tool_executor
+    application.state.mcp_enabled = mcp_enabled
     application.state.workflow_executor = (
         WorkflowExecutor(
             tool_executor,
