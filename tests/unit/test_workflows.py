@@ -1,6 +1,7 @@
 """Tests for bounded workflow execution."""
 
 import asyncio
+import logging
 
 import pytest
 from pydantic import BaseModel, ConfigDict
@@ -222,3 +223,33 @@ async def test_workflow_policy_rejects_before_tool_execution() -> None:
         await executor.execute(request)
     assert error.value.code == "workflow_depth_exceeded"
     assert executed is False
+
+
+@pytest.mark.anyio
+async def test_workflow_logs_lifecycle_without_tool_payloads(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    executor = WorkflowExecutor(
+        ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
+    )
+    with caplog.at_level(logging.INFO, logger="trussium.workflows.execution"):
+        await executor.execute(
+            WorkflowRequest(
+                steps=(
+                    WorkflowStep(
+                        id="one",
+                        invocation=ToolInvocation(
+                            name="echo", arguments={"value": "sensitive-input"}
+                        ),
+                    ),
+                )
+            )
+        )
+
+    events = [
+        getattr(record, "event", None)
+        for record in caplog.records
+        if record.name == "trussium.workflows.execution"
+    ]
+    assert events == ["workflow.execution.started", "workflow.execution.completed"]
+    assert all("sensitive-input" not in record.getMessage() for record in caplog.records)

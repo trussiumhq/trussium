@@ -64,6 +64,11 @@ from trussium.observability.operations import (
     TRACE_EXPORT_FAILED,
     TRACING_SHUTDOWN_COMPLETED,
     TRACING_SHUTDOWN_FAILED,
+    WORKFLOW_ADMISSION_REJECTED,
+    WORKFLOW_EXECUTION_CANCELLED,
+    WORKFLOW_EXECUTION_COMPLETED,
+    WORKFLOW_EXECUTION_STARTED,
+    WORKFLOW_EXECUTION_TIMEOUT,
     log_startup_configuration,
 )
 from trussium.observability.provider import (
@@ -125,6 +130,11 @@ __all__ = [
     "TRACING_SHUTDOWN_FAILED",
     "UNEXPECTED_CAPABILITY_ERROR_CODE",
     "UNEXPECTED_PROVIDER_ERROR_CODE",
+    "WORKFLOW_ADMISSION_REJECTED",
+    "WORKFLOW_EXECUTION_CANCELLED",
+    "WORKFLOW_EXECUTION_COMPLETED",
+    "WORKFLOW_EXECUTION_STARTED",
+    "WORKFLOW_EXECUTION_TIMEOUT",
     "LoggingChatCapability",
     "LoggingProviderChatCapability",
     "OperationalSpanExporter",

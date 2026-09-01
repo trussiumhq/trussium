@@ -889,7 +889,8 @@ The proposed bounded first workflow scope is documented in
 [Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
 The 1 September 2026 review accepted the bounded workflow scope, including
 admission limits, timeout and caller-cancellation cleanup, normalized results,
-and HTTP exposure. Policy, approval, limits, audit, persistence, and security
+and HTTP exposure. Workflow lifecycle events now provide bounded audit signals
+without tool payloads. Policy, approval, limits, persistence, and security
 expansion remain separately gated.
 
 ---

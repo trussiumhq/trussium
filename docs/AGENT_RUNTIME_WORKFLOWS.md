@@ -39,6 +39,13 @@ The coordinator’s timeout and caller-cancellation paths are regression-tested.
 Active parallel children are cancelled and finalized before cancellation
 propagates to the caller.
 
+## Lifecycle events
+
+The coordinator emits structured `workflow.*` events for start, completion,
+timeout, cancellation, and admission rejection. Events inherit the request and
+execution context and contain only bounded counts, status, and stable rejection
+codes. Tool arguments and outputs are never included in workflow logs.
+
 ## Failure and shutdown
 
 The first terminal failure is preserved as the workflow outcome. Sibling work

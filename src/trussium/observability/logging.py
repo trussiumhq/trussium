@@ -56,6 +56,10 @@ _STRUCTURED_FIELDS: Final[tuple[str, ...]] = (
     "span_count",
     "outcome",
     "tool_name",
+    "workflow_step_count",
+    "workflow_parallel_group_count",
+    "workflow_status",
+    "workflow_admission_code",
 )
 
 
