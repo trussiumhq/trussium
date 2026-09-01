@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v1.5.0 (2026-09-01)
+
+### Documentation
+
+- Document workflow cancellation cleanup ([#354](https://github.com/trussiumhq/trussium/pull/354),
+  [`2e167eb`](https://github.com/trussiumhq/trussium/commit/2e167ebc34947781c96e774233e04b5a5f336498))
+
+### Features
+
+- Expose bounded workflow execution api ([#356](https://github.com/trussiumhq/trussium/pull/356),
+  [`84675a9`](https://github.com/trussiumhq/trussium/commit/84675a9f87b5114d6f59341e80b16e0058765a76))
+
+### Testing
+
+- Cover caller cancellation cleanup ([#354](https://github.com/trussiumhq/trussium/pull/354),
+  [`2e167eb`](https://github.com/trussiumhq/trussium/commit/2e167ebc34947781c96e774233e04b5a5f336498))
+
+- Cover workflow cancellation cleanup ([#354](https://github.com/trussiumhq/trussium/pull/354),
+  [`2e167eb`](https://github.com/trussiumhq/trussium/commit/2e167ebc34947781c96e774233e04b5a5f336498))
+
+- Cover workflow timeout cleanup ([#352](https://github.com/trussiumhq/trussium/pull/352),
+  [`ff8219a`](https://github.com/trussiumhq/trussium/commit/ff8219ad9790491732212f1ebeab9425c4e885b7))
+
+
 ## v1.4.0 (2026-09-01)
 
 ### Features
