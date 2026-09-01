@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.0 (2026-09-01)
+
+### Features
+
+- Validate workflow admission limits ([#350](https://github.com/trussiumhq/trussium/pull/350),
+  [`0012cf3`](https://github.com/trussiumhq/trussium/commit/0012cf3683ddf145485bea5ce2ead99053508907))
+
+
 ## v1.3.0 (2026-09-01)
 
 ### Features
