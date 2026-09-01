@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -36,3 +37,17 @@ class WorkflowAuditRecord(BaseModel):
     def contains_payload(self) -> bool:
         """Audit records intentionally never carry tool or model payloads."""
         return False
+
+
+class WorkflowAuditSink(Protocol):
+    """Application-owned asynchronous consumer for audit records."""
+
+    async def emit(self, record: WorkflowAuditRecord) -> None:
+        """Consume one immutable, payload-free audit record."""
+
+
+class NullWorkflowAuditSink:
+    """Default sink that deliberately discards audit records."""
+
+    async def emit(self, record: WorkflowAuditRecord) -> None:
+        del record

@@ -12,6 +12,7 @@ from trussium.workflows import (
     WorkflowAdmissionPolicy,
     WorkflowAuditEvent,
     WorkflowAuditRecord,
+    WorkflowAuditSink,
     WorkflowExecutor,
     WorkflowRequest,
     WorkflowStatus,
@@ -256,6 +257,58 @@ async def test_workflow_logs_lifecycle_without_tool_payloads(
     ]
     assert events == ["workflow.execution.started", "workflow.execution.completed"]
     assert all("sensitive-input" not in record.getMessage() for record in caplog.records)
+
+
+@pytest.mark.anyio
+async def test_workflow_audit_sink_receives_ordered_records() -> None:
+    records = []
+
+    class Sink:
+        async def emit(self, record: WorkflowAuditRecord) -> None:
+            records.append(record)
+
+    sink: WorkflowAuditSink = Sink()
+    executor = WorkflowExecutor(
+        ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),))),
+        audit_sink=sink,
+    )
+    await executor.execute(
+        WorkflowRequest(
+            steps=(
+                WorkflowStep(
+                    id="one", invocation=ToolInvocation(name="echo", arguments={"value": "ok"})
+                ),
+            )
+        )
+    )
+
+    assert [record.event for record in records] == [
+        WorkflowAuditEvent.STARTED,
+        WorkflowAuditEvent.COMPLETED,
+    ]
+    assert all(record.contains_payload is False for record in records)
+
+
+@pytest.mark.anyio
+async def test_workflow_audit_sink_failure_does_not_fail_execution() -> None:
+    class FailingSink:
+        async def emit(self, record: WorkflowAuditRecord) -> None:
+            raise RuntimeError("sink unavailable")
+
+    executor = WorkflowExecutor(
+        ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),))),
+        audit_sink=FailingSink(),
+    )
+    result = await executor.execute(
+        WorkflowRequest(
+            steps=(
+                WorkflowStep(
+                    id="one", invocation=ToolInvocation(name="echo", arguments={"value": "ok"})
+                ),
+            )
+        )
+    )
+    assert result.status == WorkflowStatus.COMPLETED
 
 
 def test_workflow_audit_record_is_immutable_and_payload_free() -> None:
