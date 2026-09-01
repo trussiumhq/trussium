@@ -1,6 +1,6 @@
 # Roadmap
 
-_Last updated: August 2026_
+_Last updated: September 2026_
 
 This roadmap outlines the long-term direction of Trussium.
 
@@ -38,8 +38,10 @@ summary is complete. The documented capability catalog is also complete,
 including embeddings, moderation, image generation, transcription, reranking,
 translation, text-to-speech, video jobs, and batch inference. There is no
 remaining capability implementation gap in the current roadmap. The next
-potential milestone is Agent Runtime, which remains deferred until its
-workflow, tool-execution, policy, and audit contracts are explicitly planned.
+The bounded Agent Runtime slice is now delivered, including workflow,
+tool-execution, policy, approval, audit, observability, and security contracts.
+Durable persistence, replay, distributed orchestration, and hosted authorization
+remain separately deferred expansions.
 
 ## Status Definitions
 
@@ -992,8 +994,9 @@ repositories:
 - Trussium Operator `v1.0.0` is validated against runtime `v1.0.0` and
   chart `v1.0.0`.
 - SDKs and provider adapters remain separately versioned and released.
-- The deferred Agent Runtime milestone is outside the first stable OSS release
-  scope.
+- The deferred Agent Runtime expansions are outside the first stable OSS release
+  scope; the delivered bounded contracts remain independently versioned and
+  opt-in.
 
 The first major release requires a reviewed breaking-change report, explicit
 version decisions for each selected repository, passing repository CI, and
