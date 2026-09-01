@@ -4,6 +4,10 @@ The first workflow slice is intentionally bounded. It composes existing
 capabilities and registered tools; it does not create a general-purpose
 scheduler or autonomous agent loop.
 
+The initial coordinator implementation executes one declared workflow of
+sequential tool steps with the limits below. Parallel groups, persistence, and
+autonomous replanning remain outside this first slice.
+
 ## Allowed execution model
 
 - One parent workflow per request.
