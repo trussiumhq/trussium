@@ -5,8 +5,12 @@ capabilities and registered tools; it does not create a general-purpose
 scheduler or autonomous agent loop.
 
 The initial coordinator implementation executes one declared workflow of
-sequential tool steps with the limits below. Parallel groups, persistence, and
-autonomous replanning remain outside this first slice.
+sequential tool steps and explicitly declared parallel groups with the limits
+below. Persistence and autonomous replanning remain outside this first slice.
+
+Sequential steps and bounded parallel groups are now implemented by the
+workflow coordinator; the limits below remain enforced at the contract
+boundary.
 
 ## Allowed execution model
 
