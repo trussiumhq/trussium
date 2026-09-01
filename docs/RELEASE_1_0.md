@@ -1,5 +1,9 @@
 # Trussium 1.0.0 Release Declaration
 
+> **Historical declaration.** This document describes the original 1.0.0
+> proposal. It is retained for history and is not approval to publish a new
+> release; the candidate version set must be re-baselined first.
+
 This reviewed change declares the stable `/v1` runtime contract documented in
 the [1.0 Stability Contract](RELEASE_1_0_CONTRACT.md). It freezes the existing
 provider-neutral HTTP, JSON, SSE, health, error, and correlation boundaries for
