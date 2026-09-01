@@ -5,12 +5,18 @@ from datetime import UTC, datetime, timedelta
 from math import isfinite
 
 from trussium.observability import (
+    TOOL_APPROVAL_DECIDED,
+    TOOL_APPROVAL_EXPIRED,
+    TOOL_APPROVAL_REQUESTED,
+    TOOL_AUTHORIZATION_DECIDED,
+    TOOL_AUTHORIZATION_REQUESTED,
     TOOL_EXECUTION_COMPLETED,
     TOOL_EXECUTION_FAILED,
     TOOL_EXECUTION_STARTED,
     TOOL_EXECUTION_TIMEOUT,
     get_logger,
 )
+from trussium.observability.metrics import RuntimeMetrics
 from trussium.runtime import bind_execution_context, generate_execution_id, get_execution_context
 from trussium.tools.approval import (
     ToolApprovalAdapter,
@@ -39,6 +45,7 @@ class ToolExecutor:
         policy_adapter: ToolPolicyAdapter | None = None,
         approval_adapter: ToolApprovalAdapter | None = None,
         approval_timeout_seconds: float = 10.0,
+        metrics: RuntimeMetrics | None = None,
     ) -> None:
         if not isfinite(timeout_seconds) or timeout_seconds <= 0:
             raise ValueError("Tool execution timeout must be finite and positive")
@@ -49,6 +56,7 @@ class ToolExecutor:
         self._policy_adapter = policy_adapter
         self._approval_adapter = approval_adapter
         self._approval_timeout_seconds = approval_timeout_seconds
+        self._metrics = metrics
         self._logger = get_logger("tools.execution")
 
     @property
@@ -67,7 +75,23 @@ class ToolExecutor:
             )
             try:
                 if self._policy_adapter is not None:
+                    self._logger.info(
+                        "Tool authorization requested",
+                        extra={"event": TOOL_AUTHORIZATION_REQUESTED, "tool_name": tool.name},
+                    )
                     policy_result = await self._authorize(tool.name, tool.version)
+                    self._logger.info(
+                        "Tool authorization decided",
+                        extra={
+                            "event": TOOL_AUTHORIZATION_DECIDED,
+                            "tool_name": tool.name,
+                            "outcome": policy_result.decision.value,
+                        },
+                    )
+                    if self._metrics is not None:
+                        self._metrics.tool_authorization_decision(
+                            decision=policy_result.decision.value
+                        )
                     if policy_result.decision is ToolAuthorizationDecision.DENY:
                         raise ToolAuthorizationError(policy_result.reason_code)
                     if policy_result.decision is ToolAuthorizationDecision.APPROVAL_REQUIRED:
@@ -84,7 +108,23 @@ class ToolExecutor:
                             + timedelta(seconds=self._approval_timeout_seconds),
                             reason_code=policy_result.reason_code,
                         )
+                        self._logger.info(
+                            "Tool approval requested",
+                            extra={"event": TOOL_APPROVAL_REQUESTED, "tool_name": tool.name},
+                        )
                         approval_result = await self._approve(approval_request)
+                        self._logger.info(
+                            "Tool approval decided",
+                            extra={
+                                "event": TOOL_APPROVAL_DECIDED,
+                                "tool_name": tool.name,
+                                "outcome": approval_result.decision.value,
+                            },
+                        )
+                        if self._metrics is not None:
+                            self._metrics.tool_approval_decision(
+                                decision=approval_result.decision.value
+                            )
                         if approval_result.decision is not ToolApprovalDecision.APPROVED:
                             raise ToolAuthorizationError(approval_result.reason_code)
                 arguments = tool.arguments_model.model_validate(invocation.arguments)
@@ -131,4 +171,8 @@ class ToolExecutor:
             async with timeout(self._approval_timeout_seconds):
                 return await self._approval_adapter.request_approval(request)  # type: ignore[union-attr]
         except TimeoutError as error:
+            self._logger.warning(
+                "Tool approval expired",
+                extra={"event": TOOL_APPROVAL_EXPIRED, "tool_name": request.tool_name},
+            )
             raise ToolApprovalTimeoutError() from error

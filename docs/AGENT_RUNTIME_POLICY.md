@@ -41,6 +41,9 @@ protocol. Requests contain identity, tool metadata, execution context, and
 bounded budgets only; adapters must not receive invocation arguments.
 When configured on `ToolExecutor`, the policy adapter runs before argument
 validation and handler invocation; omitted adapters preserve legacy execution.
+The executor emits bounded `tool.authorization.requested` and
+`tool.authorization.decided` events and records decisions in the
+`trussium_tool_authorization_decisions` counter.
 
 The bounded approval request and decision contract is documented in [Agent
 Runtime human-approval contract](AGENT_RUNTIME_APPROVAL.md).
