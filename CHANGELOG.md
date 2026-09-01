@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.10.0 (2026-09-01)
+
+### Features
+
+- Bound workflow audit delivery ([#366](https://github.com/trussiumhq/trussium/pull/366),
+  [`6520bab`](https://github.com/trussiumhq/trussium/commit/6520babf697707e386475872c135223c9e801156))
+
+
 ## v1.9.0 (2026-09-01)
 
 ### Features
