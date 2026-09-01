@@ -27,7 +27,18 @@ security expansion remain deployment-owned follow-up work.
 - [ ] Approve concrete policy and approval adapter interfaces.
 - [ ] Define persistence requirements, if any, without making storage mandatory.
 - [x] Add deterministic workflow and child-cancellation test fixtures.
-- [ ] Complete a security review of limits, side effects, and audit events.
+- [x] Complete a security review of limits, side effects, and audit events.
+
+### Security review outcome
+
+The bounded slice enforces maximum depth, child count, parallel fan-out,
+workflow and tool deadlines, and finite approval waits. Tools are explicitly
+registered and opt-in; no unrestricted code, filesystem, network, or hidden
+credential access is introduced. Workflow and authorization events contain
+only correlation, identity, tool, outcome, and stable reason metadata. Side
+effects remain owned by registered handlers and deployment policy. Durable
+state, replay, distributed coordination, and hosted authorization remain out
+of scope for this review.
 
 ## Contract coverage
 
