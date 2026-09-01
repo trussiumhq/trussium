@@ -6,7 +6,13 @@ import pytest
 from pydantic import BaseModel, ConfigDict
 
 from trussium.tools import RegisteredTool, ToolExecutor, ToolInvocation, ToolRegistry
-from trussium.workflows import WorkflowExecutor, WorkflowRequest, WorkflowStep
+from trussium.workflows import (
+    WorkflowAdmissionError,
+    WorkflowAdmissionPolicy,
+    WorkflowExecutor,
+    WorkflowRequest,
+    WorkflowStep,
+)
 
 
 @pytest.fixture
@@ -192,3 +198,27 @@ def test_workflow_rejects_parallel_groups_over_eight_steps() -> None:
                 ),
             ),
         )
+
+
+@pytest.mark.anyio
+async def test_workflow_policy_rejects_before_tool_execution() -> None:
+    executed = False
+
+    async def handler(arguments: BaseModel) -> dict[str, object]:
+        nonlocal executed
+        executed = True
+        return {}
+
+    executor = WorkflowExecutor(
+        ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, handler),))),
+        admission_policy=WorkflowAdmissionPolicy(max_depth=1),
+    )
+    request = WorkflowRequest(
+        steps=(WorkflowStep(id="one", invocation=ToolInvocation(name="echo", arguments={})),),
+        depth=2,
+    )
+
+    with pytest.raises(WorkflowAdmissionError, match="depth") as error:
+        await executor.execute(request)
+    assert error.value.code == "workflow_depth_exceeded"
+    assert executed is False

@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict
 
 from trussium.app import create_application
 from trussium.tools import RegisteredTool, ToolExecutor, ToolInvocation, ToolRegistry
-from trussium.workflows import WorkflowRequest, WorkflowStep
+from trussium.workflows import WorkflowAdmissionPolicy, WorkflowRequest, WorkflowStep
 
 
 class EchoArguments(BaseModel):
@@ -93,3 +93,22 @@ def test_workflow_endpoint_requires_configured_tools() -> None:
     )
     assert response.status_code == 503
     assert response.json()["detail"]["code"] == "workflows_unavailable"
+
+
+def test_workflow_endpoint_returns_stable_admission_rejection() -> None:
+    executor = ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
+    client = TestClient(
+        create_application(
+            tool_executor=executor,
+            workflow_admission_policy=WorkflowAdmissionPolicy(max_depth=1),
+        )
+    )
+    response = client.post(
+        "/v1/workflows/executions",
+        json={
+            "steps": [{"id": "one", "invocation": {"name": "echo", "arguments": {}}}],
+            "depth": 2,
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"]["code"] == "workflow_depth_exceeded"
