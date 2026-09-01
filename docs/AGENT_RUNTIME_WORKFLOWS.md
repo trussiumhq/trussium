@@ -47,3 +47,6 @@ Workflow lifecycle events include request and execution identifiers, bounded
 workflow identity, state transition, duration, and stable reason codes. They do
 not include prompts, tool arguments or outputs, credentials, provider payloads,
 or exception text.
+
+Result aggregation and bounded error propagation are defined in [Agent Runtime
+workflow results and errors](AGENT_RUNTIME_RESULTS.md).
