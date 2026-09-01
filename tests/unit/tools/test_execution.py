@@ -1,8 +1,15 @@
 import asyncio
+import logging
 
 import pytest
 from pydantic import BaseModel, ConfigDict
 
+from trussium.observability import (
+    TOOL_APPROVAL_DECIDED,
+    TOOL_APPROVAL_REQUESTED,
+    TOOL_AUTHORIZATION_DECIDED,
+    TOOL_AUTHORIZATION_REQUESTED,
+)
 from trussium.tools import (
     RegisteredTool,
     ToolApprovalDecision,
@@ -115,3 +122,27 @@ def test_approval_required_can_allow_handler_execution() -> None:
     )
     result = asyncio.run(executor.execute(ToolInvocation(name="echo", arguments={"value": "ok"})))
     assert result.output == {"value": "ok"}
+
+
+def test_authorization_events_are_bounded_and_private(caplog: pytest.LogCaptureFixture) -> None:
+    executor = ToolExecutor(
+        ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)),
+        policy_adapter=ApprovalPolicy(),
+        approval_adapter=ApproveAdapter(),
+    )
+    with caplog.at_level(logging.INFO, logger="trussium.tools.execution"):
+        asyncio.run(
+            executor.execute(ToolInvocation(name="echo", arguments={"value": "secret-payload"}))
+        )
+
+    events = [record.event for record in caplog.records if hasattr(record, "event")]
+    assert events == [
+        "tool.execution.started",
+        TOOL_AUTHORIZATION_REQUESTED,
+        TOOL_AUTHORIZATION_DECIDED,
+        TOOL_APPROVAL_REQUESTED,
+        TOOL_APPROVAL_DECIDED,
+        "tool.execution.completed",
+    ]
+    assert all("secret-payload" not in record.getMessage() for record in caplog.records)
+    assert all(not hasattr(record, "arguments") for record in caplog.records)
