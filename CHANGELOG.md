@@ -2,6 +2,49 @@
 
 <!-- version list -->
 
+## v1.17.0 (2026-09-01)
+
+### Documentation
+
+- Add v2 release candidate manifest
+  ([`aae72da`](https://github.com/trussiumhq/trussium/commit/aae72daf0f030cb7c72118f39827757cda0a4afb))
+
+- Fix superseded release link
+  ([`7bb7207`](https://github.com/trussiumhq/trussium/commit/7bb720727ebb17c1ee12d317177df0fce33817af))
+
+- Mark superseded release candidate ([#392](https://github.com/trussiumhq/trussium/pull/392),
+  [`7c40f6d`](https://github.com/trussiumhq/trussium/commit/7c40f6d84cdcd1da0f5d4d93105c3375c9b94b14))
+
+- Prioritize bounded MCP execution
+  ([`1da6d73`](https://github.com/trussiumhq/trussium/commit/1da6d73f455562993b567fddde83b74e1d136280))
+
+- Reconcile agent runtime release readiness
+  ([#390](https://github.com/trussiumhq/trussium/pull/390),
+  [`44f2e0a`](https://github.com/trussiumhq/trussium/commit/44f2e0ac26d13c2da219bb5094410f386fc1eec9))
+
+- Record agent runtime security review ([#388](https://github.com/trussiumhq/trussium/pull/388),
+  [`ef3acb4`](https://github.com/trussiumhq/trussium/commit/ef3acb4bf6d717719477bdaa844ed78aa35a2327))
+
+- Use compatibility-preserving minor release candidate
+  ([`c35d6bd`](https://github.com/trussiumhq/trussium/commit/c35d6bdd125feae7e847d7168c42d9c5e9eb5a69))
+
+### Features
+
+- Add bounded MCP tool execution
+  ([`1da6d73`](https://github.com/trussiumhq/trussium/commit/1da6d73f455562993b567fddde83b74e1d136280))
+
+- Add opt-in MCP tool execution
+  ([`1da6d73`](https://github.com/trussiumhq/trussium/commit/1da6d73f455562993b567fddde83b74e1d136280))
+
+### Testing
+
+- Cover authorization event privacy ([#384](https://github.com/trussiumhq/trussium/pull/384),
+  [`13af0c0`](https://github.com/trussiumhq/trussium/commit/13af0c03193ef7cc19253d86e74bb207e2623ebb))
+
+- Validate tool authorization metrics ([#386](https://github.com/trussiumhq/trussium/pull/386),
+  [`9dca66d`](https://github.com/trussiumhq/trussium/commit/9dca66d36cda53a4b5de23a4d190d022004e8608))
+
+
 ## v1.16.0 (2026-09-01)
 
 ### Features
