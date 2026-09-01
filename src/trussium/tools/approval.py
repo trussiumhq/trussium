@@ -39,6 +39,13 @@ class ToolApprovalResult(BaseModel):
     reason_code: str = Field(min_length=1, max_length=64)
 
 
+class ToolApprovalTimeoutError(TimeoutError):
+    """Raised when an approval adapter does not decide within its bound."""
+
+    def __init__(self) -> None:
+        super().__init__("Tool approval timed out.")
+
+
 @runtime_checkable
 class ToolApprovalAdapter(Protocol):
     """Application-owned asynchronous approval integration point."""
@@ -52,4 +59,5 @@ __all__ = [
     "ToolApprovalDecision",
     "ToolApprovalRequest",
     "ToolApprovalResult",
+    "ToolApprovalTimeoutError",
 ]
