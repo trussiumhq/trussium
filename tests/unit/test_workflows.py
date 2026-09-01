@@ -1,5 +1,7 @@
 """Tests for bounded workflow execution."""
 
+import asyncio
+
 import pytest
 from pydantic import BaseModel, ConfigDict
 
@@ -74,6 +76,64 @@ async def test_workflow_deadline_returns_bounded_timeout() -> None:
     assert result.status == "timed_out"
     assert result.steps == ()
     assert cleaned
+
+
+@pytest.mark.anyio
+async def test_workflow_cancellation_cleans_up_active_parallel_children() -> None:
+    started = 0
+    all_started = asyncio.Event()
+    cleaned = 0
+
+    async def cancellable(_: BaseModel) -> dict[str, object]:
+        nonlocal started, cleaned
+        started += 1
+        if started == 2:
+            all_started.set()
+        try:
+            await asyncio.sleep(10)
+        finally:
+            cleaned += 1
+        return {}
+
+    executor = WorkflowExecutor(
+        ToolExecutor(
+            ToolRegistry(
+                (
+                    RegisteredTool("echo", EchoArguments, _echo),
+                    RegisteredTool("wait", EchoArguments, cancellable),
+                )
+            )
+        )
+    )
+    workflow = asyncio.create_task(
+        executor.execute(
+            WorkflowRequest(
+                steps=(
+                    WorkflowStep(
+                        id="root",
+                        invocation=ToolInvocation(name="echo", arguments={"value": "root"}),
+                    ),
+                ),
+                parallel_groups=(
+                    (
+                        WorkflowStep(
+                            id="one",
+                            invocation=ToolInvocation(name="wait", arguments={"value": "x"}),
+                        ),
+                        WorkflowStep(
+                            id="two",
+                            invocation=ToolInvocation(name="wait", arguments={"value": "x"}),
+                        ),
+                    ),
+                ),
+            )
+        )
+    )
+    await all_started.wait()
+    workflow.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await workflow
+    assert cleaned == 2
 
 
 @pytest.mark.anyio
