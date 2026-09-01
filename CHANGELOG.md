@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.3.0 (2026-09-01)
+
+### Features
+
+- Add parallel workflow groups ([#348](https://github.com/trussiumhq/trussium/pull/348),
+  [`cc496a9`](https://github.com/trussiumhq/trussium/commit/cc496a97df02a5a0a52e915e2debf61edce6ddcf))
+
+
 ## v1.2.0 (2026-09-01)
 
 ### Documentation
