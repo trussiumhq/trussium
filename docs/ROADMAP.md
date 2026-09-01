@@ -890,7 +890,8 @@ The proposed bounded first workflow scope is documented in
 The 1 September 2026 review accepted the bounded workflow scope, including
 admission limits, timeout and caller-cancellation cleanup, normalized results,
 and HTTP exposure. Workflow lifecycle events now provide bounded audit signals
-without tool payloads. Policy, approval, limits, persistence, and security
+without tool payloads. A storage-neutral immutable audit-record contract is now
+defined; persistence remains deferred. Policy, approval, limits, and security
 expansion remain separately gated.
 
 ---
