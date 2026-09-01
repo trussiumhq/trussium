@@ -59,6 +59,9 @@ implicit because a tool is registered.
 Detailed composition with identity bindings is defined in [Agent Runtime tool
 authorization and policy](AGENT_RUNTIME_POLICY.md).
 
+Workflow states, deadlines, cancellation, and shutdown semantics are defined
+in [Agent Runtime workflow lifecycle](AGENT_RUNTIME_WORKFLOWS.md).
+
 ## Audit and privacy
 
 The runtime emits bounded structured events for accepted, started, completed,

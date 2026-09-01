@@ -878,6 +878,8 @@ The initial tool and invocation contract is captured in
 The controlled tool foundation (`ToolRegistry`, bounded `ToolExecutor`, and
 `POST /v1/tools/executions`) is already delivered; workflow orchestration and
 agent state remain deferred.
+The bounded workflow lifecycle contract is documented in
+[Agent Runtime workflow lifecycle](AGENT_RUNTIME_WORKFLOWS.md).
 Implementation remains deferred until the tool, workflow, policy, approval,
 limit, cancellation, and audit contracts are reviewed and accepted.
 
