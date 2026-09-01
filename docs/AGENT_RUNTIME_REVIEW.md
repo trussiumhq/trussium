@@ -33,7 +33,7 @@ security expansion remain deployment-owned follow-up work.
 
 - [x] Tool registration, immutable metadata, discovery, and bounded execution
       match [AGENT_RUNTIME.md](AGENT_RUNTIME.md).
-- [ ] Authorization, allow-list composition, and approval decisions match
+- [x] Authorization, allow-list composition, and approval decisions match
       [AGENT_RUNTIME_POLICY.md](AGENT_RUNTIME_POLICY.md) and
       [AGENT_RUNTIME_APPROVAL.md](AGENT_RUNTIME_APPROVAL.md).
 - [x] Workflow states, deadlines, cancellation, and shutdown match

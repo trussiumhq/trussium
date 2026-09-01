@@ -80,3 +80,19 @@ def test_workflow_metrics_expose_bounded_lifecycle_series() -> None:
         in rendered
     )
     assert 'trussium_workflow_shutdown_drains_total{outcome="completed"} 1.0' in rendered
+
+
+def test_tool_authorization_and_approval_metrics_use_bounded_decisions() -> None:
+    metrics = RuntimeMetrics()
+    metrics.tool_authorization_decision(decision="allow")
+    metrics.tool_authorization_decision(decision="approval_required")
+    metrics.tool_approval_decision(decision="approved")
+    metrics.tool_approval_decision(decision="expired")
+
+    rendered = metrics.render().decode()
+    assert 'trussium_tool_authorization_decisions_total{decision="allow"} 1.0' in rendered
+    assert (
+        'trussium_tool_authorization_decisions_total{decision="approval_required"} 1.0' in rendered
+    )
+    assert 'trussium_tool_approval_decisions_total{decision="approved"} 1.0' in rendered
+    assert 'trussium_tool_approval_decisions_total{decision="expired"} 1.0' in rendered
