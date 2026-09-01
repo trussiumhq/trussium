@@ -899,6 +899,8 @@ Workflow metrics now expose active executions, terminal outcomes, admission
 rejections, and drain outcomes with bounded labels. Cross-process coordination
 remains deferred. Policy, approval, limits, and security
 expansion remain separately gated.
+The readiness checklist now records the delivered workflow gates as complete
+while keeping those optional expansions explicitly open.
 
 ---
 
