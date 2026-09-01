@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.17.1 (2026-09-01)
+
+### Bug Fixes
+
+- Normalize MCP tool errors
+  ([`c5c31ae`](https://github.com/trussiumhq/trussium/commit/c5c31ae47b20bcb0d3161422cd1745987a7b26d5))
+
+
 ## v1.17.0 (2026-09-01)
 
 ### Documentation
