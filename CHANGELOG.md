@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.16.0 (2026-09-01)
+
+### Features
+
+- Instrument tool authorization ([#382](https://github.com/trussiumhq/trussium/pull/382),
+  [`0abf9a4`](https://github.com/trussiumhq/trussium/commit/0abf9a4a66f0dbe4f955f43cd2ab9e933532694f))
+
+
 ## v1.15.0 (2026-09-01)
 
 ### Features
