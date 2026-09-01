@@ -69,6 +69,29 @@ class RuntimeMetrics:
             labelnames=("capability", "provider", "outcome"),
             registry=self.registry,
         )
+        self.workflow_executions_active = Gauge(
+            "trussium_workflow_executions_active",
+            "Number of active bounded workflow executions.",
+            registry=self.registry,
+        )
+        self.workflow_executions_total = Counter(
+            "trussium_workflow_executions",
+            "Completed bounded workflow executions by outcome.",
+            labelnames=("outcome",),
+            registry=self.registry,
+        )
+        self.workflow_admission_rejections_total = Counter(
+            "trussium_workflow_admission_rejections",
+            "Workflow admissions rejected by stable policy code.",
+            labelnames=("code",),
+            registry=self.registry,
+        )
+        self.workflow_shutdown_drains_total = Counter(
+            "trussium_workflow_shutdown_drains",
+            "Workflow shutdown drain outcomes.",
+            labelnames=("outcome",),
+            registry=self.registry,
+        )
 
     def routing_decision(self, *, capability: str, provider: str, outcome: str) -> None:
         """Record one bounded provider routing decision."""
@@ -101,6 +124,21 @@ class RuntimeMetrics:
             method=method,
             outcome=outcome,
         ).observe(duration_seconds)
+
+    def workflow_started(self) -> None:
+        self.workflow_executions_active.inc()
+
+    def workflow_released(self) -> None:
+        self.workflow_executions_active.dec()
+
+    def workflow_finished(self, *, outcome: str) -> None:
+        self.workflow_executions_total.labels(outcome=outcome).inc()
+
+    def workflow_admission_rejected(self, *, code: str) -> None:
+        self.workflow_admission_rejections_total.labels(code=code).inc()
+
+    def workflow_shutdown_drain(self, *, outcome: str) -> None:
+        self.workflow_shutdown_drains_total.labels(outcome=outcome).inc()
 
     def render(self) -> bytes:
         """Render the registry in Prometheus text exposition format."""

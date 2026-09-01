@@ -62,3 +62,21 @@ def test_request_lifecycle_updates_bounded_metric_series() -> None:
         'trussium_http_request_duration_seconds_sum{method="POST",outcome="completed"} 0.25'
     ) in rendered
     assert metric_samples(metrics)["trussium_http_requests_active"] == 0
+
+
+def test_workflow_metrics_expose_bounded_lifecycle_series() -> None:
+    metrics = RuntimeMetrics()
+    metrics.workflow_started()
+    metrics.workflow_finished(outcome="completed")
+    metrics.workflow_released()
+    metrics.workflow_admission_rejected(code="workflow_depth_exceeded")
+    metrics.workflow_shutdown_drain(outcome="completed")
+
+    rendered = metrics.render().decode()
+    assert metric_samples(metrics)["trussium_workflow_executions_active"] == 0
+    assert 'trussium_workflow_executions_total{outcome="completed"} 1.0' in rendered
+    assert (
+        'trussium_workflow_admission_rejections_total{code="workflow_depth_exceeded"} 1.0'
+        in rendered
+    )
+    assert 'trussium_workflow_shutdown_drains_total{outcome="completed"} 1.0' in rendered

@@ -65,6 +65,11 @@ runtime graceful-shutdown budget, before capability, provider, and service
 teardown. A drain timeout is logged as an operational event and does not expose
 tool payloads or raw exception text.
 
+When metrics are enabled, the runtime exposes active workflow gauges and
+bounded counters for terminal outcomes, admission rejection codes, and
+shutdown drain outcomes. Labels are stable low-cardinality values; tool names,
+arguments, and outputs are never metric labels.
+
 ## Observability and privacy
 
 Workflow lifecycle events include request and execution identifiers, bounded
