@@ -853,7 +853,7 @@ slice with contracts, provider adapters, APIs, telemetry, tests, and documentati
 
 ## Milestone 12 — Agent Runtime
 
-**Status:** 🚧 In Progress (architecture planning)
+**Status:** 🚧 In Progress (bounded workflow slice)
 
 Extend Trussium beyond model inference into controlled workflow and agent execution.
 
@@ -876,8 +876,9 @@ Architecture planning has started in [ADR 0044](adr/0044-agent-runtime-boundary.
 The initial tool and invocation contract is captured in
 [Agent Runtime tool and invocation contract](AGENT_RUNTIME.md).
 The controlled tool foundation (`ToolRegistry`, bounded `ToolExecutor`, and
-`POST /v1/tools/executions`) is already delivered; workflow orchestration and
-agent state remain deferred.
+`POST /v1/tools/executions`) is delivered. The first bounded workflow
+coordinator and `POST /v1/workflows/executions` are now delivered; durable
+workflow state, agent state, and distributed orchestration remain deferred.
 The bounded workflow lifecycle contract is documented in
 [Agent Runtime workflow lifecycle](AGENT_RUNTIME_WORKFLOWS.md).
 Result aggregation and error propagation are documented in
@@ -886,11 +887,10 @@ The implementation gate is consolidated in the
 [Agent Runtime implementation-readiness checklist](AGENT_RUNTIME_REVIEW.md).
 The proposed bounded first workflow scope is documented in
 [Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
-The 1 September 2026 review confirms the contracts are documented while
-workflow orchestration remains gated on scope, adapter, persistence, testing,
-and security decisions.
-Implementation remains deferred until the tool, workflow, policy, approval,
-limit, cancellation, and audit contracts are reviewed and accepted.
+The 1 September 2026 review accepted the bounded workflow scope, including
+admission limits, timeout and caller-cancellation cleanup, normalized results,
+and HTTP exposure. Policy, approval, limits, audit, persistence, and security
+expansion remain separately gated.
 
 ---
 

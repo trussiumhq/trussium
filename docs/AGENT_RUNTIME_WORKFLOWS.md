@@ -1,7 +1,9 @@
 # Agent Runtime workflow lifecycle
 
 This contract defines bounded workflow orchestration above existing
-capabilities and controlled tools. It does not implement a workflow engine.
+capabilities and controlled tools. The first bounded coordinator is available
+through `POST /v1/workflows/executions`; durable and distributed workflow
+engines remain out of scope.
 
 ## States
 
