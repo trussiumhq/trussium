@@ -987,34 +987,33 @@ reviewed public compatibility boundary and change requirements.
 The historical release proposals and approval gates remain recorded in the
 [release candidate manifests](RELEASE_1_17_CANDIDATE.md).
 
-### 1.0 release-readiness baseline
+### Current release-readiness baseline
 
 The current OSS release baseline is reviewed across the independently versioned
 repositories:
 
 - Runtime `v1.17.1` is the current validated HTTP and container baseline; the
   Operator compatibility matrix records the tested `v1.17.0` patch line.
-- Helm chart `v0.10.0` targets runtime `v0.98.1`.
-- Trussium Operator `v1.0.0` is validated against runtime `v1.0.0` and
-  chart `v1.0.0`.
+- Helm chart `v1.1.0` targets runtime `v1.17.0`.
+- Trussium Operator `v1.0.0` is tested against runtime `v1.17.0` and
+  chart `v1.1.0` through the Operator lifecycle matrix.
 - SDKs and provider adapters remain separately versioned and released.
 - The deferred Agent Runtime expansions are outside the first stable OSS release
   scope; the delivered bounded contracts remain independently versioned and
   opt-in.
 
-The first major release requires a reviewed breaking-change report, explicit
-version decisions for each selected repository, passing repository CI, and
-post-release verification of GitHub, OCI, and package artifacts. No repository
-should be tagged or published until that checklist is complete.
+The current release line is minor and compatibility-preserving. A future major
+release would require a reviewed breaking-change report, explicit version
+decisions, passing repository CI, and post-release artifact verification.
 
 ---
 
 ## Immediate Priorities
 
-The first post-1.0 priority is maintenance and release health:
+The post-1.17 priority is maintenance and protocol evolution:
 
-1. Deliver the bounded, opt-in MCP tool-execution surface tracked in issue
-   [#398](https://github.com/trussiumhq/trussium/issues/398).
+1. Extend the bounded MCP surface only through reviewed, backwards-compatible
+   protocol additions.
 2. Monitor dependency and vulnerability alerts across all public repositories.
 3. Keep release, container, compatibility, and documentation workflows healthy.
 4. Review historical compatibility proposals and track operational fixes.
