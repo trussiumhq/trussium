@@ -7,6 +7,12 @@ from trussium.tools import RegisteredTool, ToolExecutor, ToolInvocation, ToolReg
 from trussium.workflows import WorkflowExecutor, WorkflowRequest, WorkflowStep
 
 
+@pytest.fixture
+def anyio_backend() -> str:
+    """Run asyncio-specific workflow tests on the asyncio backend."""
+    return "asyncio"
+
+
 class EchoArguments(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -40,11 +46,17 @@ async def test_workflow_executes_declared_steps_in_order() -> None:
 
 @pytest.mark.anyio
 async def test_workflow_deadline_returns_bounded_timeout() -> None:
+    cleaned = False
+
     async def slow(_: BaseModel) -> dict[str, object]:
+        nonlocal cleaned
         import asyncio
 
-        await asyncio.sleep(0.05)
-        return {}
+        try:
+            await asyncio.sleep(0.05)
+            return {}
+        finally:
+            cleaned = True
 
     executor = WorkflowExecutor(
         ToolExecutor(ToolRegistry((RegisteredTool("slow", EchoArguments, slow),)))
@@ -61,6 +73,7 @@ async def test_workflow_deadline_returns_bounded_timeout() -> None:
     )
     assert result.status == "timed_out"
     assert result.steps == ()
+    assert cleaned
 
 
 @pytest.mark.anyio
