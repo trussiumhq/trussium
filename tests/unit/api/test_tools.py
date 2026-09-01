@@ -26,6 +26,33 @@ def test_tools_are_unavailable_without_application_registration() -> None:
     assert response.json()["detail"]["code"] == "tools_unavailable"
 
 
+def test_mcp_is_disabled_by_default() -> None:
+    response = TestClient(create_application()).post(
+        "/v1/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "initialize"}
+    )
+    assert response.status_code == 404
+    assert response.json()["detail"]["code"] == "mcp_unavailable"
+
+
+def test_mcp_lists_and_executes_registered_tools() -> None:
+    executor = ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
+    client = TestClient(create_application(tool_executor=executor, mcp_enabled=True))
+
+    listed = client.post("/v1/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
+    called = client.post(
+        "/v1/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "tools/call",
+            "params": {"name": "echo", "arguments": {"value": "ok"}},
+        },
+    )
+
+    assert listed.json()["result"]["tools"][0]["name"] == "echo"
+    assert called.json()["result"]["content"] == [{"type": "json", "json": {"value": "ok"}}]
+
+
 def test_registered_tools_expose_only_safe_ordered_metadata() -> None:
     executor = ToolExecutor(
         ToolRegistry(

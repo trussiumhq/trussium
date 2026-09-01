@@ -920,7 +920,7 @@ Trussium remains protocol-agnostic, but protocols will be introduced according t
 
 ### Planned
 
-- Model Context Protocol
+- [Model Context Protocol](https://github.com/trussiumhq/trussium/issues/398)
 
 ### Deferred
 
@@ -1012,9 +1012,11 @@ should be tagged or published until that checklist is complete.
 
 The first post-1.0 priority is maintenance and release health:
 
-1. Monitor dependency and vulnerability alerts across all public repositories.
-2. Keep release, container, compatibility, and documentation workflows healthy.
-3. Review historical compatibility proposals and track operational fixes.
+1. Deliver the bounded, opt-in MCP tool-execution surface tracked in issue
+   [#398](https://github.com/trussiumhq/trussium/issues/398).
+2. Monitor dependency and vulnerability alerts across all public repositories.
+3. Keep release, container, compatibility, and documentation workflows healthy.
+4. Review historical compatibility proposals and track operational fixes.
 
 Additional capability interfaces and the deferred Agent Runtime remain separate
 future milestones and require their own compatibility and operational reviews.
