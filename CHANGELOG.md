@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.11.0 (2026-09-01)
+
+### Features
+
+- Add workflow shutdown drain lifecycle ([#368](https://github.com/trussiumhq/trussium/pull/368),
+  [`362f126`](https://github.com/trussiumhq/trussium/commit/362f1268ad5d74b65cd3c9b9202047182cb8a76c))
+
+
 ## v1.10.0 (2026-09-01)
 
 ### Features
