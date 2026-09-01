@@ -24,7 +24,7 @@ security expansion remain deployment-owned follow-up work.
 
 - [x] Approve the first workflow orchestration scope and bounded fan-out model.
 - [x] Review [Agent Runtime first workflow scope](AGENT_RUNTIME_SCOPE.md).
-- [ ] Approve concrete policy and approval adapter interfaces.
+- [x] Approve concrete policy and approval adapter interfaces.
 - [ ] Define persistence requirements, if any, without making storage mandatory.
 - [x] Add deterministic workflow and child-cancellation test fixtures.
 - [x] Complete a security review of limits, side effects, and audit events.
