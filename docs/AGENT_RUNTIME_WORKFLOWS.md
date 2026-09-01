@@ -33,6 +33,10 @@ waits for child finalization before emitting its terminal event. A deadline
 produces `timed_out` and prevents new child work. Native cancellation is never
 converted into a generic provider or tool failure.
 
+The coordinator’s timeout path is regression-tested for child finalization.
+Caller-cancellation coverage for active parallel children remains a follow-up
+before workflow orchestration is considered complete.
+
 ## Failure and shutdown
 
 The first terminal failure is preserved as the workflow outcome. Sibling work
