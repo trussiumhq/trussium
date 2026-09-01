@@ -5,6 +5,11 @@ from pydantic import BaseModel, ConfigDict
 
 from trussium.tools import (
     RegisteredTool,
+    ToolApprovalDecision,
+    ToolApprovalResult,
+    ToolAuthorizationDecision,
+    ToolAuthorizationError,
+    ToolAuthorizationResult,
     ToolExecutor,
     ToolInvocation,
     ToolNotFoundError,
@@ -29,6 +34,27 @@ async def _echo(arguments: BaseModel) -> dict[str, object]:
 async def _wait(_: BaseModel) -> dict[str, object]:
     await asyncio.sleep(1)
     return {}
+
+
+class DenyPolicy:
+    async def authorize(self, request: object) -> ToolAuthorizationResult:
+        return ToolAuthorizationResult(
+            decision=ToolAuthorizationDecision.DENY, reason_code="denied_by_test"
+        )
+
+
+class ApprovalPolicy:
+    async def authorize(self, request: object) -> ToolAuthorizationResult:
+        return ToolAuthorizationResult(
+            decision=ToolAuthorizationDecision.APPROVAL_REQUIRED, reason_code="needs_review"
+        )
+
+
+class ApproveAdapter:
+    async def request_approval(self, request: object) -> ToolApprovalResult:
+        return ToolApprovalResult(
+            decision=ToolApprovalDecision.APPROVED, reason_code="approved_by_test"
+        )
 
 
 def test_declared_tool_executes() -> None:
@@ -70,3 +96,22 @@ def test_tool_names_must_be_unique() -> None:
                 RegisteredTool("echo", EchoArguments, _echo),
             )
         )
+
+
+def test_policy_denial_prevents_handler_execution() -> None:
+    executor = ToolExecutor(
+        ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)),
+        policy_adapter=DenyPolicy(),
+    )
+    with pytest.raises(ToolAuthorizationError, match="authorization"):
+        asyncio.run(executor.execute(ToolInvocation(name="echo", arguments={"value": "no"})))
+
+
+def test_approval_required_can_allow_handler_execution() -> None:
+    executor = ToolExecutor(
+        ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)),
+        policy_adapter=ApprovalPolicy(),
+        approval_adapter=ApproveAdapter(),
+    )
+    result = asyncio.run(executor.execute(ToolInvocation(name="echo", arguments={"value": "ok"})))
+    assert result.output == {"value": "ok"}

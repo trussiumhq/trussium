@@ -1,6 +1,7 @@
 """Bounded execution of declared in-process tools."""
 
 from asyncio import timeout
+from datetime import UTC, datetime, timedelta
 from math import isfinite
 
 from trussium.observability import (
@@ -10,17 +11,44 @@ from trussium.observability import (
     TOOL_EXECUTION_TIMEOUT,
     get_logger,
 )
-from trussium.runtime import bind_execution_context
+from trussium.runtime import bind_execution_context, generate_execution_id, get_execution_context
+from trussium.tools.approval import (
+    ToolApprovalAdapter,
+    ToolApprovalDecision,
+    ToolApprovalRequest,
+    ToolApprovalResult,
+    ToolApprovalTimeoutError,
+)
 from trussium.tools.contracts import ToolExecutionResult, ToolInvocation
+from trussium.tools.policy import (
+    ToolAuthorizationDecision,
+    ToolAuthorizationError,
+    ToolAuthorizationRequest,
+    ToolAuthorizationResult,
+    ToolPolicyAdapter,
+)
 from trussium.tools.registry import ToolRegistry
 
 
 class ToolExecutor:
-    def __init__(self, registry: ToolRegistry, *, timeout_seconds: float = 10.0) -> None:
+    def __init__(
+        self,
+        registry: ToolRegistry,
+        *,
+        timeout_seconds: float = 10.0,
+        policy_adapter: ToolPolicyAdapter | None = None,
+        approval_adapter: ToolApprovalAdapter | None = None,
+        approval_timeout_seconds: float = 10.0,
+    ) -> None:
         if not isfinite(timeout_seconds) or timeout_seconds <= 0:
             raise ValueError("Tool execution timeout must be finite and positive")
+        if not isfinite(approval_timeout_seconds) or approval_timeout_seconds <= 0:
+            raise ValueError("Tool approval timeout must be finite and positive")
         self._registry = registry
         self._timeout_seconds = timeout_seconds
+        self._policy_adapter = policy_adapter
+        self._approval_adapter = approval_adapter
+        self._approval_timeout_seconds = approval_timeout_seconds
         self._logger = get_logger("tools.execution")
 
     @property
@@ -30,12 +58,35 @@ class ToolExecutor:
 
     async def execute(self, invocation: ToolInvocation) -> ToolExecutionResult:
         tool = self._registry.require(invocation.name)
-        with bind_execution_context(capability="tools.executions"):
+        context = get_execution_context()
+        execution_id = context.execution_id or generate_execution_id()
+        with bind_execution_context(capability="tools.executions", execution_id=execution_id):
             self._logger.info(
                 "Tool execution started",
                 extra={"event": TOOL_EXECUTION_STARTED, "tool_name": tool.name},
             )
             try:
+                if self._policy_adapter is not None:
+                    policy_result = await self._authorize(tool.name, tool.version)
+                    if policy_result.decision is ToolAuthorizationDecision.DENY:
+                        raise ToolAuthorizationError(policy_result.reason_code)
+                    if policy_result.decision is ToolAuthorizationDecision.APPROVAL_REQUIRED:
+                        if self._approval_adapter is None:
+                            raise ToolAuthorizationError("approval_adapter_unavailable")
+                        approval_request = ToolApprovalRequest(
+                            request_id=context.request_id or execution_id,
+                            parent_execution_id=execution_id,
+                            tool_name=tool.name,
+                            tool_version=tool.version,
+                            identity=context.application_id or "anonymous",
+                            created_at=datetime.now(UTC),
+                            expires_at=datetime.now(UTC)
+                            + timedelta(seconds=self._approval_timeout_seconds),
+                            reason_code=policy_result.reason_code,
+                        )
+                        approval_result = await self._approve(approval_request)
+                        if approval_result.decision is not ToolApprovalDecision.APPROVED:
+                            raise ToolAuthorizationError(approval_result.reason_code)
                 arguments = tool.arguments_model.model_validate(invocation.arguments)
                 async with timeout(self._timeout_seconds):
                     output = await tool.handler(arguments)
@@ -57,3 +108,27 @@ class ToolExecutor:
                 extra={"event": TOOL_EXECUTION_COMPLETED, "tool_name": tool.name},
             )
             return ToolExecutionResult(tool_name=tool.name, output=output)
+
+    async def _authorize(self, tool_name: str, tool_version: str) -> ToolAuthorizationResult:
+        context = get_execution_context()
+        request = ToolAuthorizationRequest(
+            request_id=context.request_id,
+            execution_id=context.execution_id,
+            identity=context.application_id or "anonymous",
+            tenant_id=context.tenant_id,
+            tool_name=tool_name,
+            tool_version=tool_version,
+            capability=context.capability,
+            provider=context.provider,
+            model=context.model,
+            deadline_seconds=self._timeout_seconds,
+        )
+        async with timeout(self._timeout_seconds):
+            return await self._policy_adapter.authorize(request)  # type: ignore[union-attr]
+
+    async def _approve(self, request: ToolApprovalRequest) -> ToolApprovalResult:
+        try:
+            async with timeout(self._approval_timeout_seconds):
+                return await self._approval_adapter.request_approval(request)  # type: ignore[union-attr]
+        except TimeoutError as error:
+            raise ToolApprovalTimeoutError() from error
