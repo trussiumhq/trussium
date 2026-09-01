@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.8.0 (2026-09-01)
+
+### Features
+
+- Define workflow audit record contract ([#362](https://github.com/trussiumhq/trussium/pull/362),
+  [`21be15a`](https://github.com/trussiumhq/trussium/commit/21be15a3df3a839cb9a7a4b56cc01bfd4683d440))
+
+
 ## v1.7.0 (2026-09-01)
 
 ### Features
