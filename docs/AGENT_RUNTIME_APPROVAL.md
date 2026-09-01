@@ -37,3 +37,8 @@ exception text are excluded.
 Approval adapters are optional, local integration points. The runtime does not
 ship an approval UI, persistence layer, notification channel, or external
 policy service.
+
+The public integration point is the asynchronous `ToolApprovalAdapter` protocol,
+which accepts an immutable `ToolApprovalRequest` and returns a
+`ToolApprovalResult`. The request carries only correlation, tool, identity,
+expiry, and stable reason metadata.
