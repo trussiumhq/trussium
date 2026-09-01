@@ -1,5 +1,6 @@
 """Sequential bounded workflow execution over registered tools."""
 
+import asyncio
 from asyncio import timeout
 
 from trussium.runtime import bind_execution_context, generate_execution_id
@@ -22,6 +23,21 @@ class WorkflowExecutor:
                 async with timeout(request.deadline_seconds):
                     for step in request.steps:
                         results.append(await self._tool_executor.execute(step.invocation))
+                    for group in request.parallel_groups:
+                        if len(group) > 8:
+                            raise ValueError(
+                                "Parallel workflow groups cannot exceed eight children"
+                            )
+                        tasks = [
+                            asyncio.create_task(self._tool_executor.execute(step.invocation))
+                            for step in group
+                        ]
+                        try:
+                            results.extend(await asyncio.gather(*tasks))
+                        finally:
+                            for task in tasks:
+                                if not task.done():
+                                    task.cancel()
             except TimeoutError:
                 return WorkflowResult(status=WorkflowStatus.TIMED_OUT, steps=tuple(results))
             except BaseException:

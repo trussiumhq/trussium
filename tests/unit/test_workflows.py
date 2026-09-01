@@ -61,3 +61,35 @@ async def test_workflow_deadline_returns_bounded_timeout() -> None:
     )
     assert result.status == "timed_out"
     assert result.steps == ()
+
+
+@pytest.mark.anyio
+async def test_workflow_parallel_group_preserves_declaration_order() -> None:
+    executor = WorkflowExecutor(
+        ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
+    )
+    result = await executor.execute(
+        WorkflowRequest(
+            steps=(
+                WorkflowStep(
+                    id="start", invocation=ToolInvocation(name="echo", arguments={"value": "s"})
+                ),
+            ),
+            parallel_groups=(
+                (
+                    WorkflowStep(
+                        id="first", invocation=ToolInvocation(name="echo", arguments={"value": "a"})
+                    ),
+                    WorkflowStep(
+                        id="second",
+                        invocation=ToolInvocation(name="echo", arguments={"value": "b"}),
+                    ),
+                ),
+            ),
+        )
+    )
+    assert [step.output for step in result.steps] == [
+        {"value": "s"},
+        {"value": "a"},
+        {"value": "b"},
+    ]

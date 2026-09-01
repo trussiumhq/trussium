@@ -24,8 +24,13 @@ class WorkflowRequest(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     steps: tuple[WorkflowStep, ...] = Field(min_length=1, max_length=16)
+    parallel_groups: tuple[tuple[WorkflowStep, ...], ...] = ()
     deadline_seconds: float = Field(default=30.0, gt=0, le=300)
     depth: int = Field(default=1, ge=1, le=4)
+
+    @property
+    def all_parallel_groups(self) -> tuple[tuple[WorkflowStep, ...], ...]:
+        return self.parallel_groups
 
 
 class WorkflowResult(BaseModel):
