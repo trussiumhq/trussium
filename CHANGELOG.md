@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.12.0 (2026-09-01)
+
+### Features
+
+- Integrate workflow drain with app shutdown
+  ([#370](https://github.com/trussiumhq/trussium/pull/370),
+  [`a381940`](https://github.com/trussiumhq/trussium/commit/a381940f722290f4fc16e6a010bea3d63978eb75))
+
+
 ## v1.11.0 (2026-09-01)
 
 ### Features
