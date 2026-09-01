@@ -1,5 +1,9 @@
 # Trussium 1.17.0 Release Candidate
 
+> **Historical manifest — superseded.** Runtime `v1.17.0` was published after
+> the MCP feature and its validation passed. This file remains as the review
+> record; use the GitHub release for the authoritative artifacts.
+
 > **Review artifact — no tags or publication.** This manifest proposes a
 > coordinated minor-release baseline for explicit review and approval.
 
