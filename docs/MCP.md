@@ -28,7 +28,8 @@ without an application-owned tool executor, it returns `503` with
   invoking a tool. For larger registries, pass the returned opaque `nextCursor`
   as `params.cursor`; responses are capped at 50 tools per page.
 - `tools/call` executes one registered tool with bounded validation and
-  runtime-owned deadlines.
+  runtime-owned deadlines. Successful results include `isError: false` and
+  preserve the tool output in the `content` array.
 
 The first slice intentionally excludes subscriptions, prompts, resources,
 remote discovery, and transport upgrades. REST and SSE APIs remain the primary

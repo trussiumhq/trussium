@@ -1017,7 +1017,8 @@ The post-1.17 priority is maintenance and protocol evolution:
    handshake tracked in issue #404. MCP tool discovery now also exposes each
    declared input schema, tracked in issue #406, and supports bounded cursor
    pagination tracked in issue #408. The initialized lifecycle notification is
-   tracked in issue #410.
+   tracked in issue #410. Successful tool calls now include the standard
+   `isError: false` result indicator tracked in issue #412.
 2. Monitor dependency and vulnerability alerts across all public repositories.
 3. Keep release, container, compatibility, and documentation workflows healthy.
 4. Review historical compatibility proposals and track operational fixes.
