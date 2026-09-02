@@ -1015,7 +1015,8 @@ The post-1.17 priority is maintenance and protocol evolution:
 1. Extend the bounded MCP surface only through reviewed, backwards-compatible
    protocol additions. The first post-v1.17 addition is the bounded `ping`
    handshake tracked in issue #404. MCP tool discovery now also exposes each
-   declared input schema, tracked in issue #406.
+   declared input schema, tracked in issue #406, and supports bounded cursor
+   pagination tracked in issue #408.
 2. Monitor dependency and vulnerability alerts across all public repositories.
 3. Keep release, container, compatibility, and documentation workflows healthy.
 4. Review historical compatibility proposals and track operational fixes.
