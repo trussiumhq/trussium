@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.20.0 (2026-09-02)
+
+### Features
+
+- Paginate MCP tool discovery
+  ([`2f9062d`](https://github.com/trussiumhq/trussium/commit/2f9062d3ea1661633633f9d0894c5a4aaf9284a7))
+
+
 ## v1.19.0 (2026-09-02)
 
 ### Features
