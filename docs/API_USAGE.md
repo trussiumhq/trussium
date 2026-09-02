@@ -28,6 +28,37 @@ curl http://127.0.0.1:9000/v1/chat/completions \
 The configured provider must support the requested model. Do not place provider
 credentials in requests; configure them in the runtime environment instead.
 
+## Provider examples
+
+Trussium keeps provider adapters behind one normalized API. Use the built-in
+OpenAI-compatible boundary for OpenAI or a compatible endpoint such as vLLM:
+
+```bash
+export TRUSSIUM_PROVIDER__NAME=openai
+export TRUSSIUM_PROVIDER__BASE_URL=https://api.openai.com/v1
+export TRUSSIUM_PROVIDER__API_KEY=replace-with-a-secret
+```
+
+For a private vLLM deployment, point the same boundary at its reachable URL:
+
+```bash
+export TRUSSIUM_PROVIDER__NAME=openai
+export TRUSSIUM_PROVIDER__BASE_URL=http://vllm.internal:8000/v1
+export TRUSSIUM_PROVIDER__API_KEY=replace-with-a-secret
+```
+
+For Ollama, use its OpenAI-compatible endpoint:
+
+```bash
+export TRUSSIUM_PROVIDER__NAME=ollama
+export TRUSSIUM_PROVIDER__BASE_URL=http://127.0.0.1:11434/v1
+```
+
+The standalone [`trussium-provider-anthropic`](https://github.com/trussiumhq/trussium-provider-anthropic)
+adapter translates Anthropic Messages into the normalized chat contract. It
+must be installed and explicitly registered by the embedding application; it
+does not install or host Anthropic.
+
 ## Python SDK
 
 ```python
@@ -58,3 +89,19 @@ curl http://127.0.0.1:9000/v1/translations \
 
 The runtime must have a registered translation provider, such as the
 self-hosted [LibreTranslate adapter](https://github.com/trussiumhq/trussium-provider-libretranslate).
+
+## Troubleshooting responses
+
+Check the response status before debugging provider details:
+
+| Status | First action |
+| --- | --- |
+| `200` | Inspect the normalized response or stream events. |
+| `400` / `422` | Validate the request shape, required fields, and model name. |
+| `404` | Confirm the endpoint path and capability is enabled. |
+| `503` | Check provider configuration, credentials, network reachability, and readiness. |
+| `504` | Review runtime provider or stream-idle deadlines and upstream latency. |
+
+Collect the `X-Request-ID` response header and matching structured logs for
+correlation. Do not include credentials, prompts, provider payloads, or raw
+exception text in tickets.
