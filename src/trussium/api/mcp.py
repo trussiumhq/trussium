@@ -36,8 +36,10 @@ def _executor(request: Request) -> ToolExecutor:
 
 @router.post("")
 async def mcp_json_rpc(message: MCPRequest, request: Request) -> dict[str, Any]:
-    """Handle initialize, tools/list, and tools/call only."""
+    """Handle the bounded MCP handshake and tool methods."""
     executor = _executor(request)
+    if message.method == "ping":
+        return {"jsonrpc": "2.0", "id": message.id, "result": {}}
     if message.method == "initialize":
         return {
             "jsonrpc": "2.0",

@@ -1013,7 +1013,8 @@ decisions, passing repository CI, and post-release artifact verification.
 The post-1.17 priority is maintenance and protocol evolution:
 
 1. Extend the bounded MCP surface only through reviewed, backwards-compatible
-   protocol additions.
+   protocol additions. The first post-v1.17 addition is the bounded `ping`
+   handshake tracked in issue #404.
 2. Monitor dependency and vulnerability alerts across all public repositories.
 3. Keep release, container, compatibility, and documentation workflows healthy.
 4. Review historical compatibility proposals and track operational fixes.
