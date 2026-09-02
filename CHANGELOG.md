@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.19.0 (2026-09-02)
+
+### Features
+
+- Expose MCP tool input schemas
+  ([`3e933a8`](https://github.com/trussiumhq/trussium/commit/3e933a886d2d454d5aaac380350ed71144636158))
+
+
 ## v1.18.0 (2026-09-02)
 
 ### Documentation
