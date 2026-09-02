@@ -59,7 +59,9 @@ async def mcp_json_rpc(message: MCPRequest, request: Request) -> dict[str, Any]:
                     {
                         "name": tool.name,
                         "description": tool.description,
-                        "inputSchema": {"type": "object"},
+                        "inputSchema": executor.registry.require(
+                            tool.name
+                        ).arguments_model.model_json_schema(),
                     }
                     for tool in executor.registry.discover()
                 ]
