@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.0 (2026-09-02)
+
+### Features
+
+- Add MCP tool result status
+  ([`e45fb7a`](https://github.com/trussiumhq/trussium/commit/e45fb7a5cef3e47a828e126598df639d7a131ef5))
+
+
 ## v1.21.0 (2026-09-02)
 
 ### Documentation
