@@ -4,7 +4,7 @@ import base64
 import binascii
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from trussium.tools import (
@@ -56,6 +56,8 @@ def _cursor_index(cursor: object, total: int) -> int | None:
 async def mcp_json_rpc(message: MCPRequest, request: Request) -> dict[str, Any]:
     """Handle the bounded MCP handshake and tool methods."""
     executor = _executor(request)
+    if message.method == "notifications/initialized" and message.id is None:
+        return Response(status_code=202)  # type: ignore[return-value]
     if message.method == "ping":
         return {"jsonrpc": "2.0", "id": message.id, "result": {}}
     if message.method == "initialize":

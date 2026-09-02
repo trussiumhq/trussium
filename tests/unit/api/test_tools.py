@@ -44,6 +44,20 @@ def test_mcp_ping_returns_empty_result_when_enabled() -> None:
     assert response.json() == {"jsonrpc": "2.0", "id": "ping-1", "result": {}}
 
 
+def test_mcp_initialized_notification_has_no_json_rpc_body() -> None:
+    client = TestClient(
+        create_application(tool_executor=ToolExecutor(ToolRegistry()), mcp_enabled=True)
+    )
+
+    response = client.post(
+        "/v1/mcp",
+        json={"jsonrpc": "2.0", "method": "notifications/initialized"},
+    )
+
+    assert response.status_code == 202
+    assert response.content == b""
+
+
 def test_mcp_lists_and_executes_registered_tools() -> None:
     executor = ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
     client = TestClient(create_application(tool_executor=executor, mcp_enabled=True))
