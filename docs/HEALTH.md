@@ -122,6 +122,25 @@ These codes are operational classifications, not routing decisions. They do
 not trigger retry, fallback, circuit breaking, provider replacement, or model
 aliasing.
 
+## Provider health verification
+
+After changing provider credentials, endpoint settings, or readiness gates,
+check the three signals separately:
+
+```bash
+curl -fsS http://127.0.0.1:9000/health/live
+curl -i http://127.0.0.1:9000/health/ready
+curl -sS http://127.0.0.1:9000/v1/capabilities/availability
+```
+
+`/health/live` should remain HTTP 200 while the process is serving. With
+dependency checks enabled, `/health/ready` is HTTP 200 only when the configured
+provider metadata probe succeeds; an expected provider outage is HTTP 503 and
+must not be treated as a liveness failure. Capability availability is an
+informational per-capability view and does not gate traffic. These checks read
+bounded metadata only: they do not send a prompt or prove inference quality,
+quota, or future request success.
+
 ## Timeout, cache, and concurrency
 
 The runtime deadline is independent of provider SDK defaults. A probe that
