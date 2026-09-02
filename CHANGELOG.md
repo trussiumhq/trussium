@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.21.0 (2026-09-02)
+
+### Documentation
+
+- Document MCP status codes
+  ([`fddbff7`](https://github.com/trussiumhq/trussium/commit/fddbff70e4fad5053be1b80e605031e9c67afa99))
+
+### Features
+
+- Handle MCP initialized notification
+  ([`fddbff7`](https://github.com/trussiumhq/trussium/commit/fddbff70e4fad5053be1b80e605031e9c67afa99))
+
+
 ## v1.20.0 (2026-09-02)
 
 ### Features
