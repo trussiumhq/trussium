@@ -81,6 +81,18 @@ def test_mcp_returns_stable_errors_for_unknown_methods_and_tools() -> None:
     assert tool.json()["error"] == {"code": -32004, "message": "Tool not found."}
 
 
+def test_mcp_tools_list_rejects_invalid_cursor() -> None:
+    executor = ToolExecutor(ToolRegistry((RegisteredTool("echo", EchoArguments, _echo),)))
+    client = TestClient(create_application(tool_executor=executor, mcp_enabled=True))
+
+    response = client.post(
+        "/v1/mcp",
+        json={"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {"cursor": "bad"}},
+    )
+
+    assert response.json()["error"] == {"code": -32602, "message": "Invalid tools/list cursor."}
+
+
 def test_registered_tools_expose_only_safe_ordered_metadata() -> None:
     executor = ToolExecutor(
         ToolRegistry(

@@ -23,7 +23,8 @@ without an application-owned tool executor, it returns `503` with
 - `initialize` returns the supported protocol version and tool capability.
 - `tools/list` returns safe names, descriptions, and the declared Pydantic JSON
   input schema for registered tools. Clients can validate arguments before
-  invoking a tool.
+  invoking a tool. For larger registries, pass the returned opaque `nextCursor`
+  as `params.cursor`; responses are capped at 50 tools per page.
 - `tools/call` executes one registered tool with bounded validation and
   runtime-owned deadlines.
 
