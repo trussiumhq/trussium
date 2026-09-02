@@ -78,7 +78,10 @@ def test_mcp_lists_and_executes_registered_tools() -> None:
         "value": {"title": "Value", "type": "string"}
     }
     assert listed.json()["result"]["tools"][0]["inputSchema"]["required"] == ["value"]
-    assert called.json()["result"]["content"] == [{"type": "json", "json": {"value": "ok"}}]
+    assert called.json()["result"] == {
+        "content": [{"type": "json", "json": {"value": "ok"}}],
+        "isError": False,
+    }
 
 
 def test_mcp_returns_stable_errors_for_unknown_methods_and_tools() -> None:

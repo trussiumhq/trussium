@@ -150,7 +150,10 @@ async def mcp_json_rpc(message: MCPRequest, request: Request) -> dict[str, Any]:
         return {
             "jsonrpc": "2.0",
             "id": message.id,
-            "result": {"content": [{"type": "json", "json": execution_result.output}]},
+            "result": {
+                "content": [{"type": "json", "json": execution_result.output}],
+                "isError": False,
+            },
         }
     return {
         "jsonrpc": "2.0",
