@@ -60,6 +60,10 @@ def test_mcp_lists_and_executes_registered_tools() -> None:
     )
 
     assert listed.json()["result"]["tools"][0]["name"] == "echo"
+    assert listed.json()["result"]["tools"][0]["inputSchema"]["properties"] == {
+        "value": {"title": "Value", "type": "string"}
+    }
+    assert listed.json()["result"]["tools"][0]["inputSchema"]["required"] == ["value"]
     assert called.json()["result"]["content"] == [{"type": "json", "json": {"value": "ok"}}]
 
 
