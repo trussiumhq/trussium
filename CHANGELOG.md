@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v1.18.0 (2026-09-02)
+
+### Documentation
+
+- Close v1.17 release milestone
+  ([`248f396`](https://github.com/trussiumhq/trussium/commit/248f396423adb3b7b75f89f3536921b176133945))
+
+- Reconcile runtime v1.17 release
+  ([`7309991`](https://github.com/trussiumhq/trussium/commit/730999196bb3f5ad499c22f115d12bad99495d2a))
+
+- Reconcile runtime v1.17.1 baseline
+  ([`de88826`](https://github.com/trussiumhq/trussium/commit/de88826be4bdbfbb799498862653b0d410112193))
+
+### Features
+
+- Add bounded MCP ping handshake
+  ([`1b8f63e`](https://github.com/trussiumhq/trussium/commit/1b8f63e34d1644efcdbe24106f058302814e67d1))
+
+
 ## v1.17.1 (2026-09-01)
 
 ### Bug Fixes
