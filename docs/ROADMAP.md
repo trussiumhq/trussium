@@ -994,8 +994,8 @@ repositories:
 
 - Runtime `v1.22.0` is the current validated HTTP and container baseline.
 - Helm chart `v1.3.0` targets runtime `v1.22.0`.
-- Trussium Operator `v1.0.1` is the current release; its lifecycle matrix has
-  tested runtime `v1.22.0` with chart `v1.1.0`.
+- Trussium Operator `v1.0.2` is the current release; its lifecycle matrix has
+  tested runtime `v1.22.0` with chart `v1.3.0`.
 - SDKs and provider adapters remain separately versioned and released.
 - The deferred Agent Runtime expansions are outside the first stable OSS release
   scope; the delivered bounded contracts remain independently versioned and
@@ -1021,6 +1021,15 @@ The post-1.22 priority is maintenance and protocol evolution:
 2. Monitor dependency and vulnerability alerts across all public repositories.
 3. Keep release, container, compatibility, and documentation workflows healthy.
 4. Review historical compatibility proposals and track operational fixes.
+
+The current CLI remains part of the Python runtime repository and owns
+runtime-local workflows such as serving, configuration validation, health
+checks, and capability/provider diagnostics. A future standalone Go
+`trussiumctl` repository may own Kubernetes and Operator workflows such as
+installation, upgrades, rollbacks, and cluster diagnostics. That repository is
+deferred until the platform command surface is substantial enough to justify a
+separate binary; both CLIs must reuse the documented runtime and Operator API
+contracts rather than duplicate execution logic.
 
 Additional capability interfaces and the deferred Agent Runtime remain separate
 future milestones and require their own compatibility and operational reviews.
