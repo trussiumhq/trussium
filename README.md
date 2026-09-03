@@ -8,7 +8,7 @@
 
 Build AI applications once. Run them anywhere.
 
-[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/trussiumhq/trussium/blob/main/LICENSE)
 ![Python](https://img.shields.io/badge/python-3.12%2B-blue)
 ![Status](https://img.shields.io/badge/status-early--development-orange)
 ![gRPC](https://img.shields.io/badge/gRPC-first-4285F4)
