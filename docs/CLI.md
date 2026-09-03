@@ -3,6 +3,9 @@
 The installed `trussium` command operates the core runtime. It does not manage
 Kubernetes resources or the separate Trussium operator.
 
+Use `trussium --help` to inspect the command surface. The global `--version`
+option and the `version` command both print the installed runtime version.
+
 ```text
 trussium serve
 trussium config validate

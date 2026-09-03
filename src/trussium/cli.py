@@ -14,16 +14,29 @@ from trussium.config.settings import get_settings
 
 def main(arguments: Sequence[str] | None = None) -> None:
     """Run the Trussium command-line interface."""
-    parser = argparse.ArgumentParser(prog="trussium")
+    parser = argparse.ArgumentParser(
+        prog="trussium",
+        description="Operate a Trussium runtime.",
+        epilog="Runtime and Kubernetes administration are intentionally separate concerns.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=__version__,
+        help="print the installed runtime version and exit",
+    )
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("serve")
-    config = commands.add_parser("config")
-    config.add_subparsers(dest="config_command", required=True).add_parser("validate")
-    health = commands.add_parser("health")
-    health.add_argument("--url", default="http://127.0.0.1:9000")
-    capabilities = commands.add_parser("capabilities")
-    capabilities.add_argument("--url", default="http://127.0.0.1:9000")
-    commands.add_parser("version")
+    commands.add_parser("serve", help="start the runtime server")
+    config = commands.add_parser("config", help="inspect runtime configuration")
+    config_subcommands = config.add_subparsers(dest="config_command", required=True)
+    config_subcommands.add_parser("validate", help="validate settings without starting the server")
+    health = commands.add_parser("health", help="check runtime readiness")
+    health.add_argument("--url", default="http://127.0.0.1:9000", help="runtime base URL")
+    capabilities = commands.add_parser(
+        "capabilities", help="list publicly advertised capability metadata"
+    )
+    capabilities.add_argument("--url", default="http://127.0.0.1:9000", help="runtime base URL")
+    commands.add_parser("version", help="print the installed runtime version")
     parsed = parser.parse_args(arguments)
 
     if parsed.command == "serve":

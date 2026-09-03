@@ -12,6 +12,21 @@ def test_version_prints_package_version(capsys: pytest.CaptureFixture[str]) -> N
     assert capsys.readouterr().out == f"{__version__}\n"
 
 
+def test_version_option_prints_package_version(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit, match="0"):
+        main(("--version",))
+    assert capsys.readouterr().out == f"{__version__}\n"
+
+
+def test_help_describes_runtime_scope(capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit, match="0"):
+        main(("--help",))
+    output = capsys.readouterr().out
+    assert "Operate a Trussium runtime." in output
+    assert "Runtime and Kubernetes administration" in output
+    assert "capabilities" in output
+
+
 def test_configuration_validation_reports_success(capsys: pytest.CaptureFixture[str]) -> None:
     main(("config", "validate"))
     assert capsys.readouterr().out == "Configuration is valid.\n"
