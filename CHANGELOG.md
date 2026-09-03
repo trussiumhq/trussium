@@ -2,6 +2,52 @@
 
 <!-- version list -->
 
+## v1.23.0 (2026-09-03)
+
+### Documentation
+
+- Add provider health verification examples
+  ([#419](https://github.com/trussiumhq/trussium/pull/419),
+  [`1577db6`](https://github.com/trussiumhq/trussium/commit/1577db6f18d29169c2b331309d28743dec14a275))
+
+- Add provider task examples
+  ([`f875a34`](https://github.com/trussiumhq/trussium/commit/f875a34b6286713aae0a451bfbd20290335ff713))
+
+- Correct runtime repository URL ([#433](https://github.com/trussiumhq/trussium/pull/433),
+  [`332d363`](https://github.com/trussiumhq/trussium/commit/332d363092ba6be2ba5039610caa04e13902edb0))
+
+- Expand capability examples and troubleshooting
+  ([#423](https://github.com/trussiumhq/trussium/pull/423),
+  [`c0514e0`](https://github.com/trussiumhq/trussium/commit/c0514e0230fb3b5402964976ec88730d980d7fcc))
+
+- Fix generated license link ([#429](https://github.com/trussiumhq/trussium/pull/429),
+  [`47504fd`](https://github.com/trussiumhq/trussium/commit/47504fd84b691fc012a5a8eb71644ceb29a6baa6))
+
+- Fix generated runtime license link ([#430](https://github.com/trussiumhq/trussium/pull/430),
+  [`09edbfc`](https://github.com/trussiumhq/trussium/commit/09edbfcc4a309261408ad8b8b8cf1fedf7f5d634))
+
+- Record long-term CLI boundary ([#437](https://github.com/trussiumhq/trussium/pull/437),
+  [`7b4e691`](https://github.com/trussiumhq/trussium/commit/7b4e691ce78ba7e893060a503d1ed1d567761225))
+
+- Refresh Kubernetes guide versions
+  ([`9737842`](https://github.com/trussiumhq/trussium/commit/9737842a485acda3ab89c0c86b061c743936c504))
+
+- Refresh operational security guidance ([#425](https://github.com/trussiumhq/trussium/pull/425),
+  [`1551f76`](https://github.com/trussiumhq/trussium/commit/1551f767d40b7fd8101053eff19925bb5dddf8e8))
+
+- Refresh release roadmap baseline ([#427](https://github.com/trussiumhq/trussium/pull/427),
+  [`35023b5`](https://github.com/trussiumhq/trussium/commit/35023b5b763dcfbb24a20d5db784c5262e43bcba))
+
+- Refresh SDK prerequisites and quick start
+  ([#421](https://github.com/trussiumhq/trussium/pull/421),
+  [`3eb76dd`](https://github.com/trussiumhq/trussium/commit/3eb76dd7726f8762787fee111416bbe626fd55e6))
+
+### Features
+
+- Refine runtime cli command contract ([#439](https://github.com/trussiumhq/trussium/pull/439),
+  [`b176745`](https://github.com/trussiumhq/trussium/commit/b176745ae7e5b62004b9a08077ba9256f7bce371))
+
+
 ## v1.22.0 (2026-09-02)
 
 ### Features
