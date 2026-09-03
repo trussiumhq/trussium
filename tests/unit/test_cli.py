@@ -57,3 +57,28 @@ def test_capabilities_exits_one_on_runtime_error(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr("trussium.cli.httpx.get", get)
     with pytest.raises(SystemExit, match="1"):
         main(("capabilities", "--url", "http://runtime.test"))
+
+
+def test_diagnostics_collects_bounded_reports(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    reports = {
+        "/health/ready": {"status": "ok"},
+        "/health/components": {"status": "ok", "components": []},
+        "/v1/providers/health": {"status": "ok", "providers": []},
+        "/v1/capabilities/availability": {"status": "ok", "capabilities": []},
+    }
+
+    def get(url: str, *, timeout: float) -> httpx.Response:
+        assert timeout == 5
+        path = "/" + url.split("/", 3)[-1]
+        return httpx.Response(200, json=reports[path], request=httpx.Request("GET", url))
+
+    monkeypatch.setattr("trussium.cli.httpx.get", get)
+    main(("diagnostics", "--url", "http://runtime.test/"))
+    assert capsys.readouterr().out == (
+        '{"capabilities": {"capabilities": [], "status": "ok"}, '
+        '"components": {"components": [], "status": "ok"}, '
+        '"providers": {"providers": [], "status": "ok"}, '
+        '"readiness": {"status": "ok"}}\n'
+    )

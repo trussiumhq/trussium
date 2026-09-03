@@ -36,6 +36,10 @@ def main(arguments: Sequence[str] | None = None) -> None:
         "capabilities", help="list publicly advertised capability metadata"
     )
     capabilities.add_argument("--url", default="http://127.0.0.1:9000", help="runtime base URL")
+    diagnostics = commands.add_parser(
+        "diagnostics", help="collect bounded runtime, provider, and capability health"
+    )
+    diagnostics.add_argument("--url", default="http://127.0.0.1:9000", help="runtime base URL")
     commands.add_parser("version", help="print the installed runtime version")
     parsed = parser.parse_args(arguments)
 
@@ -50,6 +54,9 @@ def main(arguments: Sequence[str] | None = None) -> None:
         return
     if parsed.command == "capabilities":
         _capabilities(parsed.url)
+        return
+    if parsed.command == "diagnostics":
+        _diagnostics(parsed.url)
         return
     print(__version__)
 
@@ -79,3 +86,27 @@ def _capabilities(url: str) -> None:
     except (httpx.HTTPError, ValueError):
         raise SystemExit(1) from None
     print(json.dumps(payload, sort_keys=True))
+
+
+def _diagnostics(url: str) -> None:
+    """Print bounded health reports without exposing runtime configuration."""
+    base_url = url.rstrip("/")
+    endpoints = {
+        "readiness": "/health/ready",
+        "components": "/health/components",
+        "providers": "/v1/providers/health",
+        "capabilities": "/v1/capabilities/availability",
+    }
+    reports: dict[str, object] = {}
+    failed = False
+    for name, path in endpoints.items():
+        try:
+            response = httpx.get(f"{base_url}{path}", timeout=5)
+            response.raise_for_status()
+            reports[name] = response.json()
+        except (httpx.HTTPError, ValueError):
+            reports[name] = {"status": "unavailable"}
+            failed = True
+    print(json.dumps(reports, sort_keys=True))
+    if failed:
+        raise SystemExit(1)
