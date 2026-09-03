@@ -77,7 +77,7 @@ With no provider credential and tracing disabled, startup includes records
 like these, one JSON object per line:
 
 ```json
-{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"0.40.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30,"service_cleanup_seconds":10.0,"component_health_timeout_seconds":1.0,"capability_availability_timeout_seconds":1.0}
+{"level":"INFO","logger":"trussium.runtime","message":"Runtime configuration loaded","event":"runtime.configuration.loaded","runtime_version":"1.22.0","environment":"production","port":9000,"debug":false,"graceful_shutdown_seconds":30,"service_cleanup_seconds":10.0,"component_health_timeout_seconds":1.0,"capability_availability_timeout_seconds":1.0}
 {"level":"WARNING","logger":"trussium.provider","message":"Provider configuration unavailable","event":"provider.configuration.unavailable","provider":"openai","provider_configured":false}
 {"level":"INFO","logger":"trussium.readiness","message":"Readiness configuration loaded","event":"readiness.configuration.loaded","dependency_checks_enabled":false,"dependency_timeout_seconds":1.0,"dependency_cache_seconds":10.0,"required_model_configured":false}
 {"level":"INFO","logger":"trussium.observability","message":"Observability configuration loaded","event":"observability.configuration.loaded","metrics_enabled":true,"tracing_enabled":false,"trace_sample_ratio":1.0}
