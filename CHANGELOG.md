@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.24.0 (2026-09-03)
+
+### Features
+
+- Add runtime diagnostics command ([#441](https://github.com/trussiumhq/trussium/pull/441),
+  [`0f18e5b`](https://github.com/trussiumhq/trussium/commit/0f18e5b254d0dd9e9c45d3d98cbf0e2093a7060b))
+
+
 ## v1.23.0 (2026-09-03)
 
 ### Documentation

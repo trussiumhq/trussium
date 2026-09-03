@@ -14,4 +14,4 @@ patches:
 images:
   - name: ghcr.io/trussiumhq/trussium
     newName: ghcr.io/trussiumhq/trussium
-    newTag: "1.23.0"
+    newTag: "1.24.0"
