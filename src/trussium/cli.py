@@ -43,6 +43,12 @@ def main(arguments: Sequence[str] | None = None) -> None:
     diagnostics.add_argument(
         "--provider", help="limit the provider health report to one provider name"
     )
+    diagnostics.add_argument(
+        "--format",
+        choices=("json", "text"),
+        default="json",
+        help="output format (default: json)",
+    )
     commands.add_parser("version", help="print the installed runtime version")
     parsed = parser.parse_args(arguments)
 
@@ -59,7 +65,7 @@ def main(arguments: Sequence[str] | None = None) -> None:
         _capabilities(parsed.url)
         return
     if parsed.command == "diagnostics":
-        _diagnostics(parsed.url, provider=parsed.provider)
+        _diagnostics(parsed.url, provider=parsed.provider, output_format=parsed.format)
         return
     print(__version__)
 
@@ -91,7 +97,7 @@ def _capabilities(url: str) -> None:
     print(json.dumps(payload, sort_keys=True))
 
 
-def _diagnostics(url: str, *, provider: str | None = None) -> None:
+def _diagnostics(url: str, *, provider: str | None = None, output_format: str = "json") -> None:
     """Print bounded health reports without exposing runtime configuration."""
     base_url = url.rstrip("/")
     endpoints = {
@@ -113,7 +119,14 @@ def _diagnostics(url: str, *, provider: str | None = None) -> None:
         except (httpx.HTTPError, ValueError):
             reports[name] = {"status": "unavailable"}
             failed = True
-    print(json.dumps(reports, sort_keys=True))
+    if output_format == "text":
+        for name, report in reports.items():
+            status = (
+                report.get("status", "unavailable") if isinstance(report, dict) else "unavailable"
+            )
+            print(f"{name}: {status}")
+    else:
+        print(json.dumps(reports, sort_keys=True))
     if failed:
         raise SystemExit(1)
 
