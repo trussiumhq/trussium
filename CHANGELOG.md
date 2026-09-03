@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.25.0 (2026-09-03)
+
+### Documentation
+
+- Refresh runtime release baseline ([#443](https://github.com/trussiumhq/trussium/pull/443),
+  [`fd8934a`](https://github.com/trussiumhq/trussium/commit/fd8934af715f45ea7713af7bf90d5c4b38c4d0f4))
+
+### Features
+
+- Filter provider diagnostics ([#445](https://github.com/trussiumhq/trussium/pull/445),
+  [`75a4efa`](https://github.com/trussiumhq/trussium/commit/75a4efac9ab41d25bbf033c8d4e372b4cde72424))
+
+
 ## v1.24.0 (2026-09-03)
 
 ### Features
