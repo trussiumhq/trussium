@@ -11,6 +11,7 @@ trussium serve
 trussium config validate
 trussium health --url http://127.0.0.1:9000
 trussium capabilities --url http://127.0.0.1:9000
+trussium diagnostics --url http://127.0.0.1:9000
 trussium version
 ```
 
@@ -21,3 +22,8 @@ installed package version. `capabilities` prints the runtime's public
 capability metadata as stable, sorted JSON and exits with code 1 when the
 runtime is unavailable or returns invalid JSON. These commands are read-only;
 the CLI does not install or manage the runtime, Helm chart, or operator.
+
+`diagnostics` collects bounded readiness, component health, provider health, and
+capability availability reports. It prints one stable JSON object and exits
+with code 1 if any report cannot be retrieved. It does not expose credentials
+or provider payloads.
