@@ -5,6 +5,9 @@ The Python SDK is maintained in the dedicated
 published as the `trussium-sdk` package. It calls an existing local, private,
 or public runtime; it does not install, host, or configure one.
 
+Prerequisites: Python 3.12 or newer, a reachable Trussium runtime, and a
+provider configured by that runtime when making inference requests.
+
 ```bash
 pip install trussium-sdk
 ```
