@@ -6,6 +6,9 @@ published as the `github.com/trussiumhq/trussium-go` module. It calls an
 existing local, private, or public runtime; it does not install, host, or
 configure one.
 
+Prerequisites: Go 1.22 or newer and a reachable Trussium runtime. The runtime
+must have a provider configured before inference requests can succeed.
+
 ```bash
 go get github.com/trussiumhq/trussium-go
 ```

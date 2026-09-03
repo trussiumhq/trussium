@@ -6,6 +6,9 @@ repository and published as `@trussium/sdk` when npm publication is enabled.
 It calls an existing local, private, or public runtime; it does not install,
 host, or configure one.
 
+Prerequisites: Node.js 20 or newer, npm, and a reachable Trussium runtime. The
+runtime must have a provider configured before inference requests can succeed.
+
 ```bash
 git clone https://github.com/trussiumhq/trussium-typescript.git
 cd trussium-typescript

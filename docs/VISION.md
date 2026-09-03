@@ -93,9 +93,9 @@ The architecture is being built in public, and breaking changes are expected unt
 ## Quick Start
 
 ```bash
-git clone https://github.com/trussiumhq/trussium-runtime.git
+git clone https://github.com/trussiumhq/trussium.git
 
-cd trussium-runtime
+cd trussium
 
 uv venv
 
