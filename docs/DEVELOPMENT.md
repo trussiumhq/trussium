@@ -21,7 +21,7 @@ The following tools are required.
 # Clone the Repository
 
 ```bash
-git clone https://github.com/trussium/trussium-runtime.git
+git clone https://github.com/trussiumhq/trussium.git
 
 cd trussium-runtime
 ```
