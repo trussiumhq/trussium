@@ -37,7 +37,7 @@ The capability-health reporting work described in the historical Current Focus
 summary is complete. The documented capability catalog is also complete,
 including embeddings, moderation, image generation, transcription, reranking,
 translation, text-to-speech, video jobs, and batch inference. There is no
-remaining capability implementation gap in the current roadmap. The next
+remaining capability implementation gap in the current roadmap.
 The bounded Agent Runtime slice is now delivered, including workflow,
 tool-execution, policy, approval, audit, observability, and security contracts.
 Durable persistence, replay, distributed orchestration, and hosted authorization
@@ -992,11 +992,10 @@ The historical release proposals and approval gates remain recorded in the
 The current OSS release baseline is reviewed across the independently versioned
 repositories:
 
-- Runtime `v1.17.1` is the current validated HTTP and container baseline; the
-  Operator compatibility matrix records the tested `v1.17.0` patch line.
-- Helm chart `v1.1.0` targets runtime `v1.17.0`.
-- Trussium Operator `v1.0.0` is tested against runtime `v1.17.0` and
-  chart `v1.1.0` through the Operator lifecycle matrix.
+- Runtime `v1.22.0` is the current validated HTTP and container baseline.
+- Helm chart `v1.3.0` targets runtime `v1.22.0`.
+- Trussium Operator `v1.0.1` is the current release; its lifecycle matrix has
+  tested runtime `v1.22.0` with chart `v1.1.0`.
 - SDKs and provider adapters remain separately versioned and released.
 - The deferred Agent Runtime expansions are outside the first stable OSS release
   scope; the delivered bounded contracts remain independently versioned and
@@ -1010,10 +1009,10 @@ decisions, passing repository CI, and post-release artifact verification.
 
 ## Immediate Priorities
 
-The post-1.17 priority is maintenance and protocol evolution:
+The post-1.22 priority is maintenance and protocol evolution:
 
 1. Extend the bounded MCP surface only through reviewed, backwards-compatible
-   protocol additions. The first post-v1.17 addition is the bounded `ping`
+   protocol additions. The first post-v1.22 addition is the bounded `ping`
    handshake tracked in issue #404. MCP tool discovery now also exposes each
    declared input schema, tracked in issue #406, and supports bounded cursor
    pagination tracked in issue #408. The initialized lifecycle notification is
