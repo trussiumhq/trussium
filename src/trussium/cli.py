@@ -40,6 +40,9 @@ def main(arguments: Sequence[str] | None = None) -> None:
         "diagnostics", help="collect bounded runtime, provider, and capability health"
     )
     diagnostics.add_argument("--url", default="http://127.0.0.1:9000", help="runtime base URL")
+    diagnostics.add_argument(
+        "--provider", help="limit the provider health report to one provider name"
+    )
     commands.add_parser("version", help="print the installed runtime version")
     parsed = parser.parse_args(arguments)
 
@@ -56,7 +59,7 @@ def main(arguments: Sequence[str] | None = None) -> None:
         _capabilities(parsed.url)
         return
     if parsed.command == "diagnostics":
-        _diagnostics(parsed.url)
+        _diagnostics(parsed.url, provider=parsed.provider)
         return
     print(__version__)
 
@@ -88,7 +91,7 @@ def _capabilities(url: str) -> None:
     print(json.dumps(payload, sort_keys=True))
 
 
-def _diagnostics(url: str) -> None:
+def _diagnostics(url: str, *, provider: str | None = None) -> None:
     """Print bounded health reports without exposing runtime configuration."""
     base_url = url.rstrip("/")
     endpoints = {
@@ -103,10 +106,27 @@ def _diagnostics(url: str) -> None:
         try:
             response = httpx.get(f"{base_url}{path}", timeout=5)
             response.raise_for_status()
-            reports[name] = response.json()
+            payload = response.json()
+            if name == "providers" and provider is not None:
+                payload = _filter_provider_report(payload, provider)
+            reports[name] = payload
         except (httpx.HTTPError, ValueError):
             reports[name] = {"status": "unavailable"}
             failed = True
     print(json.dumps(reports, sort_keys=True))
     if failed:
         raise SystemExit(1)
+
+
+def _filter_provider_report(payload: object, provider: str) -> object:
+    """Filter a provider report while preserving the bounded response shape."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("providers"), list):
+        return payload
+    return {
+        **payload,
+        "providers": [
+            item
+            for item in payload["providers"]
+            if isinstance(item, dict) and item.get("name") == provider
+        ],
+    }

@@ -65,7 +65,10 @@ def test_diagnostics_collects_bounded_reports(
     reports = {
         "/health/ready": {"status": "ok"},
         "/health/components": {"status": "ok", "components": []},
-        "/v1/providers/health": {"status": "ok", "providers": []},
+        "/v1/providers/health": {
+            "status": "ok",
+            "providers": [{"name": "openai", "status": "ok"}, {"name": "ollama", "status": "ok"}],
+        },
         "/v1/capabilities/availability": {"status": "ok", "capabilities": []},
     }
 
@@ -75,10 +78,10 @@ def test_diagnostics_collects_bounded_reports(
         return httpx.Response(200, json=reports[path], request=httpx.Request("GET", url))
 
     monkeypatch.setattr("trussium.cli.httpx.get", get)
-    main(("diagnostics", "--url", "http://runtime.test/"))
+    main(("diagnostics", "--url", "http://runtime.test/", "--provider", "openai"))
     assert capsys.readouterr().out == (
         '{"capabilities": {"capabilities": [], "status": "ok"}, '
         '"components": {"components": [], "status": "ok"}, '
-        '"providers": {"providers": [], "status": "ok"}, '
+        '"providers": {"providers": [{"name": "openai", "status": "ok"}], "status": "ok"}, '
         '"readiness": {"status": "ok"}}\n'
     )
