@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.0 (2026-09-04)
+
+### Features
+
+- Add text diagnostics output ([#447](https://github.com/trussiumhq/trussium/pull/447),
+  [`c02adff`](https://github.com/trussiumhq/trussium/commit/c02adff8ca59f6d8af3f2171002b3c5d919c6f58))
+
+
 ## v1.25.0 (2026-09-03)
 
 ### Documentation
