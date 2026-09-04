@@ -33,3 +33,9 @@ single registered provider; all other health sections remain unchanged. Use
 `--format text` for a concise human-readable status summary, including bounded
 provider/component/capability names and bounded failure reasons; JSON remains
 the default for scripts.
+
+For Kubernetes and Helm operations, use the separate public
+[`trussiumctl`](https://github.com/trussiumhq/trussiumctl) binary. Its initial
+release establishes the command boundary; install, upgrade, rollback, and
+cluster-diagnostics commands are planned there. The runtime CLI and
+`trussiumctl` intentionally remain independently versioned.
