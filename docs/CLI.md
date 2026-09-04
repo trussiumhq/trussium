@@ -13,6 +13,7 @@ trussium health --url http://127.0.0.1:9000
 trussium capabilities --url http://127.0.0.1:9000
 trussium diagnostics --url http://127.0.0.1:9000
 trussium diagnostics --url http://127.0.0.1:9000 --provider openai
+trussium diagnostics --url http://127.0.0.1:9000 --format text
 trussium version
 ```
 
@@ -28,4 +29,6 @@ the CLI does not install or manage the runtime, Helm chart, or operator.
 capability availability reports. It prints one stable JSON object and exits
 with code 1 if any report cannot be retrieved. It does not expose credentials
 or provider payloads. Use `--provider NAME` to limit the provider section to a
-single registered provider; all other health sections remain unchanged.
+single registered provider; all other health sections remain unchanged. Use
+`--format text` for a concise human-readable status summary; JSON remains the
+default for scripts.
