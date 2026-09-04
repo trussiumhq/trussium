@@ -115,8 +115,15 @@ def test_diagnostics_text_includes_provider_details(
                 "status": "degraded",
                 "providers": [{"name": "ollama", "status": "unavailable", "reason": "timeout"}],
             }
+        elif url.endswith("/v1/capabilities/availability"):
+            payload = {
+                "status": "available",
+                "capabilities": [{"name": "chat.completions", "status": "available"}],
+            }
         return httpx.Response(200, json=payload, request=httpx.Request("GET", url))
 
     monkeypatch.setattr("trussium.cli.httpx.get", get)
     main(("diagnostics", "--url", "http://runtime.test", "--format", "text"))
-    assert "providers: degraded\n  ollama: unavailable (timeout)\n" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "providers: degraded\n  ollama: unavailable (timeout)\n" in output
+    assert "capabilities: available\n  chat.completions: available\n" in output

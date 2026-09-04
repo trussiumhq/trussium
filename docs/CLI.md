@@ -31,5 +31,5 @@ with code 1 if any report cannot be retrieved. It does not expose credentials
 or provider payloads. Use `--provider NAME` to limit the provider section to a
 single registered provider; all other health sections remain unchanged. Use
 `--format text` for a concise human-readable status summary, including bounded
-provider/component names and failure reasons; JSON remains the default for
-scripts.
+provider/component/capability names and bounded failure reasons; JSON remains
+the default for scripts.
