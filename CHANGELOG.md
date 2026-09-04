@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.27.0 (2026-09-04)
+
+### Features
+
+- Show provider diagnostics details ([#449](https://github.com/trussiumhq/trussium/pull/449),
+  [`d2def94`](https://github.com/trussiumhq/trussium/commit/d2def944a587b024bcc74b74bf02c9e75b4ed6b0))
+
+
 ## v1.26.0 (2026-09-04)
 
 ### Features
