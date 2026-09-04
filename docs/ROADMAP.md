@@ -1025,12 +1025,13 @@ The post-1.22 priority is maintenance and protocol evolution:
 
 The current CLI remains part of the Python runtime repository and owns
 runtime-local workflows such as serving, configuration validation, health
-checks, and capability/provider diagnostics. A future standalone Go
-`trussiumctl` repository may own Kubernetes and Operator workflows such as
-installation, upgrades, rollbacks, and cluster diagnostics. That repository is
-deferred until the platform command surface is substantial enough to justify a
-separate binary; both CLIs must reuse the documented runtime and Operator API
-contracts rather than duplicate execution logic.
+checks, and capability/provider diagnostics. The public standalone Go
+[`trussiumctl`](https://github.com/trussiumhq/trussiumctl) repository now owns
+the platform command boundary. Its first slice is the versioned binary and
+release automation; the next priorities are read-only Kubernetes/Helm
+inspection, then guarded install, upgrade, rollback, and rollback verification.
+Both CLIs must reuse documented runtime and Operator API contracts rather than
+duplicate execution logic.
 
 Additional capability interfaces and the deferred Agent Runtime remain separate
 future milestones and require their own compatibility and operational reviews.

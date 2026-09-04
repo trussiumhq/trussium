@@ -254,6 +254,7 @@ The Trussium project consists of multiple repositories.
 Trussium
 │
 ├── trussium
+├── trussiumctl
 ├── trussium-helm
 ├── trussium-operator
 ├── trussiumhq.github.io
@@ -273,6 +274,10 @@ assembled project docs; SDKs provide language-specific clients; and provider
 repositories contain optional adapters that translate external APIs into the
 runtime's provider-neutral contracts.
 
+`trussiumctl` is the standalone Go platform CLI. It coordinates Kubernetes and
+Helm operations through documented APIs and published artifacts; it does not
+embed runtime execution or provider SDKs.
+
 ---
 
 # Technology Strategy
@@ -282,7 +287,8 @@ Languages are selected based on the responsibilities of each component.
 | Component | Language |
 |-----------|----------|
 | Runtime | Python |
-| CLI | Go |
+| Runtime CLI | Python |
+| Platform CLI (`trussiumctl`) | Go |
 | Kubernetes Operator | Go |
 | SDK (Python) | Python |
 | SDK (Go) | Go |
