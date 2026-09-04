@@ -992,7 +992,7 @@ The historical release proposals and approval gates remain recorded in the
 The current OSS release baseline is reviewed across the independently versioned
 repositories:
 
-- Runtime `v1.24.0` is the current release; `v1.22.0` remains the current
+- Runtime `v1.26.0` is the current release; `v1.22.0` remains the current
   Operator-validated HTTP and container baseline.
 - Helm chart `v1.3.0` targets runtime `v1.22.0`.
 - Trussium Operator `v1.0.2` is the current release; its lifecycle matrix has
