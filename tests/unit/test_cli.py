@@ -102,3 +102,21 @@ def test_diagnostics_text_format_prints_statuses(
     assert capsys.readouterr().out == (
         "readiness: ok\ncomponents: degraded\nproviders: ok\ncapabilities: ok\n"
     )
+
+
+def test_diagnostics_text_includes_provider_details(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def get(url: str, *, timeout: float) -> httpx.Response:
+        del timeout
+        payload: object = {"status": "ok"}
+        if url.endswith("/v1/providers/health"):
+            payload = {
+                "status": "degraded",
+                "providers": [{"name": "ollama", "status": "unavailable", "reason": "timeout"}],
+            }
+        return httpx.Response(200, json=payload, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr("trussium.cli.httpx.get", get)
+    main(("diagnostics", "--url", "http://runtime.test", "--format", "text"))
+    assert "providers: degraded\n  ollama: unavailable (timeout)\n" in capsys.readouterr().out

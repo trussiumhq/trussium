@@ -125,6 +125,20 @@ def _diagnostics(url: str, *, provider: str | None = None, output_format: str = 
                 report.get("status", "unavailable") if isinstance(report, dict) else "unavailable"
             )
             print(f"{name}: {status}")
+            if isinstance(report, dict):
+                items = (
+                    report.get("providers")
+                    or report.get("components")
+                    or report.get("capabilities")
+                )
+                if isinstance(items, list):
+                    for item in items:
+                        if not isinstance(item, dict) or "name" not in item:
+                            continue
+                        detail = f"{item['name']}: {item.get('status', 'unknown')}"
+                        if item.get("reason"):
+                            detail += f" ({item['reason']})"
+                        print(f"  {detail}")
     else:
         print(json.dumps(reports, sort_keys=True))
     if failed:
