@@ -2,6 +2,36 @@
 
 <!-- version list -->
 
+## v1.28.0 (2026-09-23)
+
+### Chores
+
+- **deps-dev**: Update mypy constraint and lockfile
+  ([#456](https://github.com/trussiumhq/trussium/pull/456),
+  [`006da60`](https://github.com/trussiumhq/trussium/commit/006da60d3ee07e7299da0468df1c68ef8d3d6997))
+
+### Documentation
+
+- Correct runtime repository link ([#459](https://github.com/trussiumhq/trussium/pull/459),
+  [`8640304`](https://github.com/trussiumhq/trussium/commit/86403047f76ad4fc28426626a450df5bead07f36))
+
+- Document standalone trussiumctl boundary
+  ([`846dd9d`](https://github.com/trussiumhq/trussium/commit/846dd9d79780ddd76587bc3096a0d447fc2650f6))
+
+- Refresh runtime v1.26 baseline ([#451](https://github.com/trussiumhq/trussium/pull/451),
+  [`02c36c9`](https://github.com/trussiumhq/trussium/commit/02c36c9364c79e0f33519b7c307397fc70c97a22))
+
+### Features
+
+- Support OpenAI SDK v3 ([#461](https://github.com/trussiumhq/trussium/pull/461),
+  [`3962a6d`](https://github.com/trussiumhq/trussium/commit/3962a6d01d2b3750acc6711c2ce69341bb94ae47))
+
+### Testing
+
+- Cover capability diagnostics details
+  ([`ae0728a`](https://github.com/trussiumhq/trussium/commit/ae0728a84a7d928e699837205665c36a6a1380d3))
+
+
 ## v1.27.0 (2026-09-04)
 
 ### Features
