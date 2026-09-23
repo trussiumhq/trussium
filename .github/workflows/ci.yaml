@@ -7,6 +7,40 @@ on:
       - main
 
 jobs:
+  openai-sdk-compatibility:
+    name: OpenAI SDK ${{ matrix.openai-specifier }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        openai-specifier:
+          - "openai==2.48.0"
+          - "openai>=3,<4"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install locked development dependencies
+        run: uv sync
+
+      - name: Select SDK compatibility target
+        run: uv pip install --python .venv/bin/python '${{ matrix.openai-specifier }}'
+
+      - name: MyPy
+        run: uv run --no-sync mypy src tests
+
+      - name: Provider and runtime tests
+        run: uv run --no-sync pytest -q tests/unit tests/integration/test_chat_runtime.py
+
   quality:
     name: Quality Checks
     runs-on: ubuntu-latest

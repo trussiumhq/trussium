@@ -2,7 +2,7 @@
 
 import asyncio
 from dataclasses import dataclass
-from typing import cast
+from typing import Any, cast
 
 import httpx
 import pytest
@@ -85,7 +85,7 @@ def status_error(error_type: type[APIStatusError], status_code: int) -> APIStatu
     """Create one SDK status error without external requests."""
     request = httpx.Request("GET", "https://private-provider.example/v1/models")
     response = httpx.Response(status_code, request=request)
-    return error_type("private provider response", response=response, body={})
+    return error_type("private provider response", response=cast(Any, response), body={})
 
 
 def test_provider_check_lists_models_without_required_model_and_closes() -> None:
@@ -134,20 +134,29 @@ def test_provider_check_retrieves_only_the_required_model() -> None:
         ),
         (
             APITimeoutError(
-                request=httpx.Request("GET", "https://private-provider.example/v1/models")
+                request=cast(
+                    Any,
+                    httpx.Request("GET", "https://private-provider.example/v1/models"),
+                )
             ),
             DependencyFailureReason.PROVIDER_TIMEOUT,
         ),
         (
             APIConnectionError(
-                request=httpx.Request("GET", "https://private-provider.example/v1/models")
+                request=cast(
+                    Any,
+                    httpx.Request("GET", "https://private-provider.example/v1/models"),
+                )
             ),
             DependencyFailureReason.PROVIDER_UNREACHABLE,
         ),
         (
             APIError(
                 "private response body",
-                request=httpx.Request("GET", "https://private-provider.example/v1/models"),
+                request=cast(
+                    Any,
+                    httpx.Request("GET", "https://private-provider.example/v1/models"),
+                ),
                 body=None,
             ),
             DependencyFailureReason.PROVIDER_CHECK_FAILED,

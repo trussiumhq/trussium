@@ -1,7 +1,7 @@
 """Tests for Ollama's OpenAI-compatible chat adapter."""
 
 import asyncio
-from typing import cast
+from typing import Any, cast
 
 import httpx
 import pytest
@@ -15,8 +15,8 @@ from tests.unit.providers.openai.test_chat import (
     FakeUsage,
     active_test_span,
     collect_stream,
-    create_http_response,
     create_request,
+    create_sdk_http_response,
 )
 
 from trussium.capabilities.chat import (
@@ -117,7 +117,7 @@ def test_authentication_error_uses_ollama_code_and_safe_message() -> None:
     """Compatible SDK failures should identify the configured provider."""
     error = AuthenticationError(
         "Gateway credential rejected.",
-        response=create_http_response(status_code=401),
+        response=create_sdk_http_response(status_code=401),
         body={"code": "invalid_api_key"},
     )
     adapter = create_adapter(FakeResponsesResource(error=error))
@@ -133,9 +133,12 @@ def test_authentication_error_uses_ollama_code_and_safe_message() -> None:
 def test_connection_error_uses_ollama_code_and_safe_message() -> None:
     """Connection failures should not expose SDK or transport details."""
     error = APIConnectionError(
-        request=httpx.Request(
-            method="POST",
-            url="http://ollama.internal:11434/v1/responses",
+        request=cast(
+            Any,
+            httpx.Request(
+                method="POST",
+                url="http://ollama.internal:11434/v1/responses",
+            ),
         )
     )
 

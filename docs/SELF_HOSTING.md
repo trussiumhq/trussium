@@ -34,6 +34,17 @@ inject them through the operating system, container platform, or secret store.
 For OpenAI-compatible configuration and private Ollama endpoints, see
 [DEVELOPMENT.md](DEVELOPMENT.md).
 
+## OpenAI SDK transport and TLS
+
+The runtime supports OpenAI Python SDK versions `2.48.0` through the `3.x`
+series. SDK v3 uses HTTPX2 and the operating system's certificate trust store
+for its default async client. In private deployments, install any corporate or
+custom provider CA certificates into that trust store before starting the
+runtime. When the SDK's default environment handling is enabled (as it is in
+Trussium), `SSL_CERT_FILE` or `SSL_CERT_DIR` can point to the deployment's
+certificate bundle or directory. Do not disable certificate verification to
+work around trust-store problems.
+
 `trussium config validate` exits with status `2` when settings are invalid.
 `trussium health --url http://127.0.0.1:9000` checks readiness and exits with
 status `1` if the runtime is unavailable. The [CLI Guide](CLI.md) documents the

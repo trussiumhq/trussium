@@ -1,7 +1,6 @@
 """OpenAI video job adapter."""
 
-from openai import APIError, AsyncOpenAI
-from openai._types import omit
+from openai import APIError, AsyncOpenAI, omit
 from openai.types.video import Video
 
 from trussium.capabilities.videos import VideoCreateRequest, VideoJob
