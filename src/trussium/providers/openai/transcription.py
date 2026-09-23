@@ -3,8 +3,7 @@
 from typing import cast
 from uuid import uuid4
 
-from openai import APIError, AsyncOpenAI
-from openai._types import omit
+from openai import APIError, AsyncOpenAI, omit
 
 from trussium.capabilities.transcription import (
     TranscriptionRequest,

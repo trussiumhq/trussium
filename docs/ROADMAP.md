@@ -440,6 +440,8 @@ Enable AI providers to implement Trussium capabilities through isolated adapters
 - Explicit provider selection, base URL, and credential settings
 - Backwards-compatible OpenAI environment configuration
 - OpenAI SDK request serialization integration coverage
+- OpenAI SDK v2 minimum and v3 compatibility validation in a dedicated CI matrix
+- OpenAI SDK v3 transport and certificate trust-store operating guidance
 - OpenAI Responses API JSON parsing integration coverage
 - OpenAI Responses API streaming-event integration coverage
 - Deterministic local fake OpenAI Responses API

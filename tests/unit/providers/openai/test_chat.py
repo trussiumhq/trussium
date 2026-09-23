@@ -3,7 +3,7 @@
 import asyncio
 from collections.abc import AsyncGenerator, AsyncIterator
 from dataclasses import dataclass
-from typing import cast
+from typing import Any, cast
 
 import httpx
 import pytest
@@ -198,6 +198,11 @@ def create_http_response(
         status_code=status_code,
         request=request,
     )
+
+
+def create_sdk_http_response(*, status_code: int) -> Any:
+    """Bridge legacy HTTPX fixtures to both supported SDK transport types."""
+    return cast(Any, create_http_response(status_code=status_code))
 
 
 def active_test_span() -> NonRecordingSpan:
@@ -591,7 +596,7 @@ def test_stream_normalizes_quota_exception() -> None:
     """Streaming quota errors should become normalized events."""
     error = RateLimitError(
         "You exceeded your current quota. Check your billing details.",
-        response=create_http_response(status_code=429),
+        response=create_sdk_http_response(status_code=429),
         body={
             "code": "insufficient_quota",
         },
@@ -620,7 +625,7 @@ def test_complete_normalizes_quota_exception() -> None:
     """Non-streaming quota errors should become capability errors."""
     error = RateLimitError(
         "You exceeded your current quota. Check your billing details.",
-        response=create_http_response(status_code=429),
+        response=create_sdk_http_response(status_code=429),
         body={
             "code": "insufficient_quota",
         },
@@ -647,7 +652,7 @@ def test_complete_normalizes_temporary_rate_limit() -> None:
     """Temporary provider throttling should remain distinct from quota."""
     error = RateLimitError(
         "Rate limit reached for requests.",
-        response=create_http_response(status_code=429),
+        response=create_sdk_http_response(status_code=429),
         body={
             "code": "rate_limit_exceeded",
         },
@@ -673,7 +678,7 @@ def test_complete_normalizes_authentication_exception() -> None:
     """Provider authentication failures should become capability errors."""
     error = AuthenticationError(
         "Incorrect API key provided.",
-        response=create_http_response(status_code=401),
+        response=create_sdk_http_response(status_code=401),
         body={
             "code": "invalid_api_key",
         },
@@ -697,7 +702,7 @@ def test_quota_error_code_is_normalized() -> None:
     """Quota failures should use a specific normalized error code."""
     error = RateLimitError(
         "You exceeded your current quota. Check your billing details.",
-        response=create_http_response(status_code=429),
+        response=create_sdk_http_response(status_code=429),
         body={
             "code": "insufficient_quota",
         },
@@ -715,7 +720,7 @@ def test_rate_limit_error_code_is_normalized() -> None:
     """Temporary throttling should remain distinct from quota."""
     error = RateLimitError(
         "Rate limit reached for requests.",
-        response=create_http_response(status_code=429),
+        response=create_sdk_http_response(status_code=429),
         body={
             "code": "rate_limit_exceeded",
         },
@@ -732,7 +737,7 @@ def test_authentication_error_code_is_normalized() -> None:
     """Authentication failures should have a stable error code."""
     error = AuthenticationError(
         "Incorrect API key provided.",
-        response=create_http_response(status_code=401),
+        response=create_sdk_http_response(status_code=401),
         body={
             "code": "invalid_api_key",
         },
