@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.29.1 (2026-09-24)
+
+### Bug Fixes
+
+- Sanitize provider diagnostics JSON ([#463](https://github.com/trussiumhq/trussium/pull/463),
+  [`4dce1a3`](https://github.com/trussiumhq/trussium/commit/4dce1a349db66a98e8076b95e55a97c1eb0a3258))
+
+
 ## v1.29.0 (2026-09-24)
 
 ### Features
