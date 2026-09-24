@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.29.0 (2026-09-24)
+
+### Features
+
+- Secure provider CLI diagnostics ([#462](https://github.com/trussiumhq/trussium/pull/462),
+  [`0347ded`](https://github.com/trussiumhq/trussium/commit/0347deddf43b427d177bdacc06758934e2021680))
+
+
 ## v1.28.0 (2026-09-23)
 
 ### Chores
