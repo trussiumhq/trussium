@@ -164,3 +164,37 @@ def test_diagnostics_text_limits_provider_fields_to_safe_values(
     assert "user:password" not in output
     assert "secret" not in output
     assert "example.test" not in output
+
+
+def test_diagnostics_json_limits_provider_fields_to_safe_values(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def get(url: str, *, timeout: float) -> httpx.Response:
+        del timeout
+        payload: object = {"status": "ok"}
+        if url.endswith("/v1/providers/health"):
+            payload = {
+                "status": "degraded",
+                "providers": [
+                    {"name": "ollama", "status": "unavailable", "reason": "provider_timeout"},
+                    {
+                        "name": "openai",
+                        "status": "ok",
+                        "reason": "https://user:password@example.test/api_key",
+                        "endpoint": "https://example.test?token=secret",
+                    },
+                ],
+            }
+        return httpx.Response(200, json=payload, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr("trussium.cli.httpx.get", get)
+    main(("diagnostics", "--url", "http://runtime.test"))
+    output = capsys.readouterr().out
+    assert '"reason": "health_check_failed"' in output
+    assert '"name": "ollama"' in output
+    assert '"reason": "provider_timeout"' in output
+    assert '"status": "unavailable"' in output
+    assert "user:password" not in output
+    assert "example.test" not in output
+    assert "api_key" not in output
+    assert "token" not in output
