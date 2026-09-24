@@ -35,9 +35,11 @@ include only validated provider names, known health statuses, and stable reason
 codes; unknown statuses become `unknown`, unknown reason codes become
 `health_check_failed`, and invalid provider names are omitted. This prevents
 untrusted provider health strings from leaking endpoints, credentials, or
-arbitrary exception text into terminal output. Component and capability details
-remain bounded by their runtime health contracts. JSON remains the default for
-scripts.
+arbitrary exception text into terminal output. JSON remains the default for
+scripts and applies the same provider-field allowlist, dropping extra provider
+fields and replacing unknown reason codes with `health_check_failed`.
+Component and capability details remain bounded by their runtime health
+contracts.
 
 For Kubernetes and Helm operations, use the separate public
 [`trussiumctl`](https://github.com/trussiumhq/trussiumctl) binary. Its initial

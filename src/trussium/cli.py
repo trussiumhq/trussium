@@ -135,6 +135,8 @@ def _diagnostics(url: str, *, provider: str | None = None, output_format: str = 
             payload = response.json()
             if name == "providers" and provider is not None:
                 payload = _filter_provider_report(payload, provider)
+            if name == "providers":
+                payload = _sanitize_provider_report(payload)
             reports[name] = payload
         except (httpx.HTTPError, ValueError):
             reports[name] = {"status": "unavailable"}
@@ -208,3 +210,44 @@ def _filter_provider_report(payload: object, provider: str) -> object:
             if isinstance(item, dict) and item.get("name") == provider
         ],
     }
+
+
+def _sanitize_provider_report(payload: object) -> dict[str, object]:
+    """Keep only the provider health fields and stable codes safe for CLI output."""
+    raw_status = payload.get("status") if isinstance(payload, dict) else None
+    status = (
+        raw_status
+        if isinstance(raw_status, str) and raw_status in _PROVIDER_HEALTH_STATUSES
+        else "unknown"
+    )
+    raw_providers = payload.get("providers") if isinstance(payload, dict) else None
+    if not isinstance(raw_providers, list):
+        return {"status": status, "providers": []}
+
+    providers: list[dict[str, str]] = []
+    for item in raw_providers:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("name")
+        try:
+            if not isinstance(name, str):
+                continue
+            validate_provider_name(name)
+        except ValueError:
+            continue
+
+        raw_provider_status = item.get("status")
+        provider_status = (
+            raw_provider_status
+            if isinstance(raw_provider_status, str)
+            and raw_provider_status in _PROVIDER_HEALTH_STATUSES
+            else "unknown"
+        )
+        safe_item = {"name": name, "status": provider_status}
+        reason = item.get("reason")
+        if isinstance(reason, str):
+            safe_item["reason"] = (
+                reason if reason in _PROVIDER_HEALTH_REASONS else "health_check_failed"
+            )
+        providers.append(safe_item)
+    return {"status": status, "providers": providers}
