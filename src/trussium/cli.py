@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import re
 from collections.abc import Sequence
 
 import httpx
@@ -10,6 +11,25 @@ from pydantic import ValidationError
 from trussium import __version__
 from trussium.__main__ import main as serve_runtime
 from trussium.config.settings import get_settings
+from trussium.providers import validate_provider_name
+
+_PROVIDER_HEALTH_STATUSES = frozenset({"ok", "degraded", "unavailable", "unknown"})
+_PROVIDER_HEALTH_REASONS = frozenset(
+    {
+        "health_not_reported",
+        "health_timeout",
+        "health_check_failed",
+        "provider_not_configured",
+        "provider_authentication_failed",
+        "provider_permission_denied",
+        "provider_rate_limited",
+        "provider_timeout",
+        "provider_unreachable",
+        "model_unavailable",
+        "provider_check_failed",
+    }
+)
+_STABLE_REASON_PATTERN = re.compile(r"[a-z][a-z0-9_]{0,63}")
 
 
 def main(arguments: Sequence[str] | None = None) -> None:
@@ -135,6 +155,12 @@ def _diagnostics(url: str, *, provider: str | None = None, output_format: str = 
                     for item in items:
                         if not isinstance(item, dict) or "name" not in item:
                             continue
+                        if name == "providers":
+                            detail = _format_provider_detail(item)
+                            if detail is None:
+                                continue
+                            print(f"  {detail}")
+                            continue
                         detail = f"{item['name']}: {item.get('status', 'unknown')}"
                         if item.get("reason"):
                             detail += f" ({item['reason']})"
@@ -143,6 +169,31 @@ def _diagnostics(url: str, *, provider: str | None = None, output_format: str = 
         print(json.dumps(reports, sort_keys=True))
     if failed:
         raise SystemExit(1)
+
+
+def _format_provider_detail(item: dict[str, object]) -> str | None:
+    """Format only bounded, stable provider diagnostic fields."""
+    name = item.get("name")
+    try:
+        if not isinstance(name, str):
+            return None
+        validate_provider_name(name)
+    except ValueError:
+        return None
+
+    raw_status = item.get("status")
+    status = (
+        raw_status
+        if isinstance(raw_status, str) and raw_status in _PROVIDER_HEALTH_STATUSES
+        else "unknown"
+    )
+    detail = f"{name}: {status}"
+
+    reason = item.get("reason")
+    if isinstance(reason, str) and _STABLE_REASON_PATTERN.fullmatch(reason):
+        stable_reason = reason if reason in _PROVIDER_HEALTH_REASONS else "health_check_failed"
+        detail += f" ({stable_reason})"
+    return detail
 
 
 def _filter_provider_report(payload: object, provider: str) -> object:
