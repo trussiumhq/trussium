@@ -113,7 +113,9 @@ def test_diagnostics_text_includes_provider_details(
         if url.endswith("/v1/providers/health"):
             payload = {
                 "status": "degraded",
-                "providers": [{"name": "ollama", "status": "unavailable", "reason": "timeout"}],
+                "providers": [
+                    {"name": "ollama", "status": "unavailable", "reason": "health_timeout"}
+                ],
             }
         elif url.endswith("/v1/capabilities/availability"):
             payload = {
@@ -125,5 +127,40 @@ def test_diagnostics_text_includes_provider_details(
     monkeypatch.setattr("trussium.cli.httpx.get", get)
     main(("diagnostics", "--url", "http://runtime.test", "--format", "text"))
     output = capsys.readouterr().out
-    assert "providers: degraded\n  ollama: unavailable (timeout)\n" in output
+    assert "providers: degraded\n  ollama: unavailable (health_timeout)\n" in output
     assert "capabilities: available\n  chat.completions: available\n" in output
+
+
+def test_diagnostics_text_limits_provider_fields_to_safe_values(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def get(url: str, *, timeout: float) -> httpx.Response:
+        del timeout
+        payload: object = {"status": "ok"}
+        if url.endswith("/v1/providers/health"):
+            payload = {
+                "status": "degraded",
+                "providers": [
+                    {"name": "ollama", "status": "unavailable", "reason": "provider_timeout"},
+                    {
+                        "name": "openai",
+                        "status": "https://user:password@example.test/key",
+                        "reason": "token_super_secret_value",
+                    },
+                    {
+                        "name": "https://user:password@example.test/key",
+                        "status": "unavailable",
+                        "reason": "provider_timeout",
+                    },
+                ],
+            }
+        return httpx.Response(200, json=payload, request=httpx.Request("GET", url))
+
+    monkeypatch.setattr("trussium.cli.httpx.get", get)
+    main(("diagnostics", "--url", "http://runtime.test", "--format", "text"))
+    output = capsys.readouterr().out
+    assert "ollama: unavailable (provider_timeout)" in output
+    assert "openai: unknown (health_check_failed)" in output
+    assert "user:password" not in output
+    assert "secret" not in output
+    assert "example.test" not in output

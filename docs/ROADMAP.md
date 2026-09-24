@@ -1024,6 +1024,9 @@ The post-1.22 priority is maintenance and protocol evolution:
 2. Monitor dependency and vulnerability alerts across all public repositories.
 3. Keep release, container, compatibility, and documentation workflows healthy.
 4. Review historical compatibility proposals and track operational fixes.
+5. Keep runtime CLI provider diagnostics privacy-safe by emitting only
+   validated provider names, known statuses, and stable failure reason codes
+   (issue #448).
 
 The current CLI remains part of the Python runtime repository and owns
 runtime-local workflows such as serving, configuration validation, health

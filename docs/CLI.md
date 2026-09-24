@@ -30,9 +30,14 @@ capability availability reports. It prints one stable JSON object and exits
 with code 1 if any report cannot be retrieved. It does not expose credentials
 or provider payloads. Use `--provider NAME` to limit the provider section to a
 single registered provider; all other health sections remain unchanged. Use
-`--format text` for a concise human-readable status summary, including bounded
-provider/component/capability names and bounded failure reasons; JSON remains
-the default for scripts.
+`--format text` for a concise human-readable status summary. Provider details
+include only validated provider names, known health statuses, and stable reason
+codes; unknown statuses become `unknown`, unknown reason codes become
+`health_check_failed`, and invalid provider names are omitted. This prevents
+untrusted provider health strings from leaking endpoints, credentials, or
+arbitrary exception text into terminal output. Component and capability details
+remain bounded by their runtime health contracts. JSON remains the default for
+scripts.
 
 For Kubernetes and Helm operations, use the separate public
 [`trussiumctl`](https://github.com/trussiumhq/trussiumctl) binary. Its initial
