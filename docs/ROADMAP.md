@@ -873,7 +873,6 @@ Extend Trussium beyond model inference into controlled workflow and agent execut
 - Multi-agent communication
 - Memory interfaces
 - Agent lifecycle management
-- MCP-native execution
 - Human approval workflows
 - Execution auditing
 - Execution limits
@@ -886,6 +885,9 @@ The controlled tool foundation (`ToolRegistry`, bounded `ToolExecutor`, and
 `POST /v1/tools/executions`) is delivered. The first bounded workflow
 coordinator and `POST /v1/workflows/executions` are now delivered; durable
 workflow state, agent state, and distributed orchestration remain deferred.
+The optional MCP surface also provides bounded `tools/list` discovery and
+`tools/call` execution through the same application-owned `ToolExecutor`; it
+remains disabled by default and is documented in [MCP](MCP.md) (issue #397).
 The bounded workflow lifecycle contract is documented in
 [Agent Runtime workflow lifecycle](AGENT_RUNTIME_WORKFLOWS.md).
 Result aggregation and error propagation are documented in
