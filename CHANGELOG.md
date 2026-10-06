@@ -2,6 +2,24 @@
 
 <!-- version list -->
 
+## v1.30.0 (2026-10-06)
+
+### Bug Fixes
+
+- **deps**: Update urllib3 security fixes ([#468](https://github.com/trussiumhq/trussium/pull/468),
+  [`ee5e877`](https://github.com/trussiumhq/trussium/commit/ee5e877fd15290322cd0e0b91b8c76720e1cc1cd))
+
+### Documentation
+
+- Record bounded MCP tool execution ([#464](https://github.com/trussiumhq/trussium/pull/464),
+  [`edfb8e5`](https://github.com/trussiumhq/trussium/commit/edfb8e5b288c5eec3bfd89db9a7e659ea05d6c03))
+
+### Features
+
+- **tools**: Add fixed remote MCP adapter ([#468](https://github.com/trussiumhq/trussium/pull/468),
+  [`ee5e877`](https://github.com/trussiumhq/trussium/commit/ee5e877fd15290322cd0e0b91b8c76720e1cc1cd))
+
+
 ## v1.29.1 (2026-09-24)
 
 ### Bug Fixes
