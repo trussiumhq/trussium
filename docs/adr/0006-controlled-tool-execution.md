@@ -13,10 +13,13 @@ without granting ambient authority to models or HTTP callers.
 
 ## Decision
 
-Trussium will execute only explicitly registered, in-process tool objects through
-a dedicated `tools.executions` capability. Each tool has a stable name, immutable
+Trussium will execute only explicitly registered tool objects through a
+dedicated `tools.executions` capability. Each tool has a stable name, immutable
 public definition, Pydantic-validated JSON-object input, and an asynchronous
 handler. A request identifies one registered tool and validated arguments.
+Handlers may be local or use the fixed remote MCP adapter proposed in [ADR
+0045](0045-cross-process-agent-tool-boundary.md); endpoint and remote tool
+identity are application configuration, never request data.
 
 The initial capability uses a positive shared timeout and returns a
 provider-neutral structured result with stable HTTP failures. Tool names,
@@ -27,10 +30,14 @@ unless application composition registers it.
 ## Consequences
 
 - Models and callers have no arbitrary command, code, filesystem, network, or
-  plugin authority.
+  plugin authority. Remote MCP requests can target only destinations explicitly
+  configured by the application.
 - Applications retain explicit ownership of every side-effecting handler.
-- Approval workflows, policy engines, remote tools, dynamic discovery, and
-  agent-directed selection require separate future decisions.
+- Approval workflows, policy engines, dynamic discovery, and agent-directed
+  selection require separate future decisions.
+- Cross-process MCP adapter requirements and the remaining Knowledge Agent
+  integration are tracked under [ADR 0045](0045-cross-process-agent-tool-boundary.md)
+  and issue #466.
 
 ## Alternatives Considered
 

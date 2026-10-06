@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from trussium.app import create_application
 from trussium.middleware import (
     APPLICATION_ID_HEADER,
+    EXECUTION_ID_HEADER,
     PROJECT_ID_HEADER,
     REQUEST_ID_HEADER,
     TENANT_ID_HEADER,
@@ -279,6 +280,33 @@ def test_execution_id_is_generated_for_every_request() -> None:
     assert str(UUID(first_execution_id)) == first_execution_id
     assert str(UUID(second_execution_id)) == second_execution_id
     assert first_execution_id != second_execution_id
+
+
+def test_canonical_execution_id_is_preserved_for_trusted_hops() -> None:
+    """Remote tool calls can continue a canonical execution correlation ID."""
+    client = TestClient(create_test_application())
+    execution_id = "e93d9c1a-4c61-4a24-9ac4-587fbf50102f"
+
+    response = client.get(
+        "/execution-context",
+        headers={EXECUTION_ID_HEADER: execution_id},
+    )
+
+    assert response.json()["execution_id"] == execution_id
+
+
+def test_invalid_execution_id_is_replaced() -> None:
+    """Invalid execution correlation values are never propagated."""
+    client = TestClient(create_test_application())
+
+    response = client.get(
+        "/execution-context",
+        headers={EXECUTION_ID_HEADER: "not-a-uuid"},
+    )
+
+    execution_id = response.json()["execution_id"]
+    assert isinstance(execution_id, str)
+    assert str(UUID(execution_id)) == execution_id
 
 
 def test_execution_context_remains_available_during_streaming() -> None:

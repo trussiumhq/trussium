@@ -35,6 +35,58 @@ The first slice intentionally excludes subscriptions, prompts, resources,
 remote discovery, and transport upgrades. REST and SSE APIs remain the primary
 runtime integration surfaces.
 
+## Calling a fixed remote MCP tool
+
+Applications that embed Trussium can explicitly register a fixed remote MCP
+tool using `RemoteMCPTool`. The URL, remote name, argument model, and bearer
+token are application configuration; workflow requests can select only the
+local registered name. The adapter does not call `tools/list` or perform
+request-time discovery.
+
+```python
+import os
+
+from pydantic import BaseModel, ConfigDict
+
+from trussium.app import create_application
+from trussium.tools import RemoteMCPTool, ToolExecutor, ToolRegistry
+
+
+class SearchArguments(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    query: str
+
+
+remote_search = RemoteMCPTool(
+    name="knowledge.search",
+    endpoint_url="https://knowledge-agent.example/v1/mcp",
+    remote_name="docs.search",
+    arguments_model=SearchArguments,
+    bearer_token=os.environ["KNOWLEDGE_AGENT_TOOL_TOKEN"],
+).registered_tool()
+
+app = create_application(
+    tool_executor=ToolExecutor(ToolRegistry((remote_search,))),
+    mcp_enabled=True,
+)
+```
+
+This is an application-composition API, not a setting for the packaged
+`trussium` command. The default command remains tool-free. The remote endpoint
+must use HTTPS and the exact `/v1/mcp` path. Explicit local development may use
+loopback HTTP only with `allow_local_http=True`. Redirects and ambient proxy
+settings are disabled. Each call is bounded by the configured remote timeout,
+the enclosing `ToolExecutor` deadline, and a 1 MiB request/response limit.
+Only request and execution correlation IDs are forwarded; arbitrary inbound
+headers, arguments, credentials, and provider payloads are not logged.
+
+The application must still protect the remote MCP endpoint with authentication
+and expose only its read-only allowlisted operations. See the proposed
+[cross-process tool boundary ADR](adr/0045-cross-process-agent-tool-boundary.md)
+and [integration issue #466](https://github.com/trussiumhq/trussium/issues/466)
+for the remaining end-to-end Knowledge Agent integration work.
+
 ## Status codes and errors
 
 Enabled JSON-RPC requests return HTTP `200`, including JSON-RPC error objects.

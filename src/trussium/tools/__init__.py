@@ -13,9 +13,12 @@ from trussium.tools.policy import (
     ToolPolicyAdapter,
 )
 from trussium.tools.registry import ToolNotFoundError, ToolRegistry
+from trussium.tools.remote_mcp import RemoteMCPTool, RemoteMCPToolError
 
 __all__ = [
     "RegisteredTool",
+    "RemoteMCPTool",
+    "RemoteMCPToolError",
     "ToolApprovalAdapter",
     "ToolApprovalDecision",
     "ToolApprovalRequest",
