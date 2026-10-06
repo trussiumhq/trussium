@@ -911,6 +911,15 @@ expansion remain separately gated.
 The readiness checklist now records the delivered workflow gates as complete
 while keeping those optional expansions explicitly open.
 
+Cross-process workflow integration for the Knowledge Agent is tracked in
+[issue #466](https://github.com/trussiumhq/trussium/issues/466). A proposed
+security boundary in [ADR 0045](adr/0045-cross-process-agent-tool-boundary.md)
+uses fixed, application-configured MCP endpoints and tool names over the
+existing `ToolExecutor`; it does not enable request-time discovery or arbitrary
+HTTP tools. The runtime adapter is now implemented; authenticated Knowledge
+Agent tool serving, SDK workflow support, end-to-end integration, and published
+documentation remain open until their tests are complete.
+
 ---
 
 ## Protocol Strategy

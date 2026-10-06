@@ -1,6 +1,6 @@
 """Request-correlation middleware."""
 
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import (
@@ -17,6 +17,7 @@ from trussium.runtime import (
 )
 
 REQUEST_ID_HEADER = "X-Request-ID"
+EXECUTION_ID_HEADER = "X-Execution-ID"
 TENANT_ID_HEADER = "X-Tenant-ID"
 PROJECT_ID_HEADER = "X-Project-ID"
 APPLICATION_ID_HEADER = "X-Application-ID"
@@ -54,11 +55,13 @@ class RequestCorrelationMiddleware:
             return
 
         request_id = self._resolve_request_id(scope)
+        execution_id = self._resolve_execution_id(scope)
         tenant_id = self._resolve_tenant_id(scope)
         project_id = self._resolve_identity_id(scope, PROJECT_ID_HEADER)
         application_id = self._resolve_identity_id(scope, APPLICATION_ID_HEADER)
         context_token = set_request_id(
             request_id,
+            execution_id=execution_id,
             tenant_id=tenant_id,
             project_id=project_id,
             application_id=application_id,
@@ -104,6 +107,18 @@ class RequestCorrelationMiddleware:
                 return normalized_request_id
 
         return str(uuid4())
+
+    @staticmethod
+    def _resolve_execution_id(scope: Scope) -> str | None:
+        """Accept only canonical UUID execution identifiers from trusted hops."""
+        supplied_execution_id = Headers(scope=scope).get(EXECUTION_ID_HEADER)
+        if supplied_execution_id is None:
+            return None
+        try:
+            execution_id = UUID(supplied_execution_id.strip())
+        except (ValueError, AttributeError):
+            return None
+        return str(execution_id) if str(execution_id) == supplied_execution_id.strip() else None
 
     @staticmethod
     def _resolve_tenant_id(scope: Scope) -> str | None:

@@ -42,5 +42,14 @@ results, credentials, and exception messages are excluded from structured logs.
 Safe audit events contain only the registered tool name, stable outcome, and
 the request and execution context already attached by the runtime.
 
-Remote tools, approval workflows, dynamic plugins, and agent-directed selection
-are separate future work.
+Arbitrary HTTP tools, dynamic plugins, and agent-directed selection remain
+outside the supported contract.
+
+An application may explicitly compose a fixed remote MCP tool with
+`RemoteMCPTool`; this is not request-time discovery or a generic URL tool. The
+adapter fixes the endpoint, remote tool name, typed argument contract, and
+credential at application startup, then routes calls through the same
+`ToolExecutor` policy, timeout, cancellation, and audit behavior. See
+[MCP](MCP.md#calling-a-fixed-remote-mcp-tool) for the security requirements and
+composition example. Remote Knowledge Agent integration remains tracked by
+[issue #466](https://github.com/trussiumhq/trussium/issues/466).
