@@ -911,14 +911,18 @@ expansion remain separately gated.
 The readiness checklist now records the delivered workflow gates as complete
 while keeping those optional expansions explicitly open.
 
-Cross-process workflow integration for the Knowledge Agent is tracked in
-[issue #466](https://github.com/trussiumhq/trussium/issues/466). A proposed
-security boundary in [ADR 0045](adr/0045-cross-process-agent-tool-boundary.md)
-uses fixed, application-configured MCP endpoints and tool names over the
-existing `ToolExecutor`; it does not enable request-time discovery or arbitrary
-HTTP tools. The runtime adapter is now implemented; authenticated Knowledge
-Agent tool serving, SDK workflow support, end-to-end integration, and published
-documentation remain open until their tests are complete.
+Cross-process workflow integration is now complete for the first Knowledge
+Agent audit slice. The accepted security boundary in
+[ADR 0045](adr/0045-cross-process-agent-tool-boundary.md) uses fixed,
+application-configured MCP endpoints and tool names over the existing
+`ToolExecutor`; it does not enable request-time discovery or arbitrary HTTP
+tools. The runtime adapter, typed Python SDK workflow method, authenticated
+Knowledge Agent `docs.audit_links` tool, and published workflow guide are
+implemented. A local end-to-end SDK check completed a registered link audit
+over 31 Markdown files and 53 links. The
+[published guide](https://trussiumhq.github.io/agent-workflows/) documents the
+configuration, trust boundaries, limits, and recovery steps. This does not add
+automatic source edits, issue creation, or general-purpose agent execution.
 
 ---
 

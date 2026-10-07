@@ -2,9 +2,12 @@
 
 ## Status
 
-Proposed — the fixed MCP adapter is implemented in this change; end-to-end
-Knowledge Agent integration and the remaining acceptance criteria are tracked
-by [issue #466](https://github.com/trussiumhq/trussium/issues/466).
+Accepted — the fixed MCP adapter, typed Python SDK workflow method,
+authenticated Knowledge Agent read-only tools, and end-to-end documentation
+audit workflow are implemented and validated. See runtime [PR #468](https://github.com/trussiumhq/trussium/pull/468),
+Python SDK [PR #15](https://github.com/trussiumhq/trussium-python/pull/15),
+Knowledge Agent [PR #20](https://github.com/trussiumhq/trussium-knowledge-agent/pull/20),
+and the [published workflow guide](https://trussiumhq.github.io/agent-workflows/).
 
 ## Context
 
@@ -20,7 +23,7 @@ rejects arbitrary HTTP tools because request-controlled URLs, credentials, and
 egress create SSRF and data-leak risks. Any cross-process integration must keep
 the same explicit registration and policy properties.
 
-## Proposed decision
+## Decision
 
 Use an application-composed remote MCP adapter for cross-process tools. The
 adapter is configured at trusted application startup with a fixed endpoint,
@@ -30,11 +33,12 @@ ordinary registered tools; the existing `ToolExecutor` remains the only path
 for authorization, approval, deadlines, cancellation, error normalization,
 execution context, and audit events.
 
-The initial adapter implements the fixed endpoint, static remote tool name,
-typed argument model, authentication, size/deadline limits, redirect and
-ambient-proxy protections, safe errors, and correlation propagation. It does
-not by itself configure the packaged command or implement the Knowledge Agent
-tool server; those end-to-end pieces remain tracked by issue #466.
+The adapter implements the fixed endpoint, static remote tool name, typed
+argument model, authentication, size/deadline limits, redirect and
+ambient-proxy protections, safe errors, and correlation propagation. The
+Knowledge Agent provides authenticated `docs.search` and deterministic,
+read-only `docs.audit_links` operations. A custom runtime application registers
+the remote tool explicitly; the packaged command remains tool-free by default.
 
 The adapter must not perform request-time tool discovery. Workflow requests may
 select only tools in the local sealed registry and can never select or modify a
@@ -58,8 +62,8 @@ integration.
   composition and remains absent from workflow request payloads.
 - Remote availability becomes an application dependency; calls must fit within
   the parent tool and workflow deadlines and preserve cancellation.
-- A typed Python SDK method is useful only after the remote tool composition
-  contract is implemented; it does not replace that contract.
+- The Python SDK's typed workflow method calls only the runtime's explicitly
+  configured workflow endpoint; it does not register or discover tools.
 - The packaged runtime remains tool-free unless its application explicitly
   composes a tool executor.
 
@@ -79,7 +83,9 @@ integration.
   to stable tool failures.
 - Test that unknown tools, invalid schemas, endpoint overrides, redirects,
   oversized responses, timeouts, cancellation, and secret/log leakage cause no
-  unapproved activity.
+  unapproved activity. Unit tests cover those boundaries across the runtime
+  adapter and workflow executor; a local SDK-to-runtime-to-Knowledge-Agent
+  smoke test confirms the first audit completes end to end.
 
 ## Alternatives considered
 
