@@ -82,10 +82,12 @@ Only request and execution correlation IDs are forwarded; arbitrary inbound
 headers, arguments, credentials, and provider payloads are not logged.
 
 The application must still protect the remote MCP endpoint with authentication
-and expose only its read-only allowlisted operations. See the proposed
+and expose only its read-only allowlisted operations. The Knowledge Agent is an
+example integration with fixed `docs.search` and `docs.audit_links` operations.
+See the [published workflow guide](https://trussiumhq.github.io/agent-workflows/)
+for configuration and SDK examples, and the accepted
 [cross-process tool boundary ADR](adr/0045-cross-process-agent-tool-boundary.md)
-and [integration issue #466](https://github.com/trussiumhq/trussium/issues/466)
-for the remaining end-to-end Knowledge Agent integration work.
+for the security decision.
 
 ## Status codes and errors
 
