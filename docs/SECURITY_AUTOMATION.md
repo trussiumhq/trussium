@@ -53,8 +53,8 @@ environments of all four Python provider repositories. GitPython 3.2.0 is
 affected by [GHSA-83vg-56qc-22m7](https://github.com/advisories/GHSA-83vg-56qc-22m7);
 3.2.1 is the patched release. The provider constraints were updated to require
 3.2.1 or later within the 3.2 series, and committed `uv.lock` files now make
-those environments reproducible. The changes were merged in [vLLM PR
-#24](https://github.com/trussiumhq/trussium-provider-vllm/pull/24),
+those environments reproducible. The changes were merged in
+[vLLM PR #24](https://github.com/trussiumhq/trussium-provider-vllm/pull/24),
 [Anthropic PR #22](https://github.com/trussiumhq/trussium-provider-anthropic/pull/22),
 [LibreTranslate PR #11](https://github.com/trussiumhq/trussium-provider-libretranslate/pull/11),
 and [Piper PR #11](https://github.com/trussiumhq/trussium-provider-piper/pull/11).
