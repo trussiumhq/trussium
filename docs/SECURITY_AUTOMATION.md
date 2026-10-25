@@ -33,16 +33,4 @@ that no organization-level or GitHub-default analysis exists.
 | [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart / YAML and tooling | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | Not identified as a primary code target; confirm repository language/settings |
 | [trussiumhq.github.io](https://github.com/trussiumhq/trussiumhq.github.io) | MkDocs documentation site | Pages build/deploy | Dependabot: pip, Actions | Not applicable to documentation content |
 
-GitHub native settings were checked for `trussium` on 2026-10-25. Dependency
-graph and Dependabot alerts are enabled; Dependabot security-update PRs are
-disabled. Secret-scanning alerts and push protection are enabled. CodeQL
-workflow evidence and the passing PR check were verified, but the
-repository-wide alert view still needs an organization-wide inventory. The
-other public repositories have not yet had their native settings rechecked.
-Do not treat Gitleaks CI coverage as evidence that GitHub alerts or push
-protection are enabled. Provider credentials must be injected through
-deployment secret mechanisms. Rotate any credential that may have been
-exposed.
-
-For release recovery, follow the release workflow and do not rebuild an
-already-tagged artifact.
+On 2026-10-25, GitHub's organization security configuration was assigned to all 13 public repositories, excluding the two private cloud repositories. It enables secret-scanning alerts and push protection, does not enforce repository-owner settings, and leaves CodeQL, dependency-graph, and Dependabot settings unchanged. The initial rollout had six CodeQL advanced-setup conflicts; after narrowing the policy and retrying, all 13 public repositories were assigned with no failures. Assignment is not proof of effective per-repository settings because repository owners may override it; verify effective settings before treating coverage as closed. Do not treat Gitleaks CI coverage as evidence that GitHub alerts or push protection are enabled. Provider credentials must be injected through deployment secret mechanisms. Rotate any credential that may have been exposed. For release recovery, follow the release workflow and do not rebuild an already-tagged artifact.
