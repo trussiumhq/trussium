@@ -79,17 +79,24 @@ pull requests, default-branch pushes, weekly scheduled scans, and manual runs.
 
 ### TypeScript SDK dependency alert checkpoint
 
-On 2026-10-25, GitHub showed one open Dependabot alert in
+On 2026-10-26, GitHub still showed one open Dependabot alert in
 `trussium-typescript`: high-severity `undici` GHSA-xjj6-f33q-929c, detected
 through `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1.
-The alert identifies `undici` 6.29.1 as the first patched release; the npm
-11.21.1 bundle currently resolves 6.29.0. Security PRs #23, #24, and #26
-updated the directly managed `undici`, Handlebars, and npm bundle lock data,
-but this bundled copy remains affected. A scoped npm override was tested
-locally and did not replace npm's bundled copy, so it is not a valid fix. Keep
-this alert open until the bundled dependency is actually patched or a
-supported upstream dependency update removes the vulnerable version. Re-run
-the SDK tests, npm audit, and GitHub alert check after remediation.
+The advisory identifies `undici` 6.29.1 as the first patched release. The
+latest stable npm CLI release notes for both 11.21.1 and 12.2.1 still list
+`undici` 6.29.0, so neither bundled version clears the alert. The newest
+semantic-release major line is still a prerelease; do not adopt it solely as a
+security workaround. Security PRs #23, #24, and #26 updated the directly
+managed `undici`, Handlebars, and npm bundle lock data, but this bundled copy
+remains affected. A scoped npm override was tested locally and did not replace
+npm's bundled copy, so it is not a valid fix. Keep this alert open until the
+bundled dependency is actually patched or a supported upstream dependency
+update removes the vulnerable version. Re-run the SDK tests, npm audit, and
+GitHub alert check after remediation.
+
+Sources: [undici advisory](https://github.com/advisories/GHSA-xjj6-f33q-929c),
+[npm CLI releases](https://github.com/npm/cli/releases), and
+[semantic-release releases](https://github.com/semantic-release/semantic-release/releases).
 
 On 2026-10-25, GitHub's organization security configuration was verified as
 assigned to all 13 public repositories, excluding the two private cloud
