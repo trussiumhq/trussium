@@ -1029,14 +1029,14 @@ decisions, passing repository CI, and post-release artifact verification.
 
 The current priority is closing the public-repository security coverage gaps tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
 
-1. Verify native GitHub secret-scanning and push-protection settings across all public repositories. `trussium` is verified: Dependabot alerts, secret scanning, and push protection are enabled; security-update PR automation is disabled. Record unavailable settings and remaining gaps.
+1. The organization security configuration now assigns secret-scanning alerts and push protection to all 13 public repositories; the two private cloud repositories are excluded. Repository owners are not locked out of changing these settings, so verify each repository's effective settings and document any overrides or unavailable features.
 2. Add or verify CodeQL coverage for the TypeScript SDK and four Python provider repositories where no workflow was found; verify the reported `trussiumctl` analysis and Helm tooling scope in GitHub's code-scanning view.
 3. Add or verify explicit dependency-audit workflows for provider and Operator repositories where the inventory found Dependabot configuration but no dedicated audit workflow.
 4. Rerun the file-level inventory in [Security automation](SECURITY_AUTOMATION.md) after changes, and continue monitoring dependency alerts.
 5. Keep release, container, compatibility, and documentation workflows healthy.
 6. Review historical compatibility proposals and track operational fixes.
 
-The initial inventory of the 13 public repositories returned by GitHub repository search was checked against their default-branch manifests and workflow files on 2026-10-22. Confirm the organization-wide repository list before treating the inventory as exhaustive. It is a source-file audit only. On 2026-10-25, the `trussium` repository's native settings were also checked: Dependabot alerts, secret-scanning alerts, and push protection are enabled. The remaining repositories' native settings and the organization-wide alert state still need verification. Issue #465's 2026-10-05 audit reported native secret scanning disabled at that time; do not assume the earlier state applies to all repositories today.
+The initial inventory of 13 public repositories was checked against default-branch manifests and workflow files on 2026-10-22. On 2026-10-25, GitHub's organization security configuration was assigned to all 13 public repositories; the two private cloud repositories were excluded. The configuration enables secret-scanning alerts and push protection, does not enforce repository-owner settings, and leaves CodeQL, dependency graph, and Dependabot settings unchanged. Six repositories initially failed because of existing CodeQL advanced-setup conflicts; after narrowing the configuration and retrying, all 13 public repositories were assigned with no failed repositories. Repository assignment is not proof of effective per-repository settings, because repository owners may override the configuration; verify effective settings to close issue #465.
 
 The current CLI remains part of the Python runtime repository and owns
 runtime-local workflows such as serving, configuration validation, health
