@@ -1042,14 +1042,18 @@ tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
    per-repository settings audit found the Dependabot features enabled. This
    dashboard measures configuration coverage, not the effective per-repository
    toggles; keep the two states distinct in future reports.
-3. Add or verify CodeQL coverage for the TypeScript SDK and four Python
-   provider repositories where no workflow was found; verify the reported
-   `trussiumctl` analysis and Helm tooling scope in GitHub's code-scanning view.
+3. CodeQL coverage is verified: default setup is active for the TypeScript SDK,
+   four Python providers, and Helm; `trussiumctl` uses advanced setup. Recent
+   scans were visible on 2026-10-25, except `trussiumctl` (2026-10-19). Keep one
+   CodeQL mode active per repository; do not add duplicate advanced workflows.
 4. Add or verify explicit dependency-audit workflows for provider and Operator
    repositories where the inventory found Dependabot configuration but no
    dedicated audit workflow.
 5. Rerun the file-level inventory in [Security automation](SECURITY_AUTOMATION.md)
-   after changes, and continue monitoring dependency alerts.
+   after changes, and continue monitoring dependency alerts. As of 2026-10-25,
+   the TypeScript SDK has one remaining high Dependabot alert for bundled
+   `undici` 6.29.0; its patched release is 6.29.1, and the npm 11.21.1 bundle
+   used by `@semantic-release/npm` has not adopted it yet.
 6. Keep release,
    container, compatibility, and documentation workflows healthy.
 7. Review historical compatibility proposals and track operational fixes.

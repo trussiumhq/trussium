@@ -12,10 +12,12 @@ These workflow and configuration files describe this repository's automation; th
 ## Public repository file-level inventory
 
 This inventory was checked against workflow and manifest files on each
-repository's GitHub default branch on 2026-10-22. It records visible automation,
-not successful scan runs or GitHub-side security settings. “Not found” means no
-matching workflow was found at the standard paths inspected; it is not proof
-that no organization-level or GitHub-default analysis exists.
+repository's GitHub default branch on 2026-10-22. CodeQL status for the
+TypeScript SDK, four Python providers, `trussiumctl`, and `trussium-helm` was
+separately verified in GitHub's Advanced Security settings on 2026-10-25.
+“Not found” means no matching workflow was found at the standard paths
+inspected; it is not proof that no GitHub default-setup analysis exists. The
+CodeQL column records that distinction where the settings were verified.
 
 | Public repository | Primary project content | CI workflow | Dependency scanning in repository files | CodeQL evidence |
 | --- | --- | --- | --- | --- |
@@ -24,14 +26,39 @@ that no organization-level or GitHub-default analysis exists.
 | [trussium-go](https://github.com/trussiumhq/trussium-go) | Go SDK | Yes | `govulncheck`; Dependabot: Go modules | Workflow present |
 | [trussium-operator](https://github.com/trussiumhq/trussium-operator) | Go / Kubernetes Operator | Yes | Dependabot: Go modules, Actions, Docker; no dedicated audit workflow found | Workflow present |
 | [trussium-knowledge-agent](https://github.com/trussiumhq/trussium-knowledge-agent) | Python | Yes | `pip-audit`; Dependabot: pip, Actions | Workflow present |
-| [trussiumctl](https://github.com/trussiumhq/trussiumctl) | Go CLI | Yes | `govulncheck`; Dependabot: Go modules, Actions | Analysis was reported in issue #465; workflow not found at inspected paths |
-| [trussium-typescript](https://github.com/trussiumhq/trussium-typescript) | TypeScript SDK | Yes | Dependabot: npm, Actions; no dedicated audit workflow found | Workflow not found |
-| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | Workflow not found |
-| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | Workflow not found |
-| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | Workflow not found |
-| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | Workflow not found |
-| [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart / YAML and tooling | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | Not identified as a primary code target; confirm repository language/settings |
+| [trussiumctl](https://github.com/trussiumhq/trussiumctl) | Go CLI | Yes | `govulncheck`; Dependabot: Go modules, Actions | Advanced setup enabled; last scan observed 2026-10-19 |
+| [trussium-typescript](https://github.com/trussiumhq/trussium-typescript) | TypeScript SDK | Yes | Dependabot: npm, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart / YAML and tooling | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; last scan observed 2026-10-25 |
 | [trussiumhq.github.io](https://github.com/trussiumhq/trussiumhq.github.io) | MkDocs documentation site | Pages build/deploy | Dependabot: pip, Actions | Not applicable to documentation content |
+
+GitHub default CodeQL setup is enabled for the TypeScript SDK and the four
+Python provider repositories listed above, with recent scans observed on
+2026-10-25. The `trussiumctl` repository uses advanced setup and had a scan
+observed on 2026-10-19; `trussium-helm` uses default setup and had a scan on
+2026-10-25. A trial advanced-setup workflow in the TypeScript and provider
+repositories failed result upload because GitHub default setup was already
+active. Those duplicate workflows were closed without merging. Keep one
+CodeQL mode active per repository; do not treat the absence of a workflow file
+as a coverage gap when default setup is enabled. This verifies that scans ran,
+not that the resulting alerts have all been triaged or fixed.
+
+### TypeScript SDK dependency alert checkpoint
+
+On 2026-10-25, GitHub showed one open Dependabot alert in
+`trussium-typescript`: high-severity `undici` GHSA-xjj6-f33q-929c, detected
+through `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1.
+The alert identifies `undici` 6.29.1 as the first patched release; the npm
+11.21.1 bundle currently resolves 6.29.0. Security PRs #23, #24, and #26
+updated the directly managed `undici`, Handlebars, and npm bundle lock data,
+but this bundled copy remains affected. A scoped npm override was tested
+locally and did not replace npm's bundled copy, so it is not a valid fix. Keep
+this alert open until the bundled dependency is actually patched or a
+supported upstream dependency update removes the vulnerable version. Re-run
+the SDK tests, npm audit, and GitHub alert check after remediation.
 
 On 2026-10-25, GitHub's organization security configuration was verified as
 assigned to all 13 public repositories, excluding the two private cloud
