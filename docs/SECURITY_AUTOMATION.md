@@ -12,7 +12,7 @@ These workflow and configuration files describe this repository's automation; th
 ## Public repository file-level inventory
 
 This inventory was checked against workflow and manifest files on each
-repository's GitHub default branch on 2026-10-22. CodeQL status for the
+repository's GitHub default branch on 2026-10-25. CodeQL status for the
 TypeScript SDK, four Python providers, `trussiumctl`, and `trussium-helm` was
 separately verified in GitHub's Advanced Security settings on 2026-10-25.
 “Not found” means no matching workflow was found at the standard paths
@@ -24,14 +24,14 @@ CodeQL column records that distinction where the settings were verified.
 | [trussium](https://github.com/trussiumhq/trussium) | Python runtime | Yes | `pip-audit`, Gitleaks; Dependabot: pip, Actions, Docker | Workflow present |
 | [trussium-python](https://github.com/trussiumhq/trussium-python) | Python SDK | Yes | `pip-audit`; Dependabot: uv | Workflow present |
 | [trussium-go](https://github.com/trussiumhq/trussium-go) | Go SDK | Yes | `govulncheck`; Dependabot: Go modules | Workflow present |
-| [trussium-operator](https://github.com/trussiumhq/trussium-operator) | Go / Kubernetes Operator | Yes | Dependabot: Go modules, Actions, Docker; no dedicated audit workflow found | Workflow present |
+| [trussium-operator](https://github.com/trussiumhq/trussium-operator) | Go / Kubernetes Operator | Yes | `govulncheck`; Dependabot: Go modules, Actions, Docker | Workflow present |
 | [trussium-knowledge-agent](https://github.com/trussiumhq/trussium-knowledge-agent) | Python | Yes | `pip-audit`; Dependabot: pip, Actions | Workflow present |
 | [trussiumctl](https://github.com/trussiumhq/trussiumctl) | Go CLI | Yes | `govulncheck`; Dependabot: Go modules, Actions | Advanced setup enabled; last scan observed 2026-10-19 |
 | [trussium-typescript](https://github.com/trussiumhq/trussium-typescript) | TypeScript SDK | Yes | Dependabot: npm, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Python provider | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
+| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
 | [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart / YAML and tooling | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; last scan observed 2026-10-25 |
 | [trussiumhq.github.io](https://github.com/trussiumhq/trussiumhq.github.io) | MkDocs documentation site | Pages build/deploy | Dependabot: pip, Actions | Not applicable to documentation content |
 
@@ -45,6 +45,37 @@ active. Those duplicate workflows were closed without merging. Keep one
 CodeQL mode active per repository; do not treat the absence of a workflow file
 as a coverage gap when default setup is enabled. This verifies that scans ran,
 not that the resulting alerts have all been triaged or fixed.
+
+### Provider dependency remediation
+
+On 2026-10-25, `pip-audit` found GitPython 3.2.0 in the development
+environments of all four Python provider repositories. GitPython 3.2.0 is
+affected by [GHSA-83vg-56qc-22m7](https://github.com/advisories/GHSA-83vg-56qc-22m7);
+3.2.1 is the patched release. The provider constraints were updated to require
+3.2.1 or later within the 3.2 series, and committed `uv.lock` files now make
+those environments reproducible. The changes were merged in [vLLM PR
+#24](https://github.com/trussiumhq/trussium-provider-vllm/pull/24),
+[Anthropic PR #22](https://github.com/trussiumhq/trussium-provider-anthropic/pull/22),
+[LibreTranslate PR #11](https://github.com/trussiumhq/trussium-provider-libretranslate/pull/11),
+and [Piper PR #11](https://github.com/trussiumhq/trussium-provider-piper/pull/11).
+Each repository now audits the synced project environment on pull requests,
+default-branch pushes, and a weekly schedule. The post-update audits reported
+no known vulnerabilities.
+
+`pip-audit` cannot match the Git-installed Trussium runtime or local provider
+project package to PyPI advisory records, so it reports and skips those two
+package records; it still audits their installed transitive dependencies that
+are published to PyPI. Keep Dependabot enabled and review the upstream Trussium
+repository for advisories affecting Git-sourced code as well.
+
+The Operator's baseline `govulncheck` scan found reachable advisories in
+`golang.org/x/net` 0.58.0 (fixed in 0.60.0), an advisory in
+`github.com/google/cel-go` 0.29.2 (fixed in 0.30.0), and standard-library
+findings with Go 1.26.4. The fixes and a pinned `govulncheck` workflow are in
+[Operator PR #219](https://github.com/trussiumhq/trussium-operator/pull/219).
+The PR's full CI and compatibility matrix passed, and its vulnerability check
+reported no findings under Go 1.26.10. The default-branch workflow now covers
+pull requests, default-branch pushes, weekly scheduled scans, and manual runs.
 
 ### TypeScript SDK dependency alert checkpoint
 
