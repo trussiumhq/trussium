@@ -1046,14 +1046,16 @@ tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
    four Python providers, and Helm; `trussiumctl` uses advanced setup. Recent
    scans were visible on 2026-10-25, except `trussiumctl` (2026-10-19). Keep one
    CodeQL mode active per repository; do not add duplicate advanced workflows.
-4. Add or verify explicit dependency-audit workflows for provider and Operator
-   repositories where the inventory found Dependabot configuration but no
-   dedicated audit workflow.
-5. Rerun the file-level inventory in [Security automation](SECURITY_AUTOMATION.md)
-   after changes, and continue monitoring dependency alerts. As of 2026-10-25,
-   the TypeScript SDK has one remaining high Dependabot alert for bundled
-   `undici` 6.29.0; its patched release is 6.29.1, and the npm 11.21.1 bundle
-   used by `@semantic-release/npm` has not adopted it yet.
+4. Provider audit coverage and the GitPython 3.2.0 advisory are addressed in
+   merged PRs for all four Python providers. The Operator's `govulncheck`
+   workflow and dependency/toolchain remediations are merged in [PR #219](https://github.com/trussiumhq/trussium-operator/pull/219);
+   the vulnerability scan, full CI, and compatibility checks passed.
+5. Verify the Operator's default-branch workflow and rerun the file-level
+   inventory in [Security automation](SECURITY_AUTOMATION.md). Continue
+   monitoring dependency alerts. As of 2026-10-25, the TypeScript SDK has one
+   remaining high Dependabot alert for bundled `undici` 6.29.0; its patched
+   release is 6.29.1, and the npm 11.21.1 bundle used by `@semantic-release/npm`
+   has not adopted it yet.
 6. Keep release,
    container, compatibility, and documentation workflows healthy.
 7. Review historical compatibility proposals and track operational fixes.
