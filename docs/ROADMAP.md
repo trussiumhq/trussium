@@ -1,6 +1,6 @@
 # Roadmap
 
-_Last updated: September 2026_
+_Last updated: October 2026_
 
 This roadmap outlines the long-term direction of Trussium.
 
@@ -1027,20 +1027,53 @@ decisions, passing repository CI, and post-release artifact verification.
 
 ## Immediate Priorities
 
-The post-1.22 priority is maintenance and protocol evolution:
+The current priority is closing the public-repository security coverage gaps
+tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
 
-1. Extend the bounded MCP surface only through reviewed, backwards-compatible
-   protocol additions. The first post-v1.22 addition is the bounded `ping`
-   handshake tracked in issue #404. MCP tool discovery now also exposes each
-   declared input schema, tracked in issue #406, and supports bounded cursor
-   pagination tracked in issue #408. The initialized lifecycle notification is
-   tracked in issue #410. Successful tool calls now include the standard
-   `isError: false` result indicator tracked in issue #412.
-2. Monitor dependency and vulnerability alerts across all public repositories.
-3. Keep release, container, compatibility, and documentation workflows healthy.
-4. Review historical compatibility proposals and track operational fixes.
-5. Keep bounded diagnostics output privacy-safe across both JSON and text
-   formats, including stable provider reason codes (issue #440).
+1. Rerun the repository-level settings audit periodically. On 2026-10-25,
+   all 13 public repositories showed secret protection, push protection,
+   dependency graph, Dependabot alerts, and Dependabot security updates enabled;
+   the two private cloud repositories are excluded. Repository owners may
+   change these settings, so verify effective state again before release audits.
+2. Keep in mind that the organization configuration leaves dependency graph,
+   Dependabot alerts, Dependabot security updates, and CodeQL default setup
+   unset and does not enforce settings. Its dashboard reports 0% Dependabot
+   repositories protected by that configuration, although the read-only
+   per-repository settings audit found the Dependabot features enabled. This
+   dashboard measures configuration coverage, not the effective per-repository
+   toggles; keep the two states distinct in future reports.
+3. Add or verify CodeQL coverage for the TypeScript SDK and four Python
+   provider repositories where no workflow was found; verify the reported
+   `trussiumctl` analysis and Helm tooling scope in GitHub's code-scanning view.
+4. Add or verify explicit dependency-audit workflows for provider and Operator
+   repositories where the inventory found Dependabot configuration but no
+   dedicated audit workflow.
+5. Rerun the file-level inventory in [Security automation](SECURITY_AUTOMATION.md)
+   after changes, and continue monitoring dependency alerts.
+6. Keep release,
+   container, compatibility, and documentation workflows healthy.
+7. Review historical compatibility proposals and track operational fixes.
+
+The initial inventory of the 13 public repositories returned by GitHub
+repository search was checked against their default-branch manifests and
+workflow files on 2026-10-22. On 2026-10-25, GitHub's organization security
+configuration was verified as assigned to all 13 public repositories, with
+the two private cloud repositories excluded. It enables secret-scanning alerts
+and push protection without enforcing repository-owner settings. The
+configuration leaves dependency graph, Dependabot alerts, Dependabot security
+updates, and CodeQL default setup unset. The organization dashboard reports
+0% Dependabot repositories protected by that configuration, while a direct
+read-only settings check showed the dependency graph, Dependabot alerts,
+Dependabot security updates, secret protection, and push protection enabled on
+all 13 public repositories. These settings can be overridden locally, so
+rerun the direct audit periodically. Issue #465's 2026-10-05 audit reported
+native secret scanning disabled at that time; do not assume the earlier state
+applies to all repositories today.
+
+The bounded runtime diagnostics command tracked in issue #440 is complete.
+The MCP additions tracked in issues #404, #406, #408, #410, and #412 are also
+complete; future protocol changes should remain reviewed and backwards
+compatible.
 
 The current CLI remains part of the Python runtime repository and owns
 runtime-local workflows such as serving, configuration validation, health
