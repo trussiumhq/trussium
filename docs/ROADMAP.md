@@ -1,6 +1,6 @@
 # Roadmap
 
-_Last updated: September 2026_
+_Last updated: October 2026_
 
 This roadmap outlines the long-term direction of Trussium.
 
@@ -1027,20 +1027,16 @@ decisions, passing repository CI, and post-release artifact verification.
 
 ## Immediate Priorities
 
-The post-1.22 priority is maintenance and protocol evolution:
+The current priority is closing the public-repository security coverage gaps tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
 
-1. Extend the bounded MCP surface only through reviewed, backwards-compatible
-   protocol additions. The first post-v1.22 addition is the bounded `ping`
-   handshake tracked in issue #404. MCP tool discovery now also exposes each
-   declared input schema, tracked in issue #406, and supports bounded cursor
-   pagination tracked in issue #408. The initialized lifecycle notification is
-   tracked in issue #410. Successful tool calls now include the standard
-   `isError: false` result indicator tracked in issue #412.
-2. Monitor dependency and vulnerability alerts across all public repositories.
-3. Keep release, container, compatibility, and documentation workflows healthy.
-4. Review historical compatibility proposals and track operational fixes.
-5. Keep bounded diagnostics output privacy-safe across both JSON and text
-   formats, including stable provider reason codes (issue #440).
+1. Verify native GitHub secret-scanning and push-protection settings across all public repositories. `trussium` is verified: Dependabot alerts, secret scanning, and push protection are enabled; security-update PR automation is disabled. Record unavailable settings and remaining gaps.
+2. Add or verify CodeQL coverage for the TypeScript SDK and four Python provider repositories where no workflow was found; verify the reported `trussiumctl` analysis and Helm tooling scope in GitHub's code-scanning view.
+3. Add or verify explicit dependency-audit workflows for provider and Operator repositories where the inventory found Dependabot configuration but no dedicated audit workflow.
+4. Rerun the file-level inventory in [Security automation](SECURITY_AUTOMATION.md) after changes, and continue monitoring dependency alerts.
+5. Keep release, container, compatibility, and documentation workflows healthy.
+6. Review historical compatibility proposals and track operational fixes.
+
+The initial inventory of the 13 public repositories returned by GitHub repository search was checked against their default-branch manifests and workflow files on 2026-10-22. Confirm the organization-wide repository list before treating the inventory as exhaustive. It is a source-file audit only. On 2026-10-25, the `trussium` repository's native settings were also checked: Dependabot alerts, secret-scanning alerts, and push protection are enabled. The remaining repositories' native settings and the organization-wide alert state still need verification. Issue #465's 2026-10-05 audit reported native secret scanning disabled at that time; do not assume the earlier state applies to all repositories today.
 
 The current CLI remains part of the Python runtime repository and owns
 runtime-local workflows such as serving, configuration validation, health
