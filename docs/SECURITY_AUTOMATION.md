@@ -83,7 +83,7 @@ On 2026-10-29, GitHub still showed one open Dependabot alert in
 `trussium-typescript`: high-severity `undici` GHSA-xjj6-f33q-929c, detected
 through `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1.
 The advisory identifies `undici` 6.29.1 as the first patched release. The
-The npm CLI merged an update to `undici` 6.29.1 into its `latest` development
+npm CLI merged an update to `undici` 6.29.1 into its `latest` development
 branch in [PR #10170](https://github.com/npm/cli/pull/10170) on 2026-10-27.
 That change is not yet in a published stable npm package: the npm CLI release
 page and registry still identify 12.2.1 as the latest stable release, and the
