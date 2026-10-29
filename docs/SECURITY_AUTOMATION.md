@@ -79,23 +79,28 @@ pull requests, default-branch pushes, weekly scheduled scans, and manual runs.
 
 ### TypeScript SDK dependency alert checkpoint
 
-On 2026-10-26, GitHub still showed one open Dependabot alert in
+On 2026-10-29, GitHub still showed one open Dependabot alert in
 `trussium-typescript`: high-severity `undici` GHSA-xjj6-f33q-929c, detected
 through `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1.
 The advisory identifies `undici` 6.29.1 as the first patched release. The
-latest stable npm CLI release notes for both 11.21.1 and 12.2.1 still list
-`undici` 6.29.0, so neither bundled version clears the alert. The newest
-semantic-release major line is still a prerelease; do not adopt it solely as a
-security workaround. Security PRs #23, #24, and #26 updated the directly
-managed `undici`, Handlebars, and npm bundle lock data, but this bundled copy
-remains affected. A scoped npm override was tested locally and did not replace
-npm's bundled copy, so it is not a valid fix. Keep this alert open until the
-bundled dependency is actually patched or a supported upstream dependency
-update removes the vulnerable version. Re-run the SDK tests, npm audit, and
-GitHub alert check after remediation.
+The npm CLI merged an update to `undici` 6.29.1 into its `latest` development
+branch in [PR #10170](https://github.com/npm/cli/pull/10170) on 2026-10-27.
+That change is not yet in a published stable npm package: the npm CLI release
+page and registry still identify 12.2.1 as the latest stable release, and the
+12.2.2 release PR remains open. The stable 11.21.1 bundle used by this SDK
+still contains 6.29.0, so the alert remains valid. Security PRs #23, #24, and
+#26 updated the directly managed `undici`, Handlebars, and npm bundle lock
+data, but this bundled copy remains affected. A scoped npm override was tested
+locally and did not replace npm's bundled copy, so it is not a valid fix. Do
+not consume an unreleased CLI branch or adopt a semantic-release prerelease as
+a production workaround. Keep the alert open until a supported stable bundle
+contains the patched dependency, then rerun SDK tests, `npm audit`, and the
+GitHub alert check.
 
 Sources: [undici advisory](https://github.com/advisories/GHSA-xjj6-f33q-929c),
+[npm CLI PR #10170](https://github.com/npm/cli/pull/10170),
 [npm CLI releases](https://github.com/npm/cli/releases), and
+[npm registry metadata](https://registry.npmjs.org/npm/latest).
 [semantic-release releases](https://github.com/semantic-release/semantic-release/releases).
 
 On 2026-10-25, GitHub's organization security configuration was verified as
