@@ -79,25 +79,38 @@ pull requests, default-branch pushes, weekly scheduled scans, and manual runs.
 
 ### TypeScript SDK dependency alert checkpoint
 
-On 2026-10-29, GitHub still showed one open Dependabot alert in
-`trussium-typescript`: high-severity `undici` GHSA-xjj6-f33q-929c, detected
-through `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1.
-The advisory identifies `undici` 6.29.1 as the first patched release. The
-npm CLI merged an update to `undici` 6.29.1 into its `latest` development
-branch in [PR #10170](https://github.com/npm/cli/pull/10170) on 2026-10-27.
-That change is not yet in a published stable npm package: the npm CLI release
-page and registry still identify 12.2.1 as the latest stable release, and the
-12.2.2 release PR remains open. The stable 11.21.1 bundle used by this SDK
-still contains 6.29.0, so the alert remains valid. Security PRs 23, 24, and 26
-updated the directly managed `undici`, Handlebars, and npm bundle lock
-data, but this bundled copy remains affected. A scoped npm override was tested
-locally and did not replace npm's bundled copy, so it is not a valid fix. Do
-not consume an unreleased CLI branch or adopt a semantic-release prerelease as
-a production workaround. Keep the alert open until a supported stable bundle
-contains the patched dependency, then rerun SDK tests, `npm audit`, and the
-GitHub alert check.
+On 2026-10-29, GitHub showed four open Dependabot alerts for `undici` in the
+`trussium-typescript` lockfile. All four follow the same transitive release-tool
+path: `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1 →
+`undici` 6.29.0. Three alerts are high severity and one is moderate:
 
-Sources: [undici advisory](https://github.com/advisories/GHSA-xjj6-f33q-929c),
+- High: [GHSA-xjj6-f33q-929c](https://github.com/advisories/GHSA-xjj6-f33q-929c),
+  denial of service via excessive content encodings (Dependabot alert #20).
+- Moderate: [GHSA-9fm3-97px-rjf6](https://github.com/advisories/GHSA-9fm3-97px-rjf6),
+  denial of service via unbounded WebSocket PONG buffering (alert #22).
+- High: [GHSA-qrxm-fqhp-jwvm](https://github.com/advisories/GHSA-qrxm-fqhp-jwvm),
+  denial of service via TLS 1.2 certificate-changing renegotiation (alert #23).
+- High: [GHSA-2m5v-pch6-74hx](https://github.com/advisories/GHSA-2m5v-pch6-74hx),
+  TLS certificate validation bypass when Agent TLS options are dropped (alert #24).
+
+Each advisory identifies `undici` 6.29.1 as the earliest patched release; the
+bundled copy still resolves to 6.29.0. The npm CLI merged an update to
+`undici` 6.29.1 into its `latest` development branch in
+[PR #10170](https://github.com/npm/cli/pull/10170) on 2026-10-27. That change
+is not yet in a published stable npm package: the npm CLI release page and
+registry still identify 12.2.1 as the latest stable release, and the 12.2.2
+release PR remains open. Security PRs 23, 24, and 26 updated the directly
+managed `undici`, Handlebars, and npm bundle lock data, but this bundled copy
+remains affected. A scoped npm override was tested locally and did not replace
+npm's bundled copy, so it is not a valid fix. Do not consume an unreleased CLI
+branch or adopt a semantic-release prerelease as a production workaround. Keep
+all four alerts open until a supported stable bundle contains the patched
+dependency, then rerun SDK tests, `npm audit`, and the GitHub alert check.
+
+Sources: the four [undici advisories](https://github.com/advisories/GHSA-xjj6-f33q-929c),
+[GHSA-9fm3-97px-rjf6](https://github.com/advisories/GHSA-9fm3-97px-rjf6),
+[GHSA-qrxm-fqhp-jwvm](https://github.com/advisories/GHSA-qrxm-fqhp-jwvm), and
+[GHSA-2m5v-pch6-74hx](https://github.com/advisories/GHSA-2m5v-pch6-74hx),
 [npm CLI PR #10170](https://github.com/npm/cli/pull/10170),
 [npm CLI releases](https://github.com/npm/cli/releases), and
 [npm registry metadata](https://registry.npmjs.org/npm/latest).
