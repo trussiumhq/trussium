@@ -88,8 +88,8 @@ branch in [PR #10170](https://github.com/npm/cli/pull/10170) on 2026-10-27.
 That change is not yet in a published stable npm package: the npm CLI release
 page and registry still identify 12.2.1 as the latest stable release, and the
 12.2.2 release PR remains open. The stable 11.21.1 bundle used by this SDK
-still contains 6.29.0, so the alert remains valid. Security PRs #23, #24, and
-#26 updated the directly managed `undici`, Handlebars, and npm bundle lock
+still contains 6.29.0, so the alert remains valid. Security PRs 23, 24, and 26
+updated the directly managed `undici`, Handlebars, and npm bundle lock
 data, but this bundled copy remains affected. A scoped npm override was tested
 locally and did not replace npm's bundled copy, so it is not a valid fix. Do
 not consume an unreleased CLI branch or adopt a semantic-release prerelease as
