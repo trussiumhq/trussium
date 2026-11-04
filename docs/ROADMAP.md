@@ -1006,14 +1006,23 @@ The historical release proposals and approval gates remain recorded in the
 
 ### Current release-readiness baseline
 
-The current OSS release baseline is reviewed across the independently versioned
-repositories:
+Latest release tags were checked on 2026-11-04. These independently versioned
+tags are not, by themselves, a compatibility claim:
 
-- Runtime `v1.26.0` is the current release; `v1.22.0` remains the current
-  Operator-validated HTTP and container baseline.
-- Helm chart `v1.3.0` targets runtime `v1.22.0`.
-- Trussium Operator `v1.0.2` is the current release; its lifecycle matrix has
-  tested runtime `v1.22.0` with chart `v1.3.0`.
+- Runtime: `v1.30.0`.
+- Trussium Operator: `v1.0.6`.
+- Helm chart: `v1.3.2`.
+- `trussiumctl`: `v1.16.0`.
+
+The Operator's compatibility matrix (last validated 2026-10-29) records
+Operator `v1.0.5` / Operator chart `1.0.5` with runtime `v1.30.0`. The tested
+runtime Helm chart is `v1.3.1`; it defaults to runtime `v1.27.0`, with an
+explicit runtime image override to `1.30.0`. The matrix records the runtime
+transition from `1.27.0` to `1.30.0` and rollback to `1.27.0` as validated.
+The newer Operator `v1.0.6` and Helm chart `v1.3.2` are published, but are not
+identified as the tested pair in that matrix. Keep compatibility claims tied
+to the matrix until those releases are validated there.
+
 - SDKs and provider adapters remain separately versioned and released.
 - The deferred Agent Runtime expansions are outside the first stable OSS release
   scope; the delivered bounded contracts remain independently versioned and
@@ -1052,11 +1061,14 @@ tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
    the vulnerability scan, full CI, and compatibility checks passed.
 5. Verify the Operator's default-branch workflow and rerun the file-level
    inventory in [Security automation](SECURITY_AUTOMATION.md). Continue
-   monitoring dependency alerts. As of 2026-10-29, the TypeScript SDK still has
-   one high Dependabot alert for bundled `undici` 6.29.0. npm CLI merged the
-   6.29.1 fix to its `latest` development branch, but has not published a
-   stable npm bundle containing it; keep the finding open until the supported
-   release is available and verified.
+   monitoring dependency alerts. As of 2026-11-04, the TypeScript SDK has four
+   open Dependabot alerts (three high and one moderate) for `undici` `6.29.0`,
+   bundled by npm `11.21.1` through `@semantic-release/npm`; the advisories list
+   `6.29.1` as the first fixed version. npm CLI `v12.2.1` is published, but its
+   release notes still list bundled `undici` `6.29.0`. A root dependency
+   override does not replace npm's bundled copy. Keep the alerts open until a
+   supported stable bundle or another validated remediation is available, then
+   rerun SDK tests, `npm audit`, and the GitHub alert check.
 6. Keep release,
    container, compatibility, and documentation workflows healthy.
 7. Review historical compatibility proposals and track operational fixes.
