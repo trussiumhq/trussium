@@ -1064,11 +1064,14 @@ tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
    monitoring dependency alerts. As of 2026-11-05, TypeScript SDK PR #29 has
    fixed the four `undici` alerts by updating bundled npm to `11.21.2` with
    `undici` `6.29.1`; the Node 20 and 22 checks passed. One moderate alert
-   remains for bundled `minimatch` `10.2.5` (GHSA-g3hv-75wg-m249; first patched
-   version `11.0.1`). GitHub's Dependabot updater has not found a compatible
-   resolution, and the SDK's `npm audit` still reports moderate findings in
-   its development-only npm toolchain. Keep that alert open until a supported
-   remediation is verified; do not force an npm major or suppress the finding.
+   remains for bundled `minimatch` `10.2.5` (GHSA-g3hv-75wg-m249). GitHub's
+   advisory database flags `>=7.0.0, <11.0.1`, while the upstream maintainer
+   advisory specifically identifies `10.2.6` as affected; 10.2.5 is the
+   installed version. This range discrepancy is unresolved. Dependabot has
+   not found a compatible resolution, and the SDK's `npm audit` still reports
+   moderate findings in its development-only npm toolchain. Keep the alert
+   open until the advisory scope or a supported remediation is verified; do
+   not force an npm major or suppress the finding.
 6. Keep release,
    container, compatibility, and documentation workflows healthy.
 7. Review historical compatibility proposals and track operational fixes.

@@ -115,6 +115,15 @@ still resolves `minimatch` to 9.0.3, while the current lockfile records the
 bundled copy as 10.2.5; treat this as an unresolved upstream/tooling path, not
 as a closed alert.
 
+There is a version-range discrepancy between the sources: GitHub's advisory
+database and Dependabot report `>=7.0.0, <11.0.1`, while the
+[upstream maintainer advisory](https://github.com/isaacs/minimatch/security/advisories/GHSA-g3hv-75wg-m249)
+identifies 10.2.6 as affected. The checked-in bundled version is 10.2.5, not
+the version specifically named by the upstream advisory. Until the advisory
+scope is clarified, keep alert #26 open and describe 10.2.5 as flagged by
+GitHub, not as confirmed affected by the upstream report. Do not force an
+override into npm's bundled dependency tree or dismiss the alert as inaccurate.
+
 The SDK's `npm audit` currently reports 35 moderate findings in the
 development-only release-tool dependency tree, including the remaining
 `minimatch` finding; the lock-only undici fix did not make the full audit clean.
@@ -126,7 +135,8 @@ Sources: the four [undici advisories](https://github.com/advisories/GHSA-xjj6-f3
 [GHSA-9fm3-97px-rjf6](https://github.com/advisories/GHSA-9fm3-97px-rjf6),
 [GHSA-qrxm-fqhp-jwvm](https://github.com/advisories/GHSA-qrxm-fqhp-jwvm),
 [GHSA-2m5v-pch6-74hx](https://github.com/advisories/GHSA-2m5v-pch6-74hx),
-[minimatch GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249),
+[minimatch GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249)
+and the [upstream minimatch advisory](https://github.com/isaacs/minimatch/security/advisories/GHSA-g3hv-75wg-m249),
 [npm CLI PR #10170](https://github.com/npm/cli/pull/10170), and
 [npm CLI releases](https://github.com/npm/cli/releases).
 
