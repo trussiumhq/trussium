@@ -1044,10 +1044,12 @@ its latest settings and CodeQL inventory is recorded in
 1. Resolve the single open TypeScript SDK Dependabot alert for bundled
    `minimatch` 10.2.5, tracked in
    [trussium-typescript issue #30](https://github.com/trussiumhq/trussium-typescript/issues/30).
-   GitHub's advisory range and the upstream maintainer's specifically affected
-   version differ; keep alert #26 open until the scope is clarified or a
-   supported remediation is verified. Do not force an npm major, override the
-   bundled dependency, or suppress the finding.
+   GitHub's advisory range and the upstream maintainer's specifically named
+   version differ. Source comparison found the expansion loop in installed
+   10.2.5 and upstream 10.2.6; patched 11.0.1 adds a `braceExpandMax` guard.
+   Treat 10.2.5 as potentially affected and keep alert #26 open until the scope
+   is clarified or a supported remediation is verified. Do not force an npm
+   major, override the bundled dependency, or suppress the finding.
 2. Complete the Knowledge Agent guarded demo rehearsal in
    [issue #49](https://github.com/trussiumhq/trussium-knowledge-agent/issues/49)
    after the owner selects a staging host, identity/edge provider, public or

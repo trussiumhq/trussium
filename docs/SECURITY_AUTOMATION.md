@@ -120,11 +120,18 @@ as a closed alert.
 There is a version-range discrepancy between the sources: GitHub's advisory
 database and Dependabot report `>=7.0.0, <11.0.1`, while the
 [upstream maintainer advisory](https://github.com/isaacs/minimatch/security/advisories/GHSA-g3hv-75wg-m249)
-identifies 10.2.6 as affected. The checked-in bundled version is 10.2.5, not
-the version specifically named by the upstream advisory. Until the advisory
-scope is clarified, keep alert #26 open and describe 10.2.5 as flagged by
-GitHub, not as confirmed affected by the upstream report. Do not force an
-override into npm's bundled dependency tree or dismiss the alert as inaccurate.
+specifically identifies 10.2.6 as affected. A source comparison of the npm
+tarballs found the same `dist/esm/index.js` in bundled 10.2.5 and upstream
+10.2.6, including the `firstPhasePreProcess()` expansion loop. Patched
+[11.0.1](https://github.com/isaacs/minimatch/blob/v11.0.1/dist/esm/index.js)
+adds a `braceExpandMax` guard to that expansion. The version discrepancy does
+not establish that the installed 10.2.5 is safe; treat it as potentially
+affected and keep alert #26 open. See the upstream
+[10.2.5 source](https://github.com/isaacs/minimatch/blob/v10.2.5/dist/esm/index.js)
+and [10.2.6 source](https://github.com/isaacs/minimatch/blob/v10.2.6/dist/esm/index.js).
+Track remediation in
+[trussium-typescript issue #30](https://github.com/trussiumhq/trussium-typescript/issues/30).
+Do not force an override into npm's bundled dependency tree or dismiss the alert.
 
 The SDK's `npm audit` currently reports 35 moderate findings in the
 development-only release-tool dependency tree, including the remaining
