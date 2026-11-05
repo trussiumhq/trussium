@@ -1061,14 +1061,14 @@ tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
    the vulnerability scan, full CI, and compatibility checks passed.
 5. Verify the Operator's default-branch workflow and rerun the file-level
    inventory in [Security automation](SECURITY_AUTOMATION.md). Continue
-   monitoring dependency alerts. As of 2026-11-04, the TypeScript SDK has four
-   open Dependabot alerts (three high and one moderate) for `undici` `6.29.0`,
-   bundled by npm `11.21.1` through `@semantic-release/npm`; the advisories list
-   `6.29.1` as the first fixed version. npm CLI `v12.2.1` is published, but its
-   release notes still list bundled `undici` `6.29.0`. A root dependency
-   override does not replace npm's bundled copy. Keep the alerts open until a
-   supported stable bundle or another validated remediation is available, then
-   rerun SDK tests, `npm audit`, and the GitHub alert check.
+   monitoring dependency alerts. As of 2026-11-05, TypeScript SDK PR #29 has
+   fixed the four `undici` alerts by updating bundled npm to `11.21.2` with
+   `undici` `6.29.1`; the Node 20 and 22 checks passed. One moderate alert
+   remains for bundled `minimatch` `10.2.5` (GHSA-g3hv-75wg-m249; first patched
+   version `11.0.1`). GitHub's Dependabot updater has not found a compatible
+   resolution, and the SDK's `npm audit` still reports moderate findings in
+   its development-only npm toolchain. Keep that alert open until a supported
+   remediation is verified; do not force an npm major or suppress the finding.
 6. Keep release,
    container, compatibility, and documentation workflows healthy.
 7. Review historical compatibility proposals and track operational fixes.

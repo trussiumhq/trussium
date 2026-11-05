@@ -79,10 +79,16 @@ pull requests, default-branch pushes, weekly scheduled scans, and manual runs.
 
 ### TypeScript SDK dependency alert checkpoint
 
-On 2026-10-29, GitHub showed four open Dependabot alerts for `undici` in the
-`trussium-typescript` lockfile. All four follow the same transitive release-tool
-path: `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1 →
-`undici` 6.29.0. Three alerts are high severity and one is moderate:
+The four `undici` alerts recorded on 2026-10-29 were fixed by TypeScript SDK
+[PR #29](https://github.com/trussiumhq/trussium-typescript/pull/29), merged on
+2026-11-05. The lockfile now resolves the bundled npm dependency to 11.21.2,
+which contains `undici` 6.29.1. GitHub now reports the four corresponding
+alerts (#20, #22, #23, and #24) as fixed; the SDK's Node 20 and Node 22 checks
+passed.
+
+The fixed alerts followed the transitive release-tool path
+`semantic-release` → `@semantic-release/npm` → bundled npm → `undici` 6.29.0.
+Three were high severity and one was moderate:
 
 - High: [GHSA-xjj6-f33q-929c](https://github.com/advisories/GHSA-xjj6-f33q-929c),
   denial of service via excessive content encodings (Dependabot alert #20).
@@ -93,28 +99,36 @@ path: `semantic-release` → `@semantic-release/npm` → bundled `npm` 11.21.1 �
 - High: [GHSA-2m5v-pch6-74hx](https://github.com/advisories/GHSA-2m5v-pch6-74hx),
   TLS certificate validation bypass when Agent TLS options are dropped (alert #24).
 
-Each advisory identifies `undici` 6.29.1 as the earliest patched release; the
-bundled copy still resolves to 6.29.0. The npm CLI merged an update to
-`undici` 6.29.1 into its `latest` development branch in
-[PR #10170](https://github.com/npm/cli/pull/10170) on 2026-10-27. That change
-is not yet in a published stable npm package: the npm CLI release page and
-registry still identify 12.2.1 as the latest stable release, and the 12.2.2
-release PR remains open. Security PRs 23, 24, and 26 updated the directly
-managed `undici`, Handlebars, and npm bundle lock data, but this bundled copy
-remains affected. A scoped npm override was tested locally and did not replace
-npm's bundled copy, so it is not a valid fix. Do not consume an unreleased CLI
-branch or adopt a semantic-release prerelease as a production workaround. Keep
-all four alerts open until a supported stable bundle contains the patched
-dependency, then rerun SDK tests, `npm audit`, and the GitHub alert check.
+The four advisories identified `undici` 6.29.1 as the earliest patched release.
+npm CLI [PR #10170](https://github.com/npm/cli/pull/10170) added that update,
+and stable npm 11.21.2 was subsequently published with the fix. Updating the
+supported npm bundle was the validated remediation.
+
+One moderate alert remains open in the TypeScript SDK:
+[GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249),
+Dependabot alert [#26](https://github.com/trussiumhq/trussium-typescript/security/dependabot/26).
+The lockfile resolves bundled `minimatch` 10.2.5 under npm 11.21.2; GitHub
+identifies 11.0.1 as the first patched version. The post-merge Dependabot
+security-update job [#42106985380](https://github.com/trussiumhq/trussium-typescript/actions/runs/42106985380)
+has not produced a fix. Its updater reported that the available update path
+still resolves `minimatch` to 9.0.3, while the current lockfile records the
+bundled copy as 10.2.5; treat this as an unresolved upstream/tooling path, not
+as a closed alert.
+
+The SDK's `npm audit` currently reports 35 moderate findings in the
+development-only release-tool dependency tree, including the remaining
+`minimatch` finding; the lock-only undici fix did not make the full audit clean.
+Keep alert #26 open, avoid forcing an incompatible npm major or dismissing the
+finding, and rerun the SDK tests, `npm audit`, and GitHub alert check when a
+supported bundle with patched `minimatch` is available.
 
 Sources: the four [undici advisories](https://github.com/advisories/GHSA-xjj6-f33q-929c),
 [GHSA-9fm3-97px-rjf6](https://github.com/advisories/GHSA-9fm3-97px-rjf6),
-[GHSA-qrxm-fqhp-jwvm](https://github.com/advisories/GHSA-qrxm-fqhp-jwvm), and
+[GHSA-qrxm-fqhp-jwvm](https://github.com/advisories/GHSA-qrxm-fqhp-jwvm),
 [GHSA-2m5v-pch6-74hx](https://github.com/advisories/GHSA-2m5v-pch6-74hx),
-[npm CLI PR #10170](https://github.com/npm/cli/pull/10170),
-[npm CLI releases](https://github.com/npm/cli/releases), and
-[npm registry metadata](https://registry.npmjs.org/npm/latest).
-[semantic-release releases](https://github.com/semantic-release/semantic-release/releases).
+[minimatch GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249),
+[npm CLI PR #10170](https://github.com/npm/cli/pull/10170), and
+[npm CLI releases](https://github.com/npm/cli/releases).
 
 On 2026-10-25, GitHub's organization security configuration was verified as
 assigned to all 13 public repositories, excluding the two private cloud
