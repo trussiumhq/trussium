@@ -11,40 +11,42 @@ These workflow and configuration files describe this repository's automation; th
 
 ## Public repository file-level inventory
 
-This inventory was checked against workflow and manifest files on each
-repository's GitHub default branch on 2026-10-25. CodeQL status for the
-TypeScript SDK, four Python providers, `trussiumctl`, and `trussium-helm` was
-separately verified in GitHub's Advanced Security settings on 2026-10-25.
-“Not found” means no matching workflow was found at the standard paths
-inspected; it is not proof that no GitHub default-setup analysis exists. The
-CodeQL column records that distinction where the settings were verified.
+The file-level workflow and manifest inventory was checked against each
+repository's GitHub default branch on 2026-10-25. On 2026-11-06, repository
+security settings, Dependabot alert endpoints, CodeQL setup modes, and latest
+CodeQL analysis timestamps were rechecked through GitHub's API. “Not found”
+means no matching workflow was found at the standard paths inspected; it is
+not proof that no GitHub default-setup analysis exists. The CodeQL column
+records current analysis evidence and distinguishes default from advanced
+setup where verified.
 
 | Public repository | Primary project content | CI workflow | Dependency scanning in repository files | CodeQL evidence |
 | --- | --- | --- | --- | --- |
-| [trussium](https://github.com/trussiumhq/trussium) | Python runtime | Yes | `pip-audit`, Gitleaks; Dependabot: pip, Actions, Docker | Workflow present |
-| [trussium-python](https://github.com/trussiumhq/trussium-python) | Python SDK | Yes | `pip-audit`; Dependabot: uv | Workflow present |
-| [trussium-go](https://github.com/trussiumhq/trussium-go) | Go SDK | Yes | `govulncheck`; Dependabot: Go modules | Workflow present |
-| [trussium-operator](https://github.com/trussiumhq/trussium-operator) | Go / Kubernetes Operator | Yes | `govulncheck`; Dependabot: Go modules, Actions, Docker | Workflow present |
-| [trussium-knowledge-agent](https://github.com/trussiumhq/trussium-knowledge-agent) | Python | Yes | `pip-audit`; Dependabot: pip, Actions | Workflow present |
-| [trussiumctl](https://github.com/trussiumhq/trussiumctl) | Go CLI | Yes | `govulncheck`; Dependabot: Go modules, Actions | Advanced setup enabled; last scan observed 2026-10-19 |
-| [trussium-typescript](https://github.com/trussiumhq/trussium-typescript) | TypeScript SDK | Yes | Dependabot: npm, Actions; no dedicated audit workflow found | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup enabled; recent scan observed 2026-10-25 |
-| [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart / YAML and tooling | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup enabled; last scan observed 2026-10-25 |
-| [trussiumhq.github.io](https://github.com/trussiumhq/trussiumhq.github.io) | MkDocs documentation site | Pages build/deploy | Dependabot: pip, Actions | Not applicable to documentation content |
+| [trussium](https://github.com/trussiumhq/trussium) | Python runtime | Yes | `pip-audit`, Gitleaks; Dependabot: pip, Actions, Docker | Workflow; latest CodeQL analysis 2026-11-05 |
+| [trussium-python](https://github.com/trussiumhq/trussium-python) | Python SDK | Yes | `pip-audit`; Dependabot: uv | Workflow; latest CodeQL analysis 2026-11-05 |
+| [trussium-go](https://github.com/trussiumhq/trussium-go) | Go SDK | Yes | `govulncheck`; Dependabot: Go modules | Workflow; latest CodeQL analysis 2026-11-02 |
+| [trussium-operator](https://github.com/trussiumhq/trussium-operator) | Go / Kubernetes Operator | Yes | `govulncheck`; Dependabot: Go modules, Actions, Docker | Workflow; latest CodeQL analysis 2026-11-05 |
+| [trussium-knowledge-agent](https://github.com/trussiumhq/trussium-knowledge-agent) | Python | Yes | `pip-audit`; Dependabot: pip, Actions | Workflow; latest CodeQL analysis 2026-11-02 |
+| [trussiumctl](https://github.com/trussiumhq/trussiumctl) | Go CLI | Yes | `govulncheck`; Dependabot: Go modules, Actions | Advanced workflow; latest CodeQL analysis 2026-11-02 |
+| [trussium-typescript](https://github.com/trussiumhq/trussium-typescript) | TypeScript SDK | Yes | Dependabot: npm, Actions; no dedicated audit workflow found | GitHub default setup; latest CodeQL analysis 2026-11-05 |
+| [trussium-provider-vllm](https://github.com/trussiumhq/trussium-provider-vllm) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup; latest CodeQL analysis 2026-10-27 |
+| [trussium-provider-anthropic](https://github.com/trussiumhq/trussium-provider-anthropic) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup; latest CodeQL analysis 2026-10-26 |
+| [trussium-provider-libretranslate](https://github.com/trussiumhq/trussium-provider-libretranslate) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup; latest CodeQL analysis 2026-10-29 |
+| [trussium-provider-piper](https://github.com/trussiumhq/trussium-provider-piper) | Python provider | Yes | Locked environment + scheduled/PR `pip-audit`; Dependabot: pip, Actions | GitHub default setup; latest CodeQL analysis 2026-10-31 |
+| [trussium-helm](https://github.com/trussiumhq/trussium-helm) | Helm chart / YAML and tooling | Yes | Dependabot: pip, Actions; no dedicated audit workflow found | GitHub default setup; latest CodeQL analysis 2026-11-01 |
+| [trussiumhq.github.io](https://github.com/trussiumhq/trussiumhq.github.io) | MkDocs documentation site | Pages build/deploy | Dependabot: pip, Actions | CodeQL analysis; latest scan 2026-11-05 |
 
-GitHub default CodeQL setup is enabled for the TypeScript SDK and the four
-Python provider repositories listed above, with recent scans observed on
-2026-10-25. The `trussiumctl` repository uses advanced setup and had a scan
-observed on 2026-10-19; `trussium-helm` uses default setup and had a scan on
-2026-10-25. A trial advanced-setup workflow in the TypeScript and provider
-repositories failed result upload because GitHub default setup was already
-active. Those duplicate workflows were closed without merging. Keep one
-CodeQL mode active per repository; do not treat the absence of a workflow file
-as a coverage gap when default setup is enabled. This verifies that scans ran,
-not that the resulting alerts have all been triaged or fixed.
+GitHub default CodeQL setup is currently configured for the TypeScript SDK,
+four Python providers, and Helm. The `trussiumctl` default setup is not
+configured; its active advanced workflow is in `.github/workflows/security.yml`.
+The table records the latest CodeQL analysis returned by GitHub for each
+repository, including the documentation site's Python analysis. A trial
+advanced-setup workflow in the TypeScript and provider repositories failed
+result upload because GitHub default setup was already active. Those duplicate
+workflows were closed without merging. Keep one CodeQL mode active per
+repository; do not treat the absence of a workflow file as a coverage gap when
+default setup is enabled. This verifies that scans ran, not that resulting
+alerts have all been triaged or fixed.
 
 ### Provider dependency remediation
 
@@ -143,22 +145,23 @@ and the [upstream minimatch advisory](https://github.com/isaacs/minimatch/securi
 On 2026-10-25, GitHub's organization security configuration was verified as
 assigned to all 13 public repositories, excluding the two private cloud
 repositories. It enables secret-scanning alerts and push protection, and does
-not enforce repository-owner settings. A separate read-only check of the
-Advanced Security settings page for each of the 13 public repositories showed
-secret protection, push protection, the dependency graph, Dependabot alerts,
-and Dependabot security updates enabled. This direct per-repository check is
-the evidence for effective settings; the organization configuration leaves
-dependency graph, Dependabot alerts, Dependabot security updates, and CodeQL
-default setup unset. Its coverage card reports 0% Dependabot repositories
-protected by that configuration, which is distinct from the enabled
-repository-level settings. The initial rollout had six CodeQL advanced-setup
-conflicts; after narrowing the configuration to the approved secret-scanning
-settings and retrying, GitHub showed all 13 public repositories assigned and
-no failed repositories. Repository owners may still change settings, so rerun
-this check periodically. Do not treat Gitleaks CI coverage as evidence that
-GitHub alerts or push protection are enabled. Provider credentials must be
-injected through deployment secret mechanisms. Rotate any credential that may
-have been exposed.
+not enforce repository-owner settings. On 2026-11-06, the repository API
+confirmed secret scanning, push protection, and Dependabot security updates
+enabled on all 13 public repositories; the Dependabot alert endpoint was
+available for each, with only TypeScript SDK alert #26 open. The dependency
+graph was directly verified in repository settings on 2026-10-25. These
+per-repository results are distinct from the organization configuration,
+which leaves dependency graph, Dependabot alerts, Dependabot security updates,
+and CodeQL default setup unset. Its coverage card reports 0% Dependabot
+repositories protected by that configuration, which is distinct from the
+enabled repository-level settings. The initial rollout had six CodeQL
+advanced-setup conflicts; after narrowing the configuration to the approved
+secret-scanning settings and retrying, GitHub showed all 13 public repositories
+assigned and no failed repositories. Repository owners may still change
+settings, so rerun this check periodically. Do not treat Gitleaks CI coverage
+as evidence that GitHub alerts or push protection are enabled. Provider
+credentials must be injected through deployment secret mechanisms. Rotate
+any credential that may have been exposed.
 
 For release recovery, follow the release workflow and do not rebuild an
 already-tagged artifact.

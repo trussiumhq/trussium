@@ -1036,61 +1036,42 @@ decisions, passing repository CI, and post-release artifact verification.
 
 ## Immediate Priorities
 
-The current priority is closing the public-repository security coverage gaps
-tracked in [issue #465](https://github.com/trussiumhq/trussium/issues/465):
+The public-repository security coverage audit in
+[issue #465](https://github.com/trussiumhq/trussium/issues/465) is complete;
+its latest settings and CodeQL inventory is recorded in
+[Security automation](SECURITY_AUTOMATION.md). Remaining cross-repository work:
 
-1. Rerun the repository-level settings audit periodically. On 2026-10-25,
-   all 13 public repositories showed secret protection, push protection,
-   dependency graph, Dependabot alerts, and Dependabot security updates enabled;
-   the two private cloud repositories are excluded. Repository owners may
-   change these settings, so verify effective state again before release audits.
-2. Keep in mind that the organization configuration leaves dependency graph,
-   Dependabot alerts, Dependabot security updates, and CodeQL default setup
-   unset and does not enforce settings. Its dashboard reports 0% Dependabot
-   repositories protected by that configuration, although the read-only
-   per-repository settings audit found the Dependabot features enabled. This
-   dashboard measures configuration coverage, not the effective per-repository
-   toggles; keep the two states distinct in future reports.
-3. CodeQL coverage is verified: default setup is active for the TypeScript SDK,
-   four Python providers, and Helm; `trussiumctl` uses advanced setup. Recent
-   scans were visible on 2026-10-25, except `trussiumctl` (2026-10-19). Keep one
-   CodeQL mode active per repository; do not add duplicate advanced workflows.
-4. Provider audit coverage and the GitPython 3.2.0 advisory are addressed in
-   merged PRs for all four Python providers. The Operator's `govulncheck`
-   workflow and dependency/toolchain remediations are merged in [PR #219](https://github.com/trussiumhq/trussium-operator/pull/219);
-   the vulnerability scan, full CI, and compatibility checks passed.
-5. Verify the Operator's default-branch workflow and rerun the file-level
-   inventory in [Security automation](SECURITY_AUTOMATION.md). Continue
-   monitoring dependency alerts. As of 2026-11-05, TypeScript SDK PR #29 has
-   fixed the four `undici` alerts by updating bundled npm to `11.21.2` with
-   `undici` `6.29.1`; the Node 20 and 22 checks passed. One moderate alert
-   remains for bundled `minimatch` `10.2.5` (GHSA-g3hv-75wg-m249). GitHub's
-   advisory database flags `>=7.0.0, <11.0.1`, while the upstream maintainer
-   advisory specifically identifies `10.2.6` as affected; 10.2.5 is the
-   installed version. This range discrepancy is unresolved. Dependabot has
-   not found a compatible resolution, and the SDK's `npm audit` still reports
-   moderate findings in its development-only npm toolchain. Keep the alert
-   open until the advisory scope or a supported remediation is verified; do
-   not force an npm major or suppress the finding.
-6. Keep release,
-   container, compatibility, and documentation workflows healthy.
-7. Review historical compatibility proposals and track operational fixes.
+1. Resolve the single open TypeScript SDK Dependabot alert for bundled
+   `minimatch` 10.2.5, tracked in
+   [trussium-typescript issue #30](https://github.com/trussiumhq/trussium-typescript/issues/30).
+   GitHub's advisory range and the upstream maintainer's specifically affected
+   version differ; keep alert #26 open until the scope is clarified or a
+   supported remediation is verified. Do not force an npm major, override the
+   bundled dependency, or suppress the finding.
+2. Complete the Knowledge Agent guarded demo rehearsal in
+   [issue #49](https://github.com/trussiumhq/trussium-knowledge-agent/issues/49)
+   after the owner selects a staging host, identity/edge provider, public or
+   synthetic corpus, and provider credentials with spend limits. No hosted
+   deployment, public URL, or paid provider usage should occur before those
+   choices are confirmed.
+3. Recheck repository settings, CodeQL scans, and open alerts periodically and
+   before release audits; repository owners may change effective settings.
+4. Keep release, container, compatibility, and documentation workflows
+   healthy, and review historical compatibility proposals and operational
+   fixes as they become actionable.
 
-The initial inventory of the 13 public repositories returned by GitHub
-repository search was checked against their default-branch manifests and
-workflow files on 2026-10-22. On 2026-10-25, GitHub's organization security
-configuration was verified as assigned to all 13 public repositories, with
-the two private cloud repositories excluded. It enables secret-scanning alerts
-and push protection without enforcing repository-owner settings. The
-configuration leaves dependency graph, Dependabot alerts, Dependabot security
-updates, and CodeQL default setup unset. The organization dashboard reports
-0% Dependabot repositories protected by that configuration, while a direct
-read-only settings check showed the dependency graph, Dependabot alerts,
-Dependabot security updates, secret protection, and push protection enabled on
-all 13 public repositories. These settings can be overridden locally, so
-rerun the direct audit periodically. Issue #465's 2026-10-05 audit reported
-native secret scanning disabled at that time; do not assume the earlier state
-applies to all repositories today.
+The 13 public repositories exclude the two private cloud repositories. On
+2026-11-06, GitHub's repository API confirmed secret scanning, push protection,
+and Dependabot security updates enabled across all 13; Dependabot alert data
+was available for every repository, with only TypeScript alert #26 open. The
+dependency graph was directly verified in repository settings on 2026-10-25.
+The organization configuration, last checked on 2026-10-25, leaves dependency
+graph, Dependabot alerts, Dependabot security updates, and CodeQL default setup
+unset and does not enforce repository-owner settings. Its dashboard reports
+0% Dependabot repositories protected by that configuration, while effective
+repository-level settings are enabled. Keep these measures distinct and rerun
+the per-repository audit periodically. The latest CodeQL scan dates are listed
+in [Security automation](SECURITY_AUTOMATION.md).
 
 The bounded runtime diagnostics command tracked in issue #440 is complete.
 The MCP additions tracked in issues #404, #406, #408, #410, and #412 are also
