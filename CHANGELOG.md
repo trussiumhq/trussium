@@ -2,6 +2,113 @@
 
 <!-- version list -->
 
+## v1.30.1 (2026-11-17)
+
+### Bug Fixes
+
+- **workflows**: Cancel execution on client disconnect
+  ([#499](https://github.com/trussiumhq/trussium/pull/499),
+  [`d5e588e`](https://github.com/trussiumhq/trussium/commit/d5e588ee6df1779dc560f9fcddbfde9096acf070))
+
+### Build System
+
+- **deps**: Refresh runtime lockfile for mypy update
+  ([#472](https://github.com/trussiumhq/trussium/pull/472),
+  [`2b77bda`](https://github.com/trussiumhq/trussium/commit/2b77bda707507490ecd7d3414c79ae1b5b850fc2))
+
+### Chores
+
+- **deps**: Bump opentelemetry-api from 1.45.1 to 1.45.2
+  ([#497](https://github.com/trussiumhq/trussium/pull/497),
+  [`f954c12`](https://github.com/trussiumhq/trussium/commit/f954c128153fa9404454c66552e4bd11c52818ba))
+
+- **deps**: Bump virtualenv from 21.14.5 to 21.14.13
+  ([#473](https://github.com/trussiumhq/trussium/pull/473),
+  [`58da126`](https://github.com/trussiumhq/trussium/commit/58da126b92efe2e85a0826d18c3c9f3ee0be29e1))
+
+- **deps**: Remediate vulnerable dependencies
+  ([#473](https://github.com/trussiumhq/trussium/pull/473),
+  [`58da126`](https://github.com/trussiumhq/trussium/commit/58da126b92efe2e85a0826d18c3c9f3ee0be29e1))
+
+- **deps**: Remediate vulnerable development dependencies
+  ([#471](https://github.com/trussiumhq/trussium/pull/471),
+  [`50e5a97`](https://github.com/trussiumhq/trussium/commit/50e5a973679ab01f0995ea12fb1edc469ed75601))
+
+- **deps-dev**: Synchronize mypy lockfile ([#489](https://github.com/trussiumhq/trussium/pull/489),
+  [`a08364f`](https://github.com/trussiumhq/trussium/commit/a08364fa7487f373894180008872a7be2abd23cc))
+
+- **deps-dev**: Update mypy requirement ([#472](https://github.com/trussiumhq/trussium/pull/472),
+  [`2b77bda`](https://github.com/trussiumhq/trussium/commit/2b77bda707507490ecd7d3414c79ae1b5b850fc2))
+
+- **deps-dev**: Update mypy requirement from <2.3.2,>=1.17.0 to >=1.17.0,<2.4.1
+  ([#472](https://github.com/trussiumhq/trussium/pull/472),
+  [`2b77bda`](https://github.com/trussiumhq/trussium/commit/2b77bda707507490ecd7d3414c79ae1b5b850fc2))
+
+### Documentation
+
+- Clarify minimatch advisory scope ([#493](https://github.com/trussiumhq/trussium/pull/493),
+  [`d6e9890`](https://github.com/trussiumhq/trussium/commit/d6e9890a0509effe05325a6bdfdcb99b3c33ab71))
+
+- Fix malformed Markdown security PR reference
+  ([#482](https://github.com/trussiumhq/trussium/pull/482),
+  [`ff6b9bc`](https://github.com/trussiumhq/trussium/commit/ff6b9bc56011e6951501ee441a653aee6628f62b))
+
+- Reconcile release compatibility baseline ([#486](https://github.com/trussiumhq/trussium/pull/486),
+  [`af2f147`](https://github.com/trussiumhq/trussium/commit/af2f147138ab24cc87afcf0bc35b064a13890501))
+
+- Record minimatch source-level security evidence
+  ([#496](https://github.com/trussiumhq/trussium/pull/496),
+  [`372ad1e`](https://github.com/trussiumhq/trussium/commit/372ad1e135ff601046dba81d00cf67eff36c8f39))
+
+- Refresh repository security coverage audit
+  ([#494](https://github.com/trussiumhq/trussium/pull/494),
+  [`60adf2c`](https://github.com/trussiumhq/trussium/commit/60adf2cf5a8d9d80db46bbd5c02d268a6f52dd8e))
+
+- Refresh TypeScript security checkpoint ([#491](https://github.com/trussiumhq/trussium/pull/491),
+  [`80cffef`](https://github.com/trussiumhq/trussium/commit/80cffef90bd96eb2ad5b5507102929146534899a))
+
+- **security**: Document all TypeScript SDK alerts
+  ([#484](https://github.com/trussiumhq/trussium/pull/484),
+  [`c822a37`](https://github.com/trussiumhq/trussium/commit/c822a379defeb9f8bb270d51ba8afb2ac58b006a))
+
+- **security**: Fix provider PR link rendering
+  ([#477](https://github.com/trussiumhq/trussium/pull/477),
+  [`4b52752`](https://github.com/trussiumhq/trussium/commit/4b527528cf1d2c723d19026172a65154c215495f))
+
+- **security**: Fix repeated article ([#480](https://github.com/trussiumhq/trussium/pull/480),
+  [`76c66d1`](https://github.com/trussiumhq/trussium/commit/76c66d1b09b75e5d8db74d922a970b946a653cf3))
+
+- **security**: Record cross-repository audit remediation
+  ([#476](https://github.com/trussiumhq/trussium/pull/476),
+  [`69c1729`](https://github.com/trussiumhq/trussium/commit/69c1729416d69bac888d71c9355ac1e3df86935f))
+
+- **security**: Record verified CodeQL and alert status
+  ([#475](https://github.com/trussiumhq/trussium/pull/475),
+  [`96fa77b`](https://github.com/trussiumhq/trussium/commit/96fa77b7aa9977967bbab1a5a5832843f23e7b26))
+
+- **security**: Refresh upstream undici status
+  ([#480](https://github.com/trussiumhq/trussium/pull/480),
+  [`76c66d1`](https://github.com/trussiumhq/trussium/commit/76c66d1b09b75e5d8db74d922a970b946a653cf3))
+
+- **security**: Refresh upstream undici status
+  ([#478](https://github.com/trussiumhq/trussium/pull/478),
+  [`8654cf1`](https://github.com/trussiumhq/trussium/commit/8654cf1f3e71b84009e4640f334b764c9a280f56))
+
+- **security**: Update npm advisory checkpoint
+  ([#480](https://github.com/trussiumhq/trussium/pull/480),
+  [`76c66d1`](https://github.com/trussiumhq/trussium/commit/76c66d1b09b75e5d8db74d922a970b946a653cf3))
+
+- **security**: Verify public repository coverage
+  ([#474](https://github.com/trussiumhq/trussium/pull/474),
+  [`a01b5a1`](https://github.com/trussiumhq/trussium/commit/a01b5a13c68edf9e429b32bb6cc96370dc22ccd1))
+
+### Testing
+
+- Verify cross-process agent workflow boundaries
+  ([#469](https://github.com/trussiumhq/trussium/pull/469),
+  [`530c143`](https://github.com/trussiumhq/trussium/commit/530c14335cb5f89175c2a7102e73c4d3f825ed3f))
+
+
 ## v1.30.0 (2026-10-06)
 
 ### Bug Fixes
