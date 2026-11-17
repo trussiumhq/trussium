@@ -2,6 +2,31 @@
 
 <!-- version list -->
 
+## v1.30.2 (2026-11-17)
+
+### Bug Fixes
+
+- **security**: Enforce patched OpenTelemetry API minimum
+  ([#501](https://github.com/trussiumhq/trussium/pull/501),
+  [`16bae24`](https://github.com/trussiumhq/trussium/commit/16bae24389f49f287629bcaa628096e054919c35))
+
+- **security**: Require patched OpenTelemetry API
+  ([#501](https://github.com/trussiumhq/trussium/pull/501),
+  [`16bae24`](https://github.com/trussiumhq/trussium/commit/16bae24389f49f287629bcaa628096e054919c35))
+
+### Build System
+
+- **deps**: Align OpenTelemetry API lock constraint
+  ([#501](https://github.com/trussiumhq/trussium/pull/501),
+  [`16bae24`](https://github.com/trussiumhq/trussium/commit/16bae24389f49f287629bcaa628096e054919c35))
+
+### Testing
+
+- Require patched OpenTelemetry dependency floor
+  ([#501](https://github.com/trussiumhq/trussium/pull/501),
+  [`16bae24`](https://github.com/trussiumhq/trussium/commit/16bae24389f49f287629bcaa628096e054919c35))
+
+
 ## v1.30.1 (2026-11-17)
 
 ### Bug Fixes
