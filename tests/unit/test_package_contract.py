@@ -78,7 +78,7 @@ def test_package_declares_complete_opentelemetry_runtime_dependencies() -> None:
     configuration = tomllib.loads((_REPOSITORY_ROOT / "pyproject.toml").read_text())
     dependencies = configuration["project"]["dependencies"]
 
-    assert "opentelemetry-api>=1.44.0" in dependencies
+    assert "opentelemetry-api>=1.45.2" in dependencies
     assert "opentelemetry-sdk>=1.44.0" in dependencies
     assert "opentelemetry-exporter-otlp-proto-http>=1.44.0" in dependencies
 
