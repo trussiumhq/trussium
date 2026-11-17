@@ -1,5 +1,6 @@
 """Bounded workflow execution endpoint."""
 
+import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -28,11 +29,17 @@ def get_workflow_executor(request: Request) -> WorkflowExecutor:
 
 @router.post("/workflows/executions", response_model=WorkflowResult)
 async def execute_workflow(
+    request: Request,
     workflow: WorkflowRequest,
     executor: Annotated[WorkflowExecutor, Depends(get_workflow_executor)],
 ) -> WorkflowResult:
+    execution = asyncio.create_task(executor.execute(workflow))
+    disconnect = asyncio.create_task(_wait_for_disconnect(request))
     try:
-        return await executor.execute(workflow)
+        done, _ = await asyncio.wait((execution, disconnect), return_when=asyncio.FIRST_COMPLETED)
+        if disconnect in done:
+            execution.cancel()
+        return await execution
     except WorkflowAdmissionError as error:
         raise HTTPException(
             status_code=422,
@@ -53,3 +60,16 @@ async def execute_workflow(
             status_code=504,
             detail={"code": "tool_execution_timed_out", "message": "Tool execution timed out."},
         ) from error
+    finally:
+        for task in (execution, disconnect):
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(execution, disconnect, return_exceptions=True)
+
+
+async def _wait_for_disconnect(request: Request) -> None:
+    """Wait for the ASGI server to report that the caller closed its connection."""
+    while True:
+        message = await request.receive()
+        if message["type"] == "http.disconnect":
+            return

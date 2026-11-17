@@ -35,6 +35,11 @@ waits for child finalization before emitting its terminal event. A deadline
 produces `timed_out` and prevents new child work. Native cancellation is never
 converted into a generic provider or tool failure.
 
+For `POST /v1/workflows/executions`, a client disconnect before the terminal
+response also cancels the active workflow. Registered tools should cooperate
+with asyncio cancellation and release their resources in `finally` blocks.
+Disconnects after the response has completed do not change the workflow result.
+
 The coordinator’s timeout and caller-cancellation paths are regression-tested.
 Active parallel children are cancelled and finalized before cancellation
 propagates to the caller.
