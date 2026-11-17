@@ -1,7 +1,12 @@
 """Tests for the controlled tool-execution endpoint."""
 
+import asyncio
+import json
+
+import pytest
 from fastapi.testclient import TestClient
 from pydantic import BaseModel, ConfigDict
+from starlette.types import Message, Scope
 
 from trussium.app import create_application
 from trussium.tools import RegisteredTool, ToolExecutor, ToolInvocation, ToolRegistry
@@ -168,6 +173,74 @@ def test_workflow_endpoint_executes_bounded_steps() -> None:
         "status": "completed",
         "steps": [{"tool_name": "echo", "output": {"value": "ok"}}],
     }
+
+
+def test_workflow_endpoint_cancels_active_tool_on_client_disconnect() -> None:
+    started = asyncio.Event()
+    cancelled = asyncio.Event()
+
+    async def wait_for_cancellation(arguments: BaseModel) -> dict[str, object]:
+        del arguments
+        started.set()
+        try:
+            await asyncio.Event().wait()
+        finally:
+            cancelled.set()
+        return {}
+
+    executor = ToolExecutor(
+        ToolRegistry((RegisteredTool("wait", EchoArguments, wait_for_cancellation),))
+    )
+    application = create_application(tool_executor=executor)
+    body = json.dumps(
+        {
+            "steps": [
+                {
+                    "id": "wait",
+                    "invocation": {"name": "wait", "arguments": {"value": "unused"}},
+                }
+            ]
+        }
+    ).encode()
+
+    async def run_request_until_disconnect() -> None:
+        request_consumed = False
+        disconnected = asyncio.Event()
+
+        async def receive() -> Message:
+            nonlocal request_consumed
+            if not request_consumed:
+                request_consumed = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            await disconnected.wait()
+            return {"type": "http.disconnect"}
+
+        async def send(message: Message) -> None:
+            del message
+
+        scope: Scope = {
+            "type": "http",
+            "asgi": {"version": "3.0", "spec_version": "2.3"},
+            "http_version": "1.1",
+            "method": "POST",
+            "scheme": "http",
+            "path": "/v1/workflows/executions",
+            "raw_path": b"/v1/workflows/executions",
+            "query_string": b"",
+            "root_path": "",
+            "headers": [(b"host", b"testserver"), (b"content-type", b"application/json")],
+            "client": ("127.0.0.1", 12345),
+            "server": ("127.0.0.1", 9000),
+        }
+        request = asyncio.create_task(application(scope, receive, send))
+        await asyncio.wait_for(started.wait(), timeout=1)
+        disconnected.set()
+        with pytest.raises(asyncio.CancelledError):
+            await request
+
+    asyncio.run(run_request_until_disconnect())
+
+    assert cancelled.is_set()
 
 
 def test_workflow_endpoint_requires_configured_tools() -> None:
